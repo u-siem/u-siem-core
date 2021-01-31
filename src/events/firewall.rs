@@ -36,6 +36,8 @@ pub enum FirewallOutcome {
     ALLOW,
     /// Connection ended, the event contains information about bytes sended/received
     END,
+    /// The connection is still ongoing, but we log statistics about it
+    STATS,
     /// Unknow connection state. 
     UNKNOWN
 }
@@ -45,6 +47,8 @@ impl FirewallOutcome {
         match (val, self) {
             ("BLOCK",FirewallOutcome::BLOCK) => return true,
             ("ALLOW",FirewallOutcome::ALLOW) => return true,
+            ("END",FirewallOutcome::END) => return true,
+            ("STATS",FirewallOutcome::STATS) => return true,
             ("UNKNOWN",FirewallOutcome::UNKNOWN) => return true,
             _ => return false
         }

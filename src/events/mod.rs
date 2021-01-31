@@ -10,8 +10,13 @@ use firewall::FirewallEvent;
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
 pub enum SiemEvent {
+    /// Firewall events: connections between IPs, blocked connections...
     Firewall(FirewallEvent),
+    /// Intrusion detection/protection systems. Ex: Suricata, Snort, OSSEC, Wazuh, NGFW... 
     Intrusion,
+    /// Security related assessment, like the output of vulnerability scanners (Nessus) or policy enforcers (OpenSCAP)
+    Assessment,
+    /// Web Browsing Proxy
     WebProxy,
     /// Adaptative Distribution Content are Servers or LoadBalancers for HTTP traffic.
     ///
@@ -142,6 +147,15 @@ impl<'a> SiemLog {
     }
     pub fn set_vendor(&mut self, val: Cow<'static, str>) {
         self.vendor = val;
+    }
+    pub fn event_received(&'a self) -> i64 {
+        self.event_received
+    }
+    pub fn event_created(&'a self) -> i64 {
+        self.event_created
+    }
+    pub fn set_event_created(&mut self, date : i64) {
+        self.event_created = date;
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
