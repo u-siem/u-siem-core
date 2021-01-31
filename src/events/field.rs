@@ -95,7 +95,7 @@ impl PartialEq for SiemField {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, PartialEq)]
 pub enum SiemIp {
     V4(u32),
     V6(u128),
