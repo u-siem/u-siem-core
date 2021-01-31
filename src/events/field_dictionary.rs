@@ -16,4 +16,6 @@ pub static SOURCE_PORT: &'static str = "source.port";
 pub static DESTINATION_IP: &'static str = "destination.ip";
 pub static DESTINATION_PORT: &'static str = "destination.port";
 
+pub static OBSERVER_IP: &'static str = "observer.ip";
+pub static OBSERVER_NAME: &'static str = "observer.name";
 

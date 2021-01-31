@@ -28,7 +28,7 @@ pub struct FirewallEvent {
     pub out_interface: Cow<'static, str>,
 }
 
-#[derive(Serialize, Debug, PartialEq)]
+#[derive(Serialize, Debug, PartialEq,Clone)]
 pub enum FirewallOutcome {
     /// Connection was blocked
     BLOCK,
