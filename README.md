@@ -45,7 +45,7 @@ It ingests logs and process them.
 We can support elasticsearch type (Like API-REST) or syslog.
 
 ### EnchancemetNode
-It adds information about the IP, if its in a blacklist, if its a AmazonWebServices/Azure/GoogleCloud IP, if the IP has never been seen it then it contacts the GatheringNode to find information about that IP. It adds the tag "never-seen-ip" in that cases.
+It adds information about the IP, if its in a blacklist, if its a AmazonWebServices/Azure/GoogleCloud IP, if the IP has never been seen it then it contacts the GatheringNode to find information about that IP. It adds the tag "never_seen_ip" in that cases. It uses datasets to access information in a non-blocking form. See https://1drv.ms/p/s!AvHbai5ZA14wjV9J4rbBlSWyIw0t?e=AgBWNf
 
 ### GatheringNode
 Consults feeds or databases like AbuseIP/Virus total to know if the IP is malicios or not, the same with domains and Hashes.
@@ -83,3 +83,4 @@ Apply multiple simple rules (like DarkTrace) does to calculate the threat score 
 - [ ] Enforced storage schema for logs. Each source extracts multiple fields with different names. In elastic its not recomended to have more than 1000 fields. Also, it must allow renaming of fields because ECS uses dots in the field names but the majority of databases cant.
 - [ ] GDPR included for logs: An analyst does not need to know information about users, such as the websites they visit or the emails they receive. Integrated into the Storage Schema, like the url related fields must be stored encrypted for WebProxy events or the email.subject, email.files or email.source.user.name for Mail events.
 - [ ] Support for Threat HUnting using Jupyter.
+- [ ] Mantaince calendar. Used to disable alerting of events related to device configurations, like FortiSIEM does.

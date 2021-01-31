@@ -15,7 +15,7 @@ pub static HONEYPOT: &'static str = "honeypot";
 /// Servers that must be protected at all costs like Domain Controllers or SCCM servers.
 pub static CRITICAL_ASSET: &'static str = "critical_asset";
 
-/// Traditional firewalls, routers, switches and every other device used to configure or mantain a network.
+///Firewalls, routers, switches and any other traditional device related to network systems.
 pub static NETWORK_ASSET: &'static str = "network_asset";
 
 /// NGFW, SIEMs, WAFs, Anti Virus Products and every other device involved in protection of a network.
@@ -37,3 +37,12 @@ pub static BASTION_HOST: &'static str = "bastion_host";
 ///
 ///  https://en.wikipedia.org/wiki/Jump_server
 pub static JUMP_HOST: &'static str = "jump_host";
+
+/// Used to tag events when related to a device being configured / updated ...
+pub static MAINTENANCE_PERIOD: &'static str = "maintenance_period";
+
+/// Used to mark information related to the event that has been found in the MISP dataset.
+pub static IOC_MISP: &'static str = "ioc_misp";
+
+/// Used to mark an IP as never seen before. Use only for small instances.
+pub static NEVER_SEEN_IP: &'static str = "never_seen_ip";
