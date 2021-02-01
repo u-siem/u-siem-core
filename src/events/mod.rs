@@ -54,6 +54,8 @@ pub enum SiemEvent {
     /// happens if the one generating the log was a firewall (Ex: Palo Alto) and not a DNS server, or if multiple DNS are
     /// used in the organization, like a DNS talking to another DNS.
     DNS,
+    /// DHCP logs associating an IP with a MAC address.
+    DHCP,
     /// Logs related to authentication, like a user trying to log in to a Router,
     /// a server or any kind of system.
     ///
