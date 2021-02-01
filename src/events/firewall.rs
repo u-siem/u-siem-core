@@ -1,7 +1,7 @@
 use super::field::SiemIp;
-use serde::{ Serialize};
-use std::borrow::Cow;
 use super::protocol::NetworkProtocol;
+use serde::Serialize;
+use std::borrow::Cow;
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -14,7 +14,7 @@ pub struct FirewallEvent {
     pub source_port: u16,
     /// Destination port -> destintion.port
     pub destination_port: u16,
-    /// Protocol used for the connection. 
+    /// Protocol used for the connection.
     pub network_protocol: NetworkProtocol,
     /// What happened to the connection
     pub outcome: FirewallOutcome,
@@ -28,7 +28,7 @@ pub struct FirewallEvent {
     pub out_interface: Cow<'static, str>,
 }
 
-#[derive(Serialize, Debug, PartialEq,Clone)]
+#[derive(Serialize, Debug, PartialEq, Clone)]
 pub enum FirewallOutcome {
     /// Connection was blocked
     BLOCK,
@@ -38,19 +38,19 @@ pub enum FirewallOutcome {
     END,
     /// The connection is still ongoing, but we log statistics about it
     STATS,
-    /// Unknow connection state. 
-    UNKNOWN
+    /// Unknow connection state.
+    UNKNOWN,
 }
 
 impl FirewallOutcome {
-    pub fn equals(&self, val :&str) -> bool {
+    pub fn equals(&self, val: &str) -> bool {
         match (val, self) {
-            ("BLOCK",FirewallOutcome::BLOCK) => return true,
-            ("ALLOW",FirewallOutcome::ALLOW) => return true,
-            ("END",FirewallOutcome::END) => return true,
-            ("STATS",FirewallOutcome::STATS) => return true,
-            ("UNKNOWN",FirewallOutcome::UNKNOWN) => return true,
-            _ => return false
+            ("BLOCK", FirewallOutcome::BLOCK) => return true,
+            ("ALLOW", FirewallOutcome::ALLOW) => return true,
+            ("END", FirewallOutcome::END) => return true,
+            ("STATS", FirewallOutcome::STATS) => return true,
+            ("UNKNOWN", FirewallOutcome::UNKNOWN) => return true,
+            _ => return false,
         }
     }
 }
