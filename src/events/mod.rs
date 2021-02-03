@@ -5,10 +5,13 @@ pub mod field;
 pub mod firewall;
 pub mod protocol;
 pub mod webproxy;
+pub mod common;
+pub mod webserver;
 
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
 use webproxy::WebProxyEvent;
+use webserver::WebServerEvent;
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -21,11 +24,11 @@ pub enum SiemEvent {
     Assessment,
     /// Web Browsing Proxy
     WebProxy(WebProxyEvent),
-    /// Adaptative Distribution Content are Servers or LoadBalancers for HTTP traffic.
+    /// Web application servers, Adaptative Distribution Content or LoadBalancers for HTTP traffic.
     ///
     ///
     /// Ex: Apache, Nginx, Tomact or IIS.
-    ADC,
+    WebServer(WebServerEvent),
     /// Like an antivirus, a Sandbox retrieves information about a file being malicious or not. Can be used
     /// to extract filenames, hashes or other relevant information to update a dataset of known hashes and
     /// trigger queries.
