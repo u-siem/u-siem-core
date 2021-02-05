@@ -35,6 +35,11 @@ pub enum SiemField {
     ///A date in a decimal number format with 64 bits
     Date(i64),
 }
+impl SiemField {
+    pub fn from_str<S>(val : S) -> SiemField where S: Into<Cow<'static, str>> {
+        SiemField::Text(val.into())
+    }
+}
 
 /// Genetares a User field content. Format: "user_domain|user_name".
 /// We use the "|" character as to not to confuse with other formats like

@@ -1,6 +1,6 @@
 [package]
 name = "u-siem"
-version = "0.0.7"
+version = "0.0.8"
 authors = ["Samuel Garcés <samuel.garces@protonmail.com>"]
 license = "MIT"
 description = "A framework to build custom SIEMs"
