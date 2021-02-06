@@ -100,10 +100,20 @@ impl PartialEq for SiemField {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq,Clone)]
+#[derive(Serialize, Debug,Clone)]
 pub enum SiemIp {
     V4(u32),
     V6(u128),
+}
+impl PartialEq for SiemIp {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (SiemIp::V4(v1),SiemIp::V4(v2)) => v1 == v2,
+            (SiemIp::V6(v1),SiemIp::V6(v2)) => v1 == v2,
+            //TODO: IPv4 in IPV6
+            _ => false
+        }
+    }
 }
 
 impl SiemIp {
@@ -171,5 +181,10 @@ mod tests {
         let field_text = SiemField::Text(Cow::Borrowed("-1234"));
         let field_ip = SiemField::Date(-1234);
         assert_eq!(field_text, field_ip);
+    }
+    #[test]
+    fn test_equals_between_ips() {
+        assert_eq!(SiemIp::V4(111), SiemIp::V4(111));
+        assert_eq!(SiemIp::V6(111), SiemIp::V6(111));
     }
 }
