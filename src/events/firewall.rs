@@ -58,6 +58,8 @@ pub enum FirewallOutcome {
     END,
     /// The connection is still ongoing, but we log statistics about it
     STATS,
+    /// Oppened connection. Later can be dropped due to policy settings. Ej: Sonicwall or Firepower have this behavior.
+    OPEN,
     /// Unknow connection state.
     UNKNOWN,
 }
@@ -69,6 +71,7 @@ impl FirewallOutcome {
             ("ALLOW", FirewallOutcome::ALLOW) => return true,
             ("END", FirewallOutcome::END) => return true,
             ("STATS", FirewallOutcome::STATS) => return true,
+            ("OPEN", FirewallOutcome::OPEN) => return true,
             ("UNKNOWN", FirewallOutcome::UNKNOWN) => return true,
             _ => return false,
         }
