@@ -85,6 +85,7 @@ impl PartialEq for SiemField {
                     &v[..] == ip.to_string()
                 }
                 SiemField::Text(txt) => ip.to_string() == *txt,
+                SiemField::IP(ip2) => ip == ip2,
                 _ => false,
             },
             _ => {
@@ -186,5 +187,6 @@ mod tests {
     fn test_equals_between_ips() {
         assert_eq!(SiemIp::V4(111), SiemIp::V4(111));
         assert_eq!(SiemIp::V6(111), SiemIp::V6(111));
+        assert_eq!(Some(SiemIp::V6(111)), Some(SiemIp::V6(111)));
     }
 }
