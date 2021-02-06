@@ -68,6 +68,8 @@ pub enum SiemEvent {
     /// antivirus outdated, log file cleaned, user or group changes (Including global or universal domain events).
     /// Also events related to network devices: Changes in routing policys, Firewall rules, Shutdown out of mantaince
     Endpoint,
+    /// Common blocked threats. Only for statistics purpouses.
+    Statistics,
     // Unknown info that must be extracted and added to event fields. JSON format, like Windows events
     Json(serde_json::Value),
     // Unknown info that must be extracted and added to event fields.

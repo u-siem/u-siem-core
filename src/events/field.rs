@@ -119,6 +119,16 @@ impl SiemIp {
             },
         }
     }
+    pub fn from_ip_str<S>(val : S) -> Result<SiemIp,Cow<'static, str>> where S: Into<Cow<'static, str>> {
+        let posible_ip = val.into();
+        match ipv4_from_str(&posible_ip) {
+            Ok(val) => Ok(SiemIp::V4(val)),
+            Err(_) => match ipv6_from_str(&posible_ip) {
+                Ok(val) => Ok(SiemIp::V6(val)),
+                Err(_) => Err(Cow::Borrowed("Invalid IP value")),
+            }
+        }
+    }
 }
 
 impl Display for SiemIp {
