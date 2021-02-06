@@ -27,6 +27,26 @@ pub struct FirewallEvent {
     /// Output interface for the connection
     pub out_interface: Cow<'static, str>,
 }
+impl FirewallEvent {
+    pub fn source_ip(&self) -> &SiemIp {
+        &self.source_ip
+    }
+    pub fn destination_ip(&self) -> &SiemIp {
+        &self.destination_ip
+    }
+    pub fn network_protocol(&self) -> &NetworkProtocol {
+        &self.network_protocol
+    }
+    pub fn outcome(&self) -> &FirewallOutcome {
+        &self.outcome
+    }
+    pub fn in_interface(&self) -> &str {
+        &self.in_interface
+    }
+    pub fn out_interface(&self) -> &str {
+        &self.out_interface
+    }
+}
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub enum FirewallOutcome {

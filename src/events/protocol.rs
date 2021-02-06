@@ -150,6 +150,13 @@ pub enum NetworkProtocol {
     OTHER(Cow<'static, str>),
     UNKNOWN
 }
+impl std::fmt::Display for NetworkProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
+}
 
 pub fn parse_protocol_id(id: u16) -> NetworkProtocol {
     match id {

@@ -7,6 +7,7 @@ pub mod protocol;
 pub mod webproxy;
 pub mod common;
 pub mod webserver;
+pub mod field_dictionary;
 
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
@@ -196,7 +197,23 @@ impl<'a> SiemLog {
         &self.event
     }
     pub fn set_event(&mut self, event: SiemEvent) {
+        match &event {
+            SiemEvent::Firewall(fw) => {
+                self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
+                self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(fw.destination_ip().clone()));
+                self.add_field(field_dictionary::SOURCE_PORT, SiemField::U32(fw.source_port as u32));
+                self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
+                self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
+                self.add_field(field_dictionary::IN_INTERFACE, SiemField::Text(Cow::Owned(fw.in_interface().to_string())));
+                self.add_field(field_dictionary::OUT_INTERFACE, SiemField::Text(Cow::Owned(fw.out_interface().to_string())));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::NETWORK_TRANSPORT, SiemField::Text(Cow::Owned(fw.network_protocol().to_string())));
+            },
+            _ => {}
+        }
         self.event = event;
+        
     }
 }
 
