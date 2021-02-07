@@ -10,6 +10,8 @@ pub enum HttpMethod {
     PATCH,
     OPTIONS,
     CONNECT,
+    HEAD,
+    UNDEFINED
 }
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
@@ -17,9 +19,17 @@ pub enum WebProtocol {
     UNKNOWN(String),
     HTTP,
     HTTPS,
-    FTP
+    FTP,
+    WS,
+    WSS
 }
-
+impl std::fmt::Display for WebProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
+}
 impl HttpMethod {
     pub fn from_str(val: &str) -> HttpMethod {
         match &val.to_uppercase()[..] {
@@ -28,6 +38,8 @@ impl HttpMethod {
             "PATCH" => HttpMethod::PATCH,
             "OPTIONS" => HttpMethod::OPTIONS,
             "CONNECT" => HttpMethod::CONNECT,
+            "HEAD" => HttpMethod::HEAD,
+            "UNDEFINED" => HttpMethod::UNDEFINED,
             val => HttpMethod::UNKNOWN(val.to_string()),
         }
     }
@@ -41,7 +53,16 @@ impl HttpMethod {
             ("UNKNOWN", HttpMethod::UNKNOWN(_)) => return true,
             ("OPTIONS", HttpMethod::OPTIONS) => return true,
             ("CONNECT", HttpMethod::CONNECT) => return true,
+            ("HEAD", HttpMethod::HEAD) => return true,
+            ("UNDEFINED", HttpMethod::UNDEFINED) => return true,
             _ => return false,
         }
+    }
+}
+impl std::fmt::Display for HttpMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
     }
 }

@@ -210,6 +210,35 @@ impl<'a> SiemLog {
                 self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
                 self.add_field(field_dictionary::NETWORK_TRANSPORT, SiemField::Text(Cow::Owned(fw.network_protocol().to_string())));
             },
+            SiemEvent::WebProxy(fw) => {
+                self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
+                self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(fw.destination_ip().clone()));
+                self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
+                self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::NETWORK_PROTOCOL, SiemField::Text(Cow::Owned(fw.protocol().to_string())));
+                self.add_field(field_dictionary::HTTP_RESPONSE_STATUS_CODE, SiemField::U32(fw.http_code));
+                self.add_field(field_dictionary::HTTP_REQUEST_METHOD, SiemField::Text(Cow::Owned(fw.http_method().to_string())));
+                self.add_field(field_dictionary::URL_FULL, SiemField::Text(Cow::Owned(fw.url().to_string())));
+                self.add_field(field_dictionary::URL_DOMAIN, SiemField::Text(Cow::Owned(fw.domain().to_string())));
+                self.add_field(field_dictionary::USER_NAME, SiemField::User(fw.user_name().to_string()));
+                self.add_field(field_dictionary::HTTP_RESPONSE_MIME_TYPE, SiemField::from_str(fw.mime_type().to_string()));
+                match fw.rule_category() {
+                    Some(rule_category) => {
+                        self.add_field(field_dictionary::RULE_CATEGORY, SiemField::from_str(rule_category.to_string()));
+                    },
+                    None => {}
+                }
+                match fw.rule_name() {
+                    Some(rule_name) => {
+                        self.add_field(field_dictionary::RULE_NAME, SiemField::from_str(rule_name.to_string()));
+                    },
+                    None => {}
+                }
+
+                
+            },
             _ => {}
         }
         self.event = event;

@@ -27,3 +27,15 @@ pub static OUT_INTERFACE: &'static str = "observer.egress.interface";
 pub static OBSERVER_IP: &'static str = "observer.ip";
 pub static OBSERVER_NAME: &'static str = "observer.name";
 
+
+pub static URL_FULL: &'static str = "url.full";
+pub static URL_DOMAIN: &'static str = "url.domain";
+pub static URL_PATH: &'static str = "url.path";
+pub static URL_QUERY: &'static str = "url.query";
+
+pub static HTTP_REQUEST_METHOD: &'static str = "http.request.method";
+pub static HTTP_RESPONSE_MIME_TYPE: &'static str = "http.response.mime_type";
+pub static HTTP_RESPONSE_STATUS_CODE: &'static str = "http.response.status_code";
+
+pub static RULE_NAME: &'static str = "rule.name";
+pub static RULE_CATEGORY: &'static str = "rule.category";

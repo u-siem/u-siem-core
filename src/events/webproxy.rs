@@ -26,6 +26,42 @@ pub struct WebProxyEvent {
     /// Categorization of the traffic
     pub rule_category: Option<WebProxyRuleCategory>,
 }
+impl WebProxyEvent {
+    pub fn source_ip(&self) -> &SiemIp {
+        &self.source_ip
+    }
+    pub fn destination_ip(&self) -> &SiemIp {
+        &self.destination_ip
+    }
+    pub fn protocol(&self) -> &WebProtocol {
+        &self.protocol
+    }
+    pub fn outcome(&self) -> &WebProxyOutcome {
+        &self.outcome
+    }
+    pub fn http_method(&self) -> &HttpMethod {
+        &self.http_method
+    }
+    pub fn user_name(&self) -> &str {
+        &self.user_name
+    }
+    pub fn mime_type(&self) -> &str {
+        &self.mime_type
+    }
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+    pub fn domain(&self) -> &str {
+        &self.domain
+    }
+    pub fn rule_name(&self) -> &Option<Cow<'static, str>> {
+        &self.rule_name
+    }
+    pub fn rule_category(&self) -> &Option<WebProxyRuleCategory> {
+        &self.rule_category
+    }
+    
+}
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub enum WebProxyOutcome {
@@ -35,6 +71,13 @@ pub enum WebProxyOutcome {
     ALLOW,
     /// Unknow connection state.
     UNKNOWN,
+}
+impl std::fmt::Display for WebProxyOutcome {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
 }
 
 /// Based on Bluecoat categories http://sitereview.bluecoat.com/#/category-descriptions
@@ -131,4 +174,12 @@ pub enum WebProxyRuleCategory {
     WebHosting,
     WebInfrastructure,
     Others(String),
+}
+
+impl std::fmt::Display for WebProxyRuleCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
 }
