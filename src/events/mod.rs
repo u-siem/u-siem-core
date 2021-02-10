@@ -7,12 +7,14 @@ pub mod protocol;
 pub mod webproxy;
 pub mod common;
 pub mod webserver;
+pub mod intrusion;
 pub mod field_dictionary;
 
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
 use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
+use intrusion::IntrusionEvent;
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -20,7 +22,7 @@ pub enum SiemEvent {
     /// Firewall events: connections between IPs, blocked connections...
     Firewall(FirewallEvent),
     /// Intrusion detection/protection systems. Ex: Suricata, Snort, OSSEC, Wazuh, NGFW... 
-    Intrusion,
+    Intrusion(IntrusionEvent),
     /// Security related assessment, like the output of vulnerability scanners (Nessus) or policy enforcers (OpenSCAP)
     Assessment,
     /// Web Browsing Proxy
