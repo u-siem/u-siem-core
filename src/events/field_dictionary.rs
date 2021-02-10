@@ -39,3 +39,15 @@ pub static HTTP_RESPONSE_STATUS_CODE: &'static str = "http.response.status_code"
 
 pub static RULE_NAME: &'static str = "rule.name";
 pub static RULE_CATEGORY: &'static str = "rule.category";
+
+
+pub static DNS_OP_CODE: &'static str = "dns.op_code";
+pub static DNS_ANSWER_CLASS: &'static str = "dns.answer.class";
+pub static DNS_ANSWER_NAME: &'static str = "dns.answer.name";
+pub static DNS_ANSWER_TYPE: &'static str = "dns.answer.type";
+pub static DNS_ANSWER_TTL: &'static str = "dns.answer.ttl";
+pub static DNS_ANSWER_DATA: &'static str = "dns.answer.data";
+pub static DNS_QUESTION_CLASS: &'static str = "dns.question.class";
+pub static DNS_QUESTION_NAME: &'static str = "dns.question.name";
+pub static DNS_QUESTION_TYPE: &'static str = "dns.question.type";
+pub static DNS_RESOLVED_IP: &'static str = "dns.resolved_ip";

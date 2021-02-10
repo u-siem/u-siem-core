@@ -78,6 +78,8 @@ pub enum IntrusionCategory {
     TROJAN,
     /// Simple virus
     VIRUS,
+    /// Spyware
+    SPYWARE,
     /// Remote administration tools
     RAT_TOOL,
     /// Ransomware attacks

@@ -8,6 +8,7 @@ pub mod webproxy;
 pub mod common;
 pub mod webserver;
 pub mod intrusion;
+pub mod dns;
 pub mod field_dictionary;
 
 use field::{SiemField, SiemIp};
@@ -15,6 +16,7 @@ use firewall::FirewallEvent;
 use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
 use intrusion::IntrusionEvent;
+use dns::{DnsEvent, DnsEventType};
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -59,7 +61,7 @@ pub enum SiemEvent {
     /// tag, because that means that the originator of the request is a Recursive DNS and not an endpoint. It normally
     /// happens if the one generating the log was a firewall (Ex: Palo Alto) and not a DNS server, or if multiple DNS are
     /// used in the organization, like a DNS talking to another DNS.
-    DNS,
+    DNS(DnsEvent),
     /// DHCP logs associating an IP with a MAC address.
     DHCP,
     /// Logs related to authentication, like a user trying to log in to a Router,
@@ -238,6 +240,30 @@ impl<'a> SiemLog {
                     },
                     None => {}
                 }
+
+                
+            },
+            SiemEvent::DNS(fw) => {
+                self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
+                self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(fw.destination_ip().clone()));
+                match fw.op_code() {
+                    DnsEventType::ANSWER => {
+                        self.add_field(field_dictionary::DNS_OP_CODE, SiemField::Text(Cow::Borrowed("ANSWER")));
+                        self.add_field(field_dictionary::DNS_ANSWER_NAME, SiemField::from_str(fw.record_name().to_string()));
+                        match fw.data() {
+                            Some(data) => {self.add_field(field_dictionary::DNS_ANSWER_DATA, SiemField::from_str(data.to_string()));},
+                            None => {}
+                        };
+                        self.add_field(field_dictionary::DNS_ANSWER_TYPE, SiemField::Text(fw.record_type().as_cow()));
+
+
+                    },
+                    DnsEventType::QUERY => {
+                        self.add_field(field_dictionary::DNS_OP_CODE, SiemField::Text(Cow::Borrowed("QUERY")));
+                        self.add_field(field_dictionary::DNS_QUESTION_NAME, SiemField::from_str(fw.record_name().to_string()));
+                        self.add_field(field_dictionary::DNS_QUESTION_TYPE, SiemField::Text(fw.record_type().as_cow()));
+                    }
+                };
 
                 
             },
