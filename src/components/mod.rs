@@ -14,9 +14,6 @@ pub trait SiemComponent {
     /// Sets the channel of this component. It's the kernel who sets the channel
     fn set_log_channel(&mut self, sender : Sender<SiemLog>, receiver : Receiver<SiemLog>);
 
-    /// Sets the output channel for this component. It's the kernel who sets the channel
-    fn set_remote_channel(&mut self) ->  Sender<SiemMessage>;
-
     /// Sets the channel to communicate with the kernel.
     fn set_kernel_sender(&mut self, sender : Sender<SiemMessage>);
 
