@@ -1,8 +1,8 @@
-use super::super::events::{SiemLog};
 use super::super::events::field::SiemIp;
+use super::super::events::SiemLog;
 use serde::Serialize;
-use std::collections::BTreeMap;
 use std::borrow::Cow;
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Debug)]
 pub enum SiemMessage {
@@ -30,6 +30,17 @@ pub struct SiemComponentCapabilities {
     capabilities: Vec<ComponentCapabilities>,
 }
 impl SiemComponentCapabilities {
+    pub fn new(
+        name: Cow<'static, str>,
+        description: Cow<'static, str>,
+        capabilities: Vec<ComponentCapabilities>,
+    ) -> SiemComponentCapabilities {
+        return SiemComponentCapabilities {
+            name,
+            description,
+            capabilities,
+        };
+    }
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -71,12 +82,62 @@ pub struct CommandDefinition {
     description: Cow<'static, str>,
     min_permission: UserRole,
 }
+impl CommandDefinition {
+    pub fn new(
+        class: SiemFunctionType,
+        name: Cow<'static, str>,
+        description: Cow<'static, str>,
+        min_permission: UserRole,
+    ) -> CommandDefinition {
+        CommandDefinition {
+            class,
+            name,
+            description,
+            min_permission
+        }
+    }
+
+    pub fn class(&self) -> &SiemFunctionType {
+        &self.class
+    }
+    pub fn name(&self) -> &Cow<'static, str> {
+        &self.name
+    }
+    pub fn description(&self) -> &Cow<'static, str> {
+        &self.description
+    }
+    pub fn min_permission(&self) -> &UserRole {
+        &self.min_permission
+    }
+}
 
 #[derive(Serialize, Debug)]
 pub struct DatasetDefinition {
     name: Cow<'static, str>,
     description: Cow<'static, str>,
     min_permission: UserRole,
+}
+impl DatasetDefinition {
+    pub fn new(
+        name: Cow<'static, str>,
+        description: Cow<'static, str>,
+        min_permission: UserRole,
+    ) -> DatasetDefinition {
+        DatasetDefinition {
+            name,
+            description,
+            min_permission
+        }
+    }
+    pub fn name(&self) -> &Cow<'static, str> {
+        &self.name
+    }
+    pub fn description(&self) -> &Cow<'static, str> {
+        &self.description
+    }
+    pub fn min_permission(&self) -> &UserRole {
+        &self.min_permission
+    }
 }
 
 /// Function launch and forget
@@ -91,13 +152,16 @@ pub enum SiemFunctionType {
     FILTER_IP,
     FILTER_DOMAIN,
     /// Function name, Map<ParamName, Description>
-    OTHER(Cow<'static, str>,BTreeMap<Cow<'static,str>,Cow<'static,str>>),
+    OTHER(
+        Cow<'static, str>,
+        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    ),
 }
 
 /// A simple object with the logic to parse Logs
 pub trait LogParser {
-    fn parse_log(log : SiemLog) -> Result<SiemLog, LogParsingError>;
-    fn device_match(log : &SiemLog) -> bool;
+    fn parse_log(log: SiemLog) -> Result<SiemLog, LogParsingError>;
+    fn device_match(log: &SiemLog) -> bool;
     fn name() -> Cow<'static, str>;
 }
 
@@ -106,40 +170,43 @@ pub enum LogParsingError {
     /// The parser can't be used with this log
     NoValidParser(SiemLog),
     /// The parser can be used with this log but has some bug
-    ParserError(SiemLog)
+    ParserError(SiemLog),
 }
 
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
 pub enum SiemFunctionCall {
     /// Component name
-    START_COMPONENT(Cow<'static,str>),
+    START_COMPONENT(Cow<'static, str>),
     /// Component name
-    STOP_COMPONENT(Cow<'static,str>),
+    STOP_COMPONENT(Cow<'static, str>),
     /// Query in database format
-    LOG_QUERY(Cow<'static,str>),
+    LOG_QUERY(Cow<'static, str>),
     /// IP of the device to isolate
     ISOLATE_IP(SiemIp),
     /// IP of the device to isolate
     ISOLATE_ENDPOINT(SiemIp),
     /// (IP, Comment)
-    FILTER_IP(SiemIp, Cow<'static,str>),
+    FILTER_IP(SiemIp, Cow<'static, str>),
     /// (Domain, Comment)
-    FILTER_DOMAIN(Cow<'static,str>, Cow<'static,str>),
+    FILTER_DOMAIN(Cow<'static, str>, Cow<'static, str>),
     /// Function name, Parameters
-    OTHER(Cow<'static, str>, serde_json::Value)
+    OTHER(Cow<'static, str>, serde_json::Value),
 }
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
 pub enum SiemFunctionResponse {
-    START_COMPONENT(Result<Cow<'static,str>,Cow<'static,str>>),
-    STOP_COMPONENT(Result<Cow<'static,str>,Cow<'static,str>>),
+    START_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
+    STOP_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
     LOG_QUERY(serde_json::Value),
-    ISOLATE_IP(Result<Cow<'static,str>,Cow<'static,str>>),
-    ISOLATE_ENDPOINT(Result<Cow<'static,str>,Cow<'static,str>>),
+    ISOLATE_IP(Result<Cow<'static, str>, Cow<'static, str>>),
+    ISOLATE_ENDPOINT(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (IP, Comment)
-    FILTER_IP(Result<Cow<'static,str>,Cow<'static,str>>),
+    FILTER_IP(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (Domain, Comment)
-    FILTER_DOMAIN(Result<Cow<'static,str>,Cow<'static,str>>),
-    OTHER(Cow<'static, str>,Result<Cow<'static,str>,Cow<'static,str>>)
+    FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
+    OTHER(
+        Cow<'static, str>,
+        Result<Cow<'static, str>, Cow<'static, str>>,
+    ),
 }
