@@ -20,6 +20,7 @@ pub static DESTINATION_BYTES: &'static str = "destination.bytes";
 
 pub static NETWORK_TRANSPORT: &'static str = "network.transport";
 pub static NETWORK_PROTOCOL: &'static str = "network.protocol";
+pub static NETWORK_DURATION: &'static str = "network.duration";
 
 pub static IN_INTERFACE: &'static str = "observer.ingress.interface";
 pub static OUT_INTERFACE: &'static str = "observer.egress.interface";

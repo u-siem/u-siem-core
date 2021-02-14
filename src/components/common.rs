@@ -12,6 +12,8 @@ pub enum SiemMessage {
     Response(SiemFunctionResponse),
     /// Process a log
     Log(SiemLog),
+    /// Local logging system.
+    Notification(Cow<'static, str>),
     Dataset,
 }
 
