@@ -109,7 +109,9 @@ pub enum IntrusionCategory {
     /// Clear text passwords...
     MISCONFIGURATION,
     /// Active Directory attack: kerberoasting, DC Sync, Golden Ticket, Pass the Hash, Pass the ticket...
-    AD_ATTACK
+    AD_ATTACK,
+    /// 
+    UNKNOWN
 
     //TODO: Add more categories
 

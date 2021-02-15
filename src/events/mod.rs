@@ -265,6 +265,17 @@ impl<'a> SiemLog {
 
                 
             },
+            SiemEvent::Intrusion(fw) => {
+                self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
+                self.add_field(field_dictionary::SOURCE_PORT, SiemField::U32(fw.source_port as u32));
+                self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(fw.destination_ip().clone()));
+                self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
+                self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
+                self.add_field(field_dictionary::NETWORK_PROTOCOL, SiemField::Text(Cow::Owned(fw.network_protocol().to_string())));
+                self.add_field(field_dictionary::RULE_CATEGORY, SiemField::from_str(fw.rule_category().to_string()));
+                self.add_field(field_dictionary::RULE_NAME, SiemField::from_str(fw.rule_name().to_string()));
+                self.add_field(field_dictionary::RULE_ID, SiemField::U32(fw.rule_id));
+            },
             _ => {}
         }
         self.event = event;

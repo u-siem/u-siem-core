@@ -40,7 +40,7 @@ pub static HTTP_RESPONSE_STATUS_CODE: &'static str = "http.response.status_code"
 
 pub static RULE_NAME: &'static str = "rule.name";
 pub static RULE_CATEGORY: &'static str = "rule.category";
-
+pub static RULE_ID: &'static str = "rule.id";
 
 pub static DNS_OP_CODE: &'static str = "dns.op_code";
 pub static DNS_ANSWER_CLASS: &'static str = "dns.answer.class";
