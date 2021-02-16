@@ -77,6 +77,8 @@ pub enum SiemEvent {
     Json(serde_json::Value),
     // Unknown info that must be extracted and added to event fields.
     Unknown,
+    /// Forensic artifacts from custom parsers
+    Artifacts
 }
 
 /// This is a simple log event. It contains information about the asset that generated
