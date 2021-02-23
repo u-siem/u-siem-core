@@ -299,8 +299,6 @@ impl<'a> SiemLog {
                 self.add_field("url.extension", SiemField::Text(Cow::Owned(fw.url_extension().to_string())));
                 self.add_field(field_dictionary::USER_NAME, SiemField::User(fw.user_name().to_string()));
                 self.add_field(field_dictionary::HTTP_RESPONSE_MIME_TYPE, SiemField::from_str(fw.mime_type().to_string()));
-                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
-                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
                 self.add_field(field_dictionary::NETWORK_DURATION, SiemField::F64(fw.duration as f64));
                 self.add_field("user_agent.original", SiemField::Text(Cow::Owned(fw.user_agent().to_string())));
 
