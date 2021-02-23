@@ -240,8 +240,6 @@ impl<'a> SiemLog {
                     },
                     None => {}
                 }
-
-                
             },
             SiemEvent::DNS(fw) => {
                 self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
@@ -277,6 +275,36 @@ impl<'a> SiemLog {
                 self.add_field(field_dictionary::RULE_CATEGORY, SiemField::from_str(fw.rule_category().to_string()));
                 self.add_field(field_dictionary::RULE_NAME, SiemField::from_str(fw.rule_name().to_string()));
                 self.add_field(field_dictionary::RULE_ID, SiemField::U32(fw.rule_id));
+            },
+            SiemEvent::WebServer(fw) => {
+                self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(fw.source_ip().clone()));
+                match fw.destination_ip() {
+                    Some(ip) => {
+                        self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(ip.clone()));
+                    },
+                    None => {}
+                };
+                
+                self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
+                self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::NETWORK_PROTOCOL, SiemField::Text(Cow::Owned(fw.protocol().to_string())));
+                self.add_field(field_dictionary::HTTP_RESPONSE_STATUS_CODE, SiemField::U32(fw.http_code));
+                self.add_field(field_dictionary::HTTP_REQUEST_METHOD, SiemField::Text(Cow::Owned(fw.http_method().to_string())));
+                self.add_field(field_dictionary::URL_FULL, SiemField::Text(Cow::Owned(fw.url_full().to_string())));
+                self.add_field(field_dictionary::URL_DOMAIN, SiemField::Text(Cow::Owned(fw.url_domain().to_string())));
+                self.add_field(field_dictionary::URL_PATH, SiemField::Text(Cow::Owned(fw.url_path().to_string())));
+                self.add_field(field_dictionary::URL_QUERY, SiemField::Text(Cow::Owned(fw.url_query().to_string())));
+                self.add_field("url.extension", SiemField::Text(Cow::Owned(fw.url_extension().to_string())));
+                self.add_field(field_dictionary::USER_NAME, SiemField::User(fw.user_name().to_string()));
+                self.add_field(field_dictionary::HTTP_RESPONSE_MIME_TYPE, SiemField::from_str(fw.mime_type().to_string()));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::NETWORK_DURATION, SiemField::F64(fw.duration as f64));
+                self.add_field("user_agent.original", SiemField::Text(Cow::Owned(fw.user_agent().to_string())));
+
+                
             },
             _ => {}
         }

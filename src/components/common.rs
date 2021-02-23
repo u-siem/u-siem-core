@@ -29,18 +29,24 @@ pub trait SiemComponentStateStorage {
 pub struct SiemComponentCapabilities {
     name: Cow<'static, str>,
     description: Cow<'static, str>,
-    capabilities: Vec<ComponentCapabilities>,
+    view : Cow<'static, str>,
+    datasets : Vec<DatasetDefinition>,
+    commands: Vec<CommandDefinition>,
 }
 impl SiemComponentCapabilities {
     pub fn new(
         name: Cow<'static, str>,
         description: Cow<'static, str>,
-        capabilities: Vec<ComponentCapabilities>,
+        view : Cow<'static, str>,
+        datasets : Vec<DatasetDefinition>,
+        commands: Vec<CommandDefinition>,
     ) -> SiemComponentCapabilities {
         return SiemComponentCapabilities {
             name,
             description,
-            capabilities,
+            view,
+            datasets,
+            commands
         };
     }
     pub fn name(&self) -> &str {
@@ -49,8 +55,14 @@ impl SiemComponentCapabilities {
     pub fn description(&self) -> &str {
         &self.description
     }
-    pub fn capabilities(&self) -> &Vec<ComponentCapabilities> {
-        &self.capabilities
+    pub fn view(&self) -> &str {
+        &self.view
+    }
+    pub fn datasets(&self) -> &Vec<DatasetDefinition> {
+        &self.datasets
+    }
+    pub fn commands(&self) -> &Vec<CommandDefinition> {
+        &self.commands
     }
 }
 
@@ -67,15 +79,6 @@ pub enum UserRole {
     Administrator,
 }
 
-#[derive(Serialize, Debug)]
-pub enum ComponentCapabilities {
-    /// Actions for the component
-    Command(CommandDefinition),
-    /// The component uses datasets or updates them
-    Dataset(DatasetDefinition),
-    /// HTML and javascript components that modifies the SIEM UI.
-    View(Cow<'static, str>),
-}
 
 #[derive(Serialize, Debug)]
 pub struct CommandDefinition {
@@ -200,7 +203,7 @@ pub enum SiemFunctionCall {
 pub enum SiemFunctionResponse {
     START_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
     STOP_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
-    LOG_QUERY(serde_json::Value),
+    LOG_QUERY(Result<serde_json::Value, Cow<'static, str>>),
     ISOLATE_IP(Result<Cow<'static, str>, Cow<'static, str>>),
     ISOLATE_ENDPOINT(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (IP, Comment)
