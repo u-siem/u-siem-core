@@ -210,7 +210,7 @@ impl<'a> SiemLog {
                 self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
                 self.add_field(field_dictionary::IN_INTERFACE, SiemField::Text(Cow::Owned(fw.in_interface().to_string())));
                 self.add_field(field_dictionary::OUT_INTERFACE, SiemField::Text(Cow::Owned(fw.out_interface().to_string())));
-                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.in_bytes));
                 self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
                 self.add_field(field_dictionary::NETWORK_TRANSPORT, SiemField::Text(Cow::Owned(fw.network_protocol().to_string())));
             },
@@ -219,8 +219,8 @@ impl<'a> SiemLog {
                 self.add_field(field_dictionary::DESTINATION_IP, SiemField::IP(fw.destination_ip().clone()));
                 self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
                 self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
-                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
-                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.out_bytes));
                 self.add_field(field_dictionary::NETWORK_PROTOCOL, SiemField::Text(Cow::Owned(fw.protocol().to_string())));
                 self.add_field(field_dictionary::HTTP_RESPONSE_STATUS_CODE, SiemField::U32(fw.http_code));
                 self.add_field(field_dictionary::HTTP_REQUEST_METHOD, SiemField::Text(Cow::Owned(fw.http_method().to_string())));
@@ -287,8 +287,8 @@ impl<'a> SiemLog {
                 
                 self.add_field(field_dictionary::DESTINATION_PORT, SiemField::U32(fw.destination_port as u32));
                 self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
-                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
-                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.in_bytes));
+                self.add_field(field_dictionary::DESTINATION_BYTES, SiemField::U32(fw.out_bytes));
                 self.add_field(field_dictionary::NETWORK_PROTOCOL, SiemField::Text(Cow::Owned(fw.protocol().to_string())));
                 self.add_field(field_dictionary::HTTP_RESPONSE_STATUS_CODE, SiemField::U32(fw.http_code));
                 self.add_field(field_dictionary::HTTP_REQUEST_METHOD, SiemField::Text(Cow::Owned(fw.http_method().to_string())));
