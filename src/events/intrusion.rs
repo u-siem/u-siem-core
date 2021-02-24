@@ -111,8 +111,17 @@ pub enum IntrusionCategory {
     /// Active Directory attack: kerberoasting, DC Sync, Golden Ticket, Pass the Hash, Pass the ticket...
     AD_ATTACK,
     /// 
-    UNKNOWN
-
+    UNKNOWN,
+    /// Information Leakage involves the exposure of information that would facilitate attacks on the application or other infrastructure, such as insight into the application design, deployment, or organizational details.
+    INFORMATION_LEAKAGE,
+    /// Anormal behaviour
+    ANOMALY,
+    /// Session Fixation is an attack technique that forces a user's session ID to an explicit value.
+    SESSION_FIXATION,
+    /// Protocol violations: HTTP Response Splitting, HTTP Request Smuggling, HTTP Header Injection
+    PROTOCOL_ATTACK,
+    /// IP, COUNTRY, DOMAIN in a suspicious or block list
+    REPUTATION,
     //TODO: Add more categories
 
 }

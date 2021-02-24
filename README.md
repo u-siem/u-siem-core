@@ -45,7 +45,7 @@ It ingests logs and process them.
 We can support elasticsearch type (Like API-REST) or syslog.
 
 ### EnchancemetNode
-It adds information about the IP, if its in a blacklist, if its a AmazonWebServices/Azure/GoogleCloud IP, if the IP has never been seen it then it contacts the GatheringNode to find information about that IP. It adds the tag "never_seen_ip" in that cases. It uses datasets to access information in a non-blocking form. See https://1drv.ms/p/s!AvHbai5ZA14wjV9J4rbBlSWyIw0t?e=AgBWNf
+It adds information about the IP, if its in a blocklist, if its a AmazonWebServices/Azure/GoogleCloud IP, if the IP has never been seen it then it contacts the GatheringNode to find information about that IP. It adds the tag "never_seen_ip" in that cases. It uses datasets to access information in a non-blocking form. See https://1drv.ms/p/s!AvHbai5ZA14wjV9J4rbBlSWyIw0t?e=AgBWNf
 
 ### GatheringNode
 Consults feeds or databases like AbuseIP/Virus total to know if the IP is malicios or not, the same with domains and Hashes.
