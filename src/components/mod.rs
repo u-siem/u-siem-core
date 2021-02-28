@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use crossbeam_channel::{Sender, Receiver};
 use super::events::SiemLog;
 pub mod common;
+pub mod dataset;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 
 

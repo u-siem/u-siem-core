@@ -1,44 +1,45 @@
-
+pub mod ip_net;
+use ip_net::{GeoIpDataset, IpNetDataset};
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude
-    GEO_IP,
+    GeoIp(GeoIpDataset),
     /// IP associated with a hostname
-    IP_HOST,
+    IpHost,
     /// IP associated with a MAC address
-    IP_MAC,
+    IpMac,
     /// Hostname associated with a MAC address
-    HOST_MAC,
+    HostMac,
     /// Hostname associated with a username
-    HOST_USER,
+    HostUser,
     /// List of IPs in the block list
-    BLOCK_IP,
+    BlockIp,
     /// List of domain in the block list
-    BLOCK_DOMAIN,
+    BlockDomain,
     /// List of countries in the block list
-    BLOCK_COUNTRY,
+    BlockCountry,
     /// Tag each user with roles => user.roles = [vip, admin, extern, invited, director, super_user, local_user]
-    USER_TAG,
+    UserTag,
     /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
-    ASSET_TAG,
+    AssetTag,
     /// Cloud service => Office 365, G Suit ...
-    IP_CLOUD_SERVICE,
+    IpCloudService(IpNetDataset),
     /// Cloud Provider => Azure, Google Cloud, AWS
-    IP_CLOUD_PROVIDER,
+    IpCloudProvider(IpNetDataset),
     /// User associated with a headquarter
-    USER_HEADQUARTERS,
+    UserHeadquarters,
     /// IP net associated with a headquarter
-    IP_HEADQUARTERS,
+    IpHeadquarters(IpNetDataset),
     /// Working hours of each headquarter
-    HEADQUARTERS_WORKING_HOURS,
+    HeadquartersWorkingHours,
     /// User custom dataset IP_NET => Text
-    CUSTOM_MAP_IP_NET,
+    CustomMapIpNet(IpNetDataset),
     /// User custom dataset Text => Text
-    CUSTOM_MAP_TEXT,
+    CustomMapText,
     /// User custom dataset IP list
-    CUSTOM_IP_LIST,
+    CustomIpList,
     /// User custom dataset Text list
-    CUSTOM_TEXT_LIST,
+    CustomTextList,
 }
 
