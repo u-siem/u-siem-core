@@ -4,62 +4,56 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-
-
-pub enum UpdateNetIp {
-    Add((SiemIp, u8, Cow<'static, str>)),
+/// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
+pub enum UpdateGeoIp {
+    Add((SiemIp, u8, GeoIpInfo)),
     Remove((SiemIp, u8)),
-    Replace(IpNetDataset),
+    Replace(GeoIpDataset),
 }
 
-pub struct IpNetSynDataset {
-    dataset: Arc<IpNetDataset>,
-    comm: Sender<UpdateNetIp>,
+pub struct GeoIpInfo {
+    pub country: Cow<'static, str>,
+    pub city: Cow<'static, str>,
+    pub latitude: f32,
+    pub longitude: f32,
+    pub isp: Cow<'static, str>,
 }
-impl IpNetSynDataset {
-    pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> IpNetSynDataset {
-        return IpNetSynDataset { dataset, comm };
+
+pub struct GeoIpSynDataset {
+    dataset: Arc<GeoIpDataset>,
+    comm: Sender<UpdateGeoIp>,
+}
+impl GeoIpSynDataset {
+    pub fn new(dataset: Arc<GeoIpDataset>, comm: Sender<UpdateGeoIp>) -> GeoIpSynDataset {
+        return GeoIpSynDataset { dataset, comm };
     }
-    pub fn add_ip(&mut self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
+    /// This method must not be used with this dataset, because no source will give you accurate data to update this dataset. Maybe some firewalls, but updating the dataset with each log information is not a good idea.
+    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Add((ip, net, data))) {
+        match self.comm.try_send(UpdateGeoIp::Add((ip, net, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove_ip(&mut self, ip: SiemIp, net: u8) {
-        // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Remove((ip, net))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
-    }
-    pub fn replace_ip(&mut self, data : IpNetDataset) {
-        // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
-    }
-    pub fn get(&self, ip: SiemIp) -> Option<&Cow<'static, str>> {
-        // Todo improve with cached content
+    pub fn get(&self, ip: SiemIp) -> Option<&GeoIpInfo> {
+        // Todo improve with cached added IPs
         self.dataset.get(ip)
     }
 }
 
-pub struct IpNetDataset {
-    data4: BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,
-    data6: BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>,
+pub struct GeoIpDataset {
+    data4: BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,
+    data6: BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>,
 }
 
-impl IpNetDataset {
-    pub fn new() -> IpNetDataset {
-        return IpNetDataset {
+impl GeoIpDataset {
+    pub fn new() -> GeoIpDataset {
+        return GeoIpDataset {
             data4: BTreeMap::new(),
             data6: BTreeMap::new(),
         };
     }
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
+    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
         match ip {
             SiemIp::V4(ip) => {
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
@@ -93,7 +87,7 @@ impl IpNetDataset {
             }
         }
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, ip: SiemIp) -> Option<&GeoIpInfo> {
         match ip {
             SiemIp::V4(ip) => {
                 let zeros = ip.trailing_zeros();
@@ -134,21 +128,27 @@ impl IpNetDataset {
         }
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn test_dataset_creation() {
-        let mut dataset = IpNetDataset::new();
+        let info = GeoIpInfo{
+            city : Cow::Borrowed("LocalCity"),
+            country : Cow::Borrowed("LocalCountry"),
+            isp : Cow::Borrowed("ISP"),
+            latitude : 0.1,
+            longitude : 0.2,
+        };
+        let mut dataset = GeoIpDataset::new();
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),
             24,
-            Cow::Borrowed("Local IP "),
+            info,
         );
         assert_eq!(
-            dataset.get(SiemIp::from_ip_str("192.168.1.1").unwrap()),
-            Some(&Cow::Borrowed("Local IP "))
+            &dataset.get(SiemIp::from_ip_str("192.168.1.1").unwrap()).unwrap().city[..],
+            &(&Cow::Borrowed("LocalCity"))[..]
         );
     }
 }

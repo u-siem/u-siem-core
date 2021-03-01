@@ -14,6 +14,7 @@ pub enum SiemMessage {
     Log(SiemLog),
     /// Local logging system.
     Notification(Cow<'static, str>),
+    /// Dataset updated, this is the last state of it
     Dataset,
 }
 
