@@ -2,14 +2,14 @@ use crossbeam_channel::Sender;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-
-
+use serde::Serialize;
+#[derive(Serialize, Debug)]
 pub enum UpdateTextMap {
     Add((Cow<'static, str>, Cow<'static, str>)),
     Remove(Cow<'static, str>),
     Replace(TextMapDataset),
 }
-
+#[derive(Debug)]
 pub struct TextMapSynDataset {
     dataset: Arc<TextMapDataset>,
     comm: Sender<UpdateTextMap>,
@@ -44,7 +44,7 @@ impl TextMapSynDataset {
         self.dataset.get(key)
     }
 }
-
+#[derive(Serialize, Debug)]
 pub struct TextMapDataset {
     data: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
 }

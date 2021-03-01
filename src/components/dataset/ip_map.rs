@@ -3,14 +3,15 @@ use crossbeam_channel::Sender;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use serde::Serialize;
 
-
+#[derive(Serialize, Debug)]
 pub enum UpdateIpMap {
     Add((SiemIp, Cow<'static, str>)),
     Remove(SiemIp),
     Replace(IpMapDataset),
 }
-
+#[derive(Debug)]
 pub struct IpMapSynDataset {
     dataset: Arc<IpMapDataset>,
     comm: Sender<UpdateIpMap>,
@@ -46,7 +47,7 @@ impl IpMapSynDataset {
         self.dataset.get(ip)
     }
 }
-
+#[derive(Serialize, Debug)]
 pub struct IpMapDataset {
     data4: BTreeMap<u32, Cow<'static, str>>,
     data6: BTreeMap<u128, Cow<'static, str>>,

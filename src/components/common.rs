@@ -3,6 +3,7 @@ use super::super::events::SiemLog;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
+use super::dataset::SiemDataset;
 
 #[derive(Serialize, Debug)]
 pub enum SiemMessage {
@@ -15,7 +16,7 @@ pub enum SiemMessage {
     /// Local logging system.
     Notification(Cow<'static, str>),
     /// Dataset updated, this is the last state of it
-    Dataset,
+    Dataset((Cow<'static, str>, SiemDataset)),
 }
 
 pub trait SiemComponentStateStorage {

@@ -2,14 +2,15 @@ use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
 use std::collections::BTreeSet;
 use std::sync::Arc;
+use serde::Serialize;
 
-
+#[derive(Serialize, Debug)]
 pub enum UpdateIpSet {
     Add(SiemIp),
     Remove(SiemIp),
     Replace(IpSetDataset),
 }
-
+#[derive( Debug)]
 pub struct IpSetSynDataset {
     dataset: Arc<IpSetDataset>,
     comm: Sender<UpdateIpSet>,
@@ -45,7 +46,7 @@ impl IpSetSynDataset {
         self.dataset.contains(ip)
     }
 }
-
+#[derive(Serialize, Debug)]
 pub struct IpSetDataset {
     data4: BTreeSet<u32>,
     data6: BTreeSet<u128>,

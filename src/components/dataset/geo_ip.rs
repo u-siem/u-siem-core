@@ -3,14 +3,16 @@ use crossbeam_channel::Sender;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use serde::Serialize;
 
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
+#[derive(Serialize, Debug)]
 pub enum UpdateGeoIp {
     Add((SiemIp, u8, GeoIpInfo)),
     Remove((SiemIp, u8)),
     Replace(GeoIpDataset),
 }
-
+#[derive(Serialize, Debug)]
 pub struct GeoIpInfo {
     pub country: Cow<'static, str>,
     pub city: Cow<'static, str>,
@@ -18,7 +20,7 @@ pub struct GeoIpInfo {
     pub longitude: f32,
     pub isp: Cow<'static, str>,
 }
-
+#[derive(Debug)]
 pub struct GeoIpSynDataset {
     dataset: Arc<GeoIpDataset>,
     comm: Sender<UpdateGeoIp>,
@@ -40,7 +42,7 @@ impl GeoIpSynDataset {
         self.dataset.get(ip)
     }
 }
-
+#[derive(Serialize, Debug)]
 pub struct GeoIpDataset {
     data4: BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,
     data6: BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>,

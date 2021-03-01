@@ -10,9 +10,13 @@ use ip_net::{IpNetSynDataset, UpdateNetIp};
 use text_map::{TextMapSynDataset, UpdateTextMap};
 use ip_set::{IpSetSynDataset, UpdateIpSet};
 use text_set::{TextSetSynDataset, UpdateTextSet};
+use serde::Serialize;
+use serde::ser::{SerializeStruct, Serializer};
+use std::borrow::Cow;
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
+#[derive(Debug)]
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude
     GeoIp(GeoIpSynDataset),
@@ -45,15 +49,60 @@ pub enum SiemDataset {
     /// Working hours of each headquarter
     HeadquartersWorkingHours,
     /// User custom dataset IP_NET => Text
-    CustomMapIpNet(IpNetSynDataset),
+    CustomMapIpNet((Cow<'static, str>, IpNetSynDataset)),
     /// User custom dataset Text => Text
-    CustomMapText(TextMapSynDataset),
+    CustomMapText((Cow<'static, str>, TextMapSynDataset)),
     /// User custom dataset IP list
-    CustomIpList(IpSetSynDataset),
+    CustomIpList((Cow<'static, str>, IpSetSynDataset)),
     /// User custom dataset Text list
-    CustomTextList(TextSetSynDataset),
+    CustomTextList((Cow<'static, str>, TextSetSynDataset)),
 }
 
+impl Serialize for SiemDataset {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("SiemDataset", 2)?;
+        let typ = match self {
+            SiemDataset::GeoIp(_) => "GeoIp",
+            SiemDataset::IpHost(_) => "IpHost",
+            SiemDataset::IpMac(_) => "IpMac",
+            SiemDataset::HostMac(_) => "HostMac",
+            SiemDataset::HostUser(_) => "HostUser",
+            SiemDataset::BlockIp(_) => "BlockIp",
+            SiemDataset::BlockDomain(_) => "BlockDomain",
+            SiemDataset::BlockCountry(_) => "BlockCountry",
+            SiemDataset::UserTag(_) => "UserTag",
+            SiemDataset::AssetTag(_) => "AssetTag",
+            SiemDataset::IpCloudService(_) => "IpCloudService",
+            SiemDataset::IpCloudProvider(_) => "IpCloudProvider",
+            SiemDataset::UserHeadquarters(_) => "UserHeadquarters",
+            SiemDataset::IpHeadquarters(_) => "IpHeadquarters",
+            SiemDataset::HeadquartersWorkingHours => "HeadquartersWorkingHours",
+            SiemDataset::CustomMapIpNet((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomMapIpNet"
+            },
+            SiemDataset::CustomMapText((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomMapIpNet"
+            },
+            SiemDataset::CustomIpList((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomIpList"
+            },
+            SiemDataset::CustomTextList((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomTextList"
+            },
+        };
+        state.serialize_field("type", typ)?;
+        state.end()
+    }
+}
+
+#[derive(Serialize, Debug)]
 pub enum UpdateDataset {
     GeoIp(UpdateGeoIp),
     IpCloudService(UpdateNetIp),

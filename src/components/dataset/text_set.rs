@@ -2,13 +2,14 @@ use crossbeam_channel::Sender;
 use std::collections::BTreeSet;
 use std::sync::Arc;
 use std::borrow::Cow;
-
+use serde::{Serialize};
+#[derive(Serialize, Debug)]
 pub enum UpdateTextSet {
     Add(Cow<'static, str>),
     Remove(Cow<'static, str>),
     Replace(TextSetDataset),
 }
-
+#[derive( Debug)]
 pub struct TextSetSynDataset {
     dataset: Arc<TextSetDataset>,
     comm: Sender<UpdateTextSet>,
@@ -43,7 +44,7 @@ impl TextSetSynDataset {
         self.dataset.contains(val)
     }
 }
-
+#[derive(Serialize, Debug)]
 pub struct TextSetDataset {
     data: BTreeSet<Cow<'static, str>>
 }
