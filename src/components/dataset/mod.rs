@@ -4,18 +4,22 @@ pub mod ip_net;
 pub mod text_map;
 pub mod ip_set;
 pub mod text_set;
+pub mod calendar;
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
 use ip_map::{IpMapSynDataset, UpdateIpMap};
 use ip_net::{IpNetSynDataset, UpdateNetIp};
 use text_map::{TextMapSynDataset, UpdateTextMap};
 use ip_set::{IpSetSynDataset, UpdateIpSet};
 use text_set::{TextSetSynDataset, UpdateTextSet};
+use calendar::{CalendarSynDataset, UpdateCalendar};
 use serde::Serialize;
 use serde::ser::{SerializeStruct, Serializer};
 use std::borrow::Cow;
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
+/// 
+/// The custom datasets are associated with the name of the dataset
 #[derive(Debug)]
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude
@@ -56,6 +60,8 @@ pub enum SiemDataset {
     CustomIpList((Cow<'static, str>, IpSetSynDataset)),
     /// User custom dataset Text list
     CustomTextList((Cow<'static, str>, TextSetSynDataset)),
+    /// Mantaince Calendar
+    MantainceCalendar(CalendarSynDataset)
 }
 
 impl Serialize for SiemDataset {
@@ -80,6 +86,7 @@ impl Serialize for SiemDataset {
             SiemDataset::UserHeadquarters(_) => "UserHeadquarters",
             SiemDataset::IpHeadquarters(_) => "IpHeadquarters",
             SiemDataset::HeadquartersWorkingHours => "HeadquartersWorkingHours",
+            SiemDataset::MantainceCalendar(_) => "MantainceCalendar",
             SiemDataset::CustomMapIpNet((name,_)) => {
                 state.serialize_field("name", name)?;
                 "CustomMapIpNet"
@@ -122,4 +129,5 @@ pub enum UpdateDataset {
     BlockDomain(UpdateTextSet),
     BlockCountry(UpdateTextSet),
     CustomTextList(UpdateTextSet),
+    MantainceCalendar(UpdateCalendar)
 }

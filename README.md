@@ -8,8 +8,6 @@ Also you can have a team designing rules with SIGMA in a different repository an
 CI/CD tools like Jenkins that can run a integration test to check if the new changes breaks the system and then deploy
 the new version.
 
-In order to mitigate this problems uSIEM takes a different approach, instead of making dynamic changes to the SIEM like new parsers or extractors, you must define a code that does it, if you want a new field, you code it with his own testing suit.
-
 Some benchmarks (single-thread):
 | Log Source        | Events/second     |
 |-------------------|-------------------|
@@ -64,6 +62,8 @@ Creates alerts and sents them to another SIEM or stores them locally to use the 
 ### SoarNode
 Do actions automatically, like blocking IPs, domains...
 OpnSense supports blocking IPs with a simple API-REST call, the same for Cortex XDR.
+For PaloAlto: https://panos.pan.dev/docs/apis/panos_dag_qs
+Work in progress: define a custom trait that can be used with a common component as to simplify design. So we only need to import a library that defines the actions to be done (like an API call) and works in any custom SOAR component.
 
 ### BehavourNode
 Apply multiple simple rules (like DarkTrace) does to calculate the threat score associated with the event. That score is added to the total score of a user in a period of time (Slicing Window). It will be implemented in redis wit a ScoreSet of users-scores in periods of 15 min with each removed after 24 hours by default.

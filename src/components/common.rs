@@ -15,7 +15,7 @@ pub enum SiemMessage {
     Log(SiemLog),
     /// Local logging system.
     Notification(Cow<'static, str>),
-    /// Dataset updated, this is the last state of it
+    /// Dataset updated, this is the last state of it. The first element is the name of the tenant for which this dataset applies.
     Dataset((Cow<'static, str>, SiemDataset)),
 }
 
