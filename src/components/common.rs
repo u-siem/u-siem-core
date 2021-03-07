@@ -173,6 +173,7 @@ pub trait LogParser {
 }
 
 /// Error at parsing a log
+#[derive(Serialize, Debug)]
 pub enum LogParsingError {
     /// The parser can't be used with this log
     NoValidParser(SiemLog),
