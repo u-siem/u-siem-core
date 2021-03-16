@@ -21,9 +21,9 @@ pub enum SiemMessage {
 
 pub trait SiemComponentStateStorage {
     /// Read a key value from the database
-    fn read_value(key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
+    fn read_value(&self,key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
     /// Write to the database a key/value pair
-    fn set_value(key: Cow<'static, str>, value: serde_json::Value)
+    fn set_value(&mut self, key: Cow<'static, str>, value: serde_json::Value)
         -> Result<(), Cow<'static, str>>;
 }
 
