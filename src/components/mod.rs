@@ -4,7 +4,7 @@ use super::events::SiemLog;
 pub mod common;
 pub mod dataset;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
-
+use std::boxed::Box;
 
 pub trait SiemComponent {
     fn name(&self) -> Cow<'static, str>{
@@ -22,7 +22,7 @@ pub trait SiemComponent {
     fn run(&mut self);
 
     /// Allow to store information about this component like the state or conigurations.
-    fn set_storage(&mut self, conn : impl SiemComponentStateStorage);
+    fn set_storage(&mut self, conn : Box<dyn SiemComponentStateStorage>);
 
     /// Capabilities and actions that can be performed by this component
     fn capabilities(&self) -> SiemComponentCapabilities;
