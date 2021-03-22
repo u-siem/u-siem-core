@@ -5,6 +5,7 @@ use serde::Serialize;
 use std::fmt::Display;
 
 #[derive(Serialize, Debug)]
+#[serde(untagged)]
 pub enum SiemField {
     /// A basic String field
     Text(Cow<'static, str>),
