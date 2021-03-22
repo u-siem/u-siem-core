@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-//use serde::ser::{Serializer, SerializeStruct};
+use serde::ser::{Serializer};
 use super::super::utilities::ip_utils::{ipv4_from_str, ipv4_to_str, ipv6_from_str, ipv6_to_str};
 use serde::Serialize;
 use std::fmt::Display;
@@ -102,7 +102,7 @@ impl PartialEq for SiemField {
     }
 }
 
-#[derive(Serialize, Debug,Clone)]
+#[derive(Debug,Clone)]
 pub enum SiemIp {
     V4(u32),
     V6(u128),
@@ -139,6 +139,14 @@ impl SiemIp {
                 Err(_) => Err(Cow::Borrowed("Invalid IP value")),
             }
         }
+    }
+}
+impl Serialize for SiemIp {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&(format!("{:?}",&self))[..])
     }
 }
 
