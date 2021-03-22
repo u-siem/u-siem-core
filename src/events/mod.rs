@@ -10,7 +10,7 @@ pub mod webserver;
 pub mod intrusion;
 pub mod dns;
 pub mod field_dictionary;
-
+//use serde::ser::{Serializer, SerializeStruct};
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
 use webproxy::WebProxyEvent;
@@ -85,7 +85,7 @@ pub enum SiemEvent {
 /// this log, the client if we are working in a multi-client environments aka SOC,
 /// some fields to facilitate correlation with SIGMA rules, timestamps and tags to
 /// better describe the content inside.
-#[derive(Serialize, Debug)]
+#[derive(Serialize,Debug)]
 pub struct SiemLog {
     /// IP or Hostname of the server that sended the log.
     origin: SiemIp,
@@ -105,6 +105,7 @@ pub struct SiemLog {
     /// Tags to better describe the event.Must be in lowercase. Ex: vip_user, critical_asset, fake_account, honeypot
     tags: BTreeSet<Cow<'static, str>>,
     /// Map of fields extracted or generated for this log. Must follow the Elastic Common Schema (ECS v1.x)
+    #[serde(flatten)]
     fields: BTreeMap<Cow<'static, str>, SiemField>,
     /// Original log message including syslog header
     message: String,
@@ -310,6 +311,32 @@ impl<'a> SiemLog {
         
     }
 }
+/*
+impl Serialize for SiemLog {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // 3 is the number of fields in the struct.
+        let mut state = serializer.serialize_struct("Color", 3)?;
+        state.serialize_field("category", &self.category)?;
+        state.serialize_field("event_created", &self.event_created)?;
+        state.serialize_field("event_received", &self.event_received)?;
+        state.serialize_field("message", &self.message)?;
+        state.serialize_field("origin", &self.origin)?;
+        state.serialize_field("product", &self.product)?;
+        state.serialize_field("service", &self.service)?;
+        state.serialize_field("tags", &self.tags)?;
+        state.serialize_field("tenant", &self.tenant)?;
+        state.serialize_field("vendor", &self.vendor)?;
+        for (name, value) in &self.fields {
+            let a = name.to_string();
+            state.serialize_field(&a[..], value)?;
+        }
+        state.end()
+    }
+}
+*/
 
 #[cfg(test)]
 mod tests {
