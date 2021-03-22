@@ -146,7 +146,7 @@ impl Serialize for SiemIp {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&(format!("{:?}",&self))[..])
+        serializer.serialize_str(&(&self.to_string())[..])
     }
 }
 
@@ -196,5 +196,9 @@ mod tests {
         assert_eq!(SiemIp::V4(111), SiemIp::V4(111));
         assert_eq!(SiemIp::V6(111), SiemIp::V6(111));
         assert_eq!(Some(SiemIp::V6(111)), Some(SiemIp::V6(111)));
+    }
+    #[test]
+    fn test_serialize_ip_field() {
+        assert_eq!(SiemIp::V4(111).to_string(), "0.0.0.111");
     }
 }
