@@ -167,9 +167,9 @@ pub enum SiemFunctionType {
 
 /// A simple object with the logic to parse Logs
 pub trait LogParser {
-    fn parse_log(log: SiemLog) -> Result<SiemLog, LogParsingError>;
-    fn device_match(log: &SiemLog) -> bool;
-    fn name() -> Cow<'static, str>;
+    fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
+    fn device_match(&self, log: &SiemLog) -> bool;
+    fn name(&self) -> Cow<'static, str>;
 }
 
 /// Error at parsing a log

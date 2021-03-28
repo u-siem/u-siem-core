@@ -18,7 +18,7 @@ pub struct GeoIpInfo {
     pub city: Cow<'static, str>,
     pub latitude: f32,
     pub longitude: f32,
-    pub isp: Cow<'static, str>,
+    pub isp: Cow<'static, str>,// More important than country in my opinion because Geolocalization is very imprecise.
 }
 #[derive(Debug)]
 pub struct GeoIpSynDataset {
