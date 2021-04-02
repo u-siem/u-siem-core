@@ -10,6 +10,7 @@ pub mod webserver;
 pub mod intrusion;
 pub mod dns;
 pub mod field_dictionary;
+pub mod auth;
 //use serde::ser::{Serializer, SerializeStruct};
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
@@ -17,6 +18,7 @@ use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
 use intrusion::IntrusionEvent;
 use dns::{DnsEvent, DnsEventType};
+use auth::{AuthEvent};
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -68,7 +70,7 @@ pub enum SiemEvent {
     /// a server or any kind of system.
     ///
     /// Ex: RDP, Windows, Linux, Mailbox login...
-    Auth,
+    Auth(AuthEvent),
     /// Local events related to servers or workstations, like OS failed to update,
     /// antivirus outdated, log file cleaned, user or group changes (Including global or universal domain events).
     /// Also events related to network devices: Changes in routing policys, Firewall rules, Shutdown out of mantaince
