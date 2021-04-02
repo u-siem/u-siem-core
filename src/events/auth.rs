@@ -75,3 +75,10 @@ impl std::fmt::Display for AuthLoginType {
         // fmt::Debug::fmt(self, f)
     }
 }
+impl std::fmt::Display for LoginOutcome {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
+}

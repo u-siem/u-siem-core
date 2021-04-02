@@ -18,7 +18,7 @@ use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
 use intrusion::IntrusionEvent;
 use dns::{DnsEvent, DnsEventType};
-use auth::{AuthEvent};
+use auth::{AuthEvent, AuthLoginType};
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
@@ -306,6 +306,26 @@ impl<'a> SiemLog {
                 self.add_field("user_agent.original", SiemField::Text(Cow::Owned(fw.user_agent().to_string())));
 
                 
+            },
+            SiemEvent::Auth(fw) => {
+                self.add_field("host.hostname", SiemField::Text(Cow::Owned(fw.hostname().to_string())));
+                self.add_field(field_dictionary::EVENT_OUTCOME, SiemField::Text(Cow::Owned(fw.outcome().to_string())));
+                match fw.login_type() {
+                    AuthLoginType::Local(evnt) => {
+                        self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.user_name.to_string()));
+                        self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
+                    },
+                    AuthLoginType::Remote(evnt) => {
+                        self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.user_name.to_string()));
+                        self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
+                        self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(evnt.source_ip.clone()));
+                    },
+                    AuthLoginType::Upgrade(evnt) => {
+                        self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.destination_user.to_string()));
+                        self.add_field("source.user.name", SiemField::User(evnt.source_user.to_string()));
+                        self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.destination_domain.to_string()));
+                    }
+                };
             },
             _ => {}
         }
