@@ -72,6 +72,9 @@ impl PartialEq for SiemField {
             SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => match other {
                 SiemField::Text(txt) => &v[..] == *txt,
                 SiemField::IP(ip) => &v[..] == ip.to_string(),
+                SiemField::User(txt) => &v[..] == *txt,
+                SiemField::Domain(txt) => &v[..] == *txt,
+                SiemField::AssetID(txt) => &v[..] == *txt,
                 _ => false,
             },
             SiemField::Text(txt) => match other {
