@@ -44,27 +44,27 @@ pub enum LoginOutcome {
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct LocalLogin {
     /// User that logged in
-    user_name : Cow<'static, str>,
+    pub user_name : Cow<'static, str>,
     /// User domain
-    domain : Cow<'static, str>
+    pub domain : Cow<'static, str>
 }
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct RemoteLogin {
     /// User that logged in
-    user_name : Cow<'static, str>,
+    pub user_name : Cow<'static, str>,
     /// User domain
-    domain : Cow<'static, str>,
+    pub domain : Cow<'static, str>,
     /// Ip from where the login come
-    source_ip : SiemIp
+    pub source_ip : SiemIp
 }
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct UpgradeLogin {
     /// Original user name
-    source_user : Cow<'static, str>,
+    pub source_user : Cow<'static, str>,
     /// User to be logged as
-    destination_user : Cow<'static, str>,
+    pub destination_user : Cow<'static, str>,
     /// Domain of the user to be logged as
-    destination_domain : Cow<'static, str>,
+    pub destination_domain : Cow<'static, str>,
 }
 
 
