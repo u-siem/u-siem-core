@@ -1,5 +1,5 @@
 # u-siem-core
-Framework definitions that allow to build a custom SIEM. Code you own SIEM like you code your own web page.
+Framework definitions that allow building a custom SIEM. Code you own SIEM like you code your own web page.
 
 ## Motivation
 I have seen many times updates in rules that break things or inneficient regular expressions that slow down the entire SIEM. 
