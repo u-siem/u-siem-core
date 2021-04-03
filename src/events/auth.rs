@@ -54,8 +54,8 @@ pub struct RemoteLogin {
     pub user_name : Cow<'static, str>,
     /// User domain
     pub domain : Cow<'static, str>,
-    /// Ip from where the login come
-    pub source_ip : SiemIp
+    /// Ip or hostname of the remote location
+    pub source_address : Cow<'static, str>,
 }
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct UpgradeLogin {

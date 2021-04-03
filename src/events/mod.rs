@@ -318,7 +318,7 @@ impl<'a> SiemLog {
                     AuthLoginType::Remote(evnt) => {
                         self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.user_name.to_string()));
                         self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
-                        self.add_field(field_dictionary::SOURCE_IP, SiemField::IP(evnt.source_ip.clone()));
+                        self.add_field("source.address", SiemField::Text(Cow::Owned(evnt.source_address.to_string())));
                     },
                     AuthLoginType::Upgrade(evnt) => {
                         self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.destination_user.to_string()));
