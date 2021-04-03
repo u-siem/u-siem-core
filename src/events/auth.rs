@@ -39,7 +39,9 @@ pub enum LoginOutcome {
     /// Login failed
     FAIL,
     /// Account locked out
-    LOCKOUT
+    LOCKOUT,
+    /// Pre authentication phase: trying to connect
+    ESTABLISH
 }
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct LocalLogin {
