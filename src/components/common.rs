@@ -7,10 +7,10 @@ use super::dataset::SiemDataset;
 
 #[derive(Serialize, Debug)]
 pub enum SiemMessage {
-    /// Execute a function in the component
-    Command(SiemFunctionCall),
-    /// Response to a function call
-    Response(SiemFunctionResponse),
+    /// Execute a function in the component, first element is the ID of the Command to keep track
+    Command(u64,SiemFunctionCall),
+    /// Response to a function call, first element is the ID of the Response
+    Response(u64,SiemFunctionResponse),
     /// Process a log
     Log(SiemLog),
     /// Local logging system.
@@ -215,6 +215,6 @@ pub enum SiemFunctionResponse {
     FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
     OTHER(
         Cow<'static, str>,
-        Result<Cow<'static, str>, Cow<'static, str>>,
+        Result<serde_json::Value,serde_json::Value>,
     ),
 }
