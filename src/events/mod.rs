@@ -11,6 +11,7 @@ pub mod intrusion;
 pub mod dns;
 pub mod field_dictionary;
 pub mod auth;
+pub mod schema;
 //use serde::ser::{Serializer, SerializeStruct};
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
