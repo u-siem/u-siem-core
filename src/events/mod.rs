@@ -320,6 +320,12 @@ impl<'a> SiemLog {
                         self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.user_name.to_string()));
                         self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
                         self.add_field("source.address", SiemField::Text(Cow::Owned(evnt.source_address.to_string())));
+                        match SiemIp::from_ip_str(&evnt.source_address) {
+                            Ok(ip) => {
+                                self.add_field("source.ip", SiemField::IP(ip));
+                            },
+                            Err(_) => {}
+                        };
                     },
                     AuthLoginType::Upgrade(evnt) => {
                         self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.destination_user.to_string()));
