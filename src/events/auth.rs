@@ -35,7 +35,7 @@ pub enum AuthLoginType {
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub enum LoginOutcome {
     /// Login success
-    SUCESS,
+    SUCCESS,
     /// Login failed
     FAIL,
     /// Account locked out
