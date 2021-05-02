@@ -6,6 +6,8 @@ pub mod dataset;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 use std::boxed::Box;
 pub mod mitre;
+pub mod alert;
+pub mod soar;
 
 pub trait SiemComponent {
     fn name(&self) -> Cow<'static, str>{

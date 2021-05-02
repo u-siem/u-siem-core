@@ -4,6 +4,7 @@ use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use super::dataset::SiemDataset;
+use super::alert::SiemAlert;
 
 #[derive(Serialize, Debug)]
 pub enum SiemMessage {
@@ -17,6 +18,8 @@ pub enum SiemMessage {
     Notification(Cow<'static, str>),
     /// Dataset updated, this is the last state of it. The first element is the name of the tenant for which this dataset applies.
     Dataset((Cow<'static, str>, SiemDataset)),
+    /// Alerting
+    Alert(SiemAlert)
 }
 
 pub trait SiemComponentStateStorage {
