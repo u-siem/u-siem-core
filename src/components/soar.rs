@@ -1,5 +1,6 @@
 use super::super::events::field::{SiemIp, SiemField};
 use super::super::events::SiemLog;
+use super::dataset::{SiemDatasetType, SiemDataset};
 
 /// SOAR Actions work in conjuntion with SOLID rule Engine
 /// Some SOLID Rules can trigger SOAR actions specifically for the device that they are designed for
@@ -9,6 +10,10 @@ pub trait SiemSoarAction : Clone {
     fn name(&self) -> &str;
     /// Describes the actions that this component makes
     fn description(&self) -> &str;
+    /// Updates the internal reference to the dataset
+    fn update_dataset(&mut self, dataset : SiemDataset);
+    /// List of datasets needed by this action
+    fn needed_dataset(&self) -> Vec<SiemDatasetType>;
     /// Triggers the SOAR action
     fn execute(&self, value: serde_json::Value) -> Result<String, String>;
 }

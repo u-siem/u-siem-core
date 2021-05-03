@@ -64,6 +64,49 @@ pub enum SiemDataset {
     MantainceCalendar(CalendarSynDataset)
 }
 
+pub enum SiemDatasetType {
+    /// Map IP to country, city, latitude and longitude
+    GeoIp,
+    /// IP associated with a hostname
+    IpHost,
+    /// IP associated with a MAC address
+    IpMac,
+    /// Hostname associated with a MAC address
+    HostMac,
+    /// Hostname associated with a username
+    HostUser,
+    /// List of IPs in the block list
+    BlockIp,
+    /// List of domain in the block list
+    BlockDomain,
+    /// List of countries in the block list
+    BlockCountry,
+    /// Tag each user with roles => user.roles = [vip, admin, extern, invited, director, super_user, local_user]
+    UserTag,
+    /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
+    AssetTag,
+    /// Cloud service => Office 365, G Suit ...
+    IpCloudService,
+    /// Cloud Provider => Azure, Google Cloud, AWS
+    IpCloudProvider,
+    /// User associated with a headquarter
+    UserHeadquarters,
+    /// IP net associated with a headquarter
+    IpHeadquarters,
+    /// Working hours of each headquarter
+    HeadquartersWorkingHours,
+    /// User custom dataset IP_NET => Text
+    CustomMapIpNet(Cow<'static, str>),
+    /// User custom dataset Text => Text
+    CustomMapText(Cow<'static, str>),
+    /// User custom dataset IP list
+    CustomIpList(Cow<'static, str>),
+    /// User custom dataset Text list
+    CustomTextList(Cow<'static, str>),
+    /// Mantaince Calendar
+    MantainceCalendar
+}
+
 impl Serialize for SiemDataset {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
