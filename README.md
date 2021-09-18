@@ -36,6 +36,8 @@ Some benchmarks (single-thread):
                                        --->|BehavourNode| ---------->|
                                            |------------| 
 ```
+Note: It has changed quite a lot and is still changing.
+
 ## Node Types
 
 ### InputNode
@@ -67,6 +69,11 @@ Work in progress: define a custom trait that can be used with a common component
 
 ### BehavourNode
 Apply multiple simple rules (like DarkTrace) does to calculate the threat score associated with the event. That score is added to the total score of a user in a period of time (Slicing Window). It will be implemented in redis wit a ScoreSet of users-scores in periods of 15 min with each removed after 24 hours by default.
+
+## [Datasets](https://github.com/u-siem/u-siem-core/blob/main/src/components/dataset/README.md)
+
+The Datasets are similar to the QRadar reference sets. They store information such as IP, IOC ... and can be populated almost in real time from the information extracted from the logs.
+
 
 ## TODO List
 
