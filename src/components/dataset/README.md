@@ -18,3 +18,5 @@ It also let us define custom datasets:
 * CustomMapText: It has associated a name and a Map of pairs Key-Value(String).
 * CustomTextList: Key-Value maps where the value is a list of strings.
 ...
+
+This will only work effectively when the instance of uSIEM is for a single client. In multi tenant services, will be needed dedicated instances for each tenant, this will simplify the calculation of the cost too and simplify the development of the SIEM in our side.
