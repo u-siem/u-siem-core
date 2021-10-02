@@ -5,6 +5,9 @@ pub mod text_map;
 pub mod ip_set;
 pub mod text_set;
 pub mod calendar;
+pub mod ip_map_list;
+pub mod text_map_list;
+
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
 use ip_map::{IpMapSynDataset, UpdateIpMap};
 use ip_net::{IpNetSynDataset, UpdateNetIp};
@@ -15,12 +18,15 @@ use calendar::{CalendarSynDataset, UpdateCalendar};
 use serde::Serialize;
 use serde::ser::{SerializeStruct, Serializer};
 use std::borrow::Cow;
+use text_map_list::{TextMapListDataset, TextMapListSynDataset};
+use ip_map_list::{IpMapListDataset ,IpMapListSynDataset};
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
 /// 
 /// The custom datasets are associated with the name of the dataset
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude
     GeoIp(GeoIpSynDataset),
@@ -28,17 +34,21 @@ pub enum SiemDataset {
     IpHost(IpMapSynDataset),
     /// IP associated with a MAC address
     IpMac(IpMapSynDataset),
-    /// Hostname associated with a MAC address
-    HostMac(TextMapSynDataset),
+    /// IP associated with a resolved domain
+    IpDNS(IpMapSynDataset),
+    /// MAC address associated with a Hostname
+    MacHost(TextMapSynDataset),
     /// Hostname associated with a username
     HostUser(TextMapSynDataset),
     /// List of IPs in the block list
     BlockIp(IpSetSynDataset),
     /// List of domain in the block list
     BlockDomain(TextSetSynDataset),
+    /// List of email senders in the block list
+    BlockEmailSender(TextSetSynDataset),
     /// List of countries in the block list
     BlockCountry(TextSetSynDataset),
-    /// Tag each user with roles => user.roles = [vip, admin, extern, invited, director, super_user, local_user]
+    /// Tag each user with roles => user.roles = [vip, admin, extern, guest, director, super_user, local_user]
     UserTag(TextMapSynDataset),
     /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
     AssetTag(TextMapSynDataset),
@@ -63,7 +73,7 @@ pub enum SiemDataset {
     /// Mantaince Calendar
     MantainceCalendar(CalendarSynDataset)
 }
-
+#[non_exhaustive]
 pub enum SiemDatasetType {
     /// Map IP to country, city, latitude and longitude
     GeoIp,
@@ -71,17 +81,21 @@ pub enum SiemDatasetType {
     IpHost,
     /// IP associated with a MAC address
     IpMac,
-    /// Hostname associated with a MAC address
-    HostMac,
+    /// IP associated with a resolved domain
+    IpDNS,
+    /// MAC address associated with a Hostname
+    MacHost,
     /// Hostname associated with a username
     HostUser,
     /// List of IPs in the block list
     BlockIp,
     /// List of domain in the block list
     BlockDomain,
+    /// List of email senders in the block list
+    BlockEmailSender,
     /// List of countries in the block list
     BlockCountry,
-    /// Tag each user with roles => user.roles = [vip, admin, extern, invited, director, super_user, local_user]
+    /// Tag each user with roles => user.roles = [vip, admin, extern, guest, director, super_user, local_user]
     UserTag,
     /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
     AssetTag,
@@ -117,10 +131,12 @@ impl Serialize for SiemDataset {
             SiemDataset::GeoIp(_) => "GeoIp",
             SiemDataset::IpHost(_) => "IpHost",
             SiemDataset::IpMac(_) => "IpMac",
-            SiemDataset::HostMac(_) => "HostMac",
+            SiemDataset::IpDNS(_) => "IpDNS",
+            SiemDataset::MacHost(_) => "MacHost",
             SiemDataset::HostUser(_) => "HostUser",
             SiemDataset::BlockIp(_) => "BlockIp",
             SiemDataset::BlockDomain(_) => "BlockDomain",
+            SiemDataset::BlockEmailSender(_) => "BlockEmailSender",
             SiemDataset::BlockCountry(_) => "BlockCountry",
             SiemDataset::UserTag(_) => "UserTag",
             SiemDataset::AssetTag(_) => "AssetTag",
@@ -153,6 +169,7 @@ impl Serialize for SiemDataset {
 }
 
 #[derive(Serialize, Debug)]
+#[non_exhaustive]
 pub enum UpdateDataset {
     GeoIp(UpdateGeoIp),
     IpCloudService(UpdateNetIp),
@@ -161,7 +178,8 @@ pub enum UpdateDataset {
     CustomMapIpNet(UpdateNetIp),
     IpHost(UpdateIpMap),
     IpMac(UpdateIpMap),
-    HostMac(UpdateTextMap),
+    IpDNS(UpdateIpMap),
+    MacHost(UpdateTextMap),
     HostUser(UpdateTextMap),
     UserTag(UpdateTextMap),
     AssetTag(UpdateTextMap),
@@ -170,6 +188,7 @@ pub enum UpdateDataset {
     BlockIp(UpdateIpSet),
     CustomIpList(UpdateIpSet),
     BlockDomain(UpdateTextSet),
+    BlockEmailSender(UpdateTextSet),
     BlockCountry(UpdateTextSet),
     CustomTextList(UpdateTextSet),
     MantainceCalendar(UpdateCalendar)

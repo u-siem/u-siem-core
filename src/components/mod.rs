@@ -8,8 +8,13 @@ use std::boxed::Box;
 pub mod mitre;
 pub mod alert;
 pub mod soar;
+pub mod metrics;
 
 pub trait SiemComponent {
+    fn id(&self) -> u64 {
+        return 0
+    }
+    fn set_id(&mut self, id: u64);
     fn name(&self) -> Cow<'static, str>{
         return Cow::Borrowed("SiemComponent")
     }

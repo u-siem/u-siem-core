@@ -61,6 +61,7 @@ impl std::fmt::Display for IntrusionOutcome {
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum IntrusionCategory {
     /// Cross site scripting
     XSS,

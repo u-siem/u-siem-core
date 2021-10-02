@@ -20,3 +20,15 @@ It also let us define custom datasets:
 ...
 
 This will only work effectively when the instance of uSIEM is for a single client. In multi tenant services, will be needed dedicated instances for each tenant, this will simplify the calculation of the cost too and simplify the development of the SIEM in our side.
+
+#### About BlockLists
+The blocklists are intended to be used internally by the SIEM not directly by an operator. So, if we want to add an element in a block list, we first need to define in a component the appropiate command, like FILTER_IP and define the behaviour for that command, normally it will be the components that manages the datasets, because it knows how to handle the dataset in the DDBB.
+
+## TODO List
+
+- [x] Block list email sender
+- [x] DNS-IP association dataset. If we have DNS logs, we can populate this dataset with the real IPs associated with that domain (If we try to resolve them in another place it may be different).
+- [ ] Datasets for WebServers: WebHosted (name of the app hosted in the server); WebAppTechnology (If the APP uses PHP, .NET, JavaScript, Java...) this is useful to detect SCANNERS; SlowWebRequest if some request like "/download/all_logs" are always slow, we can tag them as to not interfere with the rules used to detect BlindSQL injections that uses the sleep command or Web exploits that downloads excessive data.
+- [ ] Authentication dataset: pairs user/secret only to be used by user facing components: inputs, outputs, comander, database...
+- [ ] uSIEM user dataset: Local auth for uSIEM.
+- [ ] Dataset with the list of hosts that send logs and the last time they do it.

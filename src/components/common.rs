@@ -5,6 +5,7 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 use super::dataset::SiemDataset;
 use super::alert::SiemAlert;
+use super::metrics::SiemMetric;
 
 #[derive(Serialize, Debug)]
 pub enum SiemMessage {
@@ -14,12 +15,14 @@ pub enum SiemMessage {
     Response(u64,SiemFunctionResponse),
     /// Process a log
     Log(SiemLog),
-    /// Local logging system.
-    Notification(Cow<'static, str>),
+    /// Local logging system. First element is the ID of the component, to be able to route messages
+    Notification(u64, Cow<'static, str>),
     /// Dataset updated, this is the last state of it. The first element is the name of the tenant for which this dataset applies.
-    Dataset((Cow<'static, str>, SiemDataset)),
+    Dataset(Cow<'static, str>, SiemDataset),
     /// Alerting
-    Alert(SiemAlert)
+    Alert(SiemAlert),
+    /// Send/Receive Metrics, first element is the ID of the component, second is the name of the metric
+    Metrics(u64, Cow<'static, str>, SiemMetric)//TODO: use metrics like prometheus
 }
 
 pub trait SiemComponentStateStorage {
@@ -153,6 +156,7 @@ impl DatasetDefinition {
 /// Function launch and forget
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum SiemFunctionType {
     STOP_COMPONENT,
     START_COMPONENT,
@@ -161,6 +165,7 @@ pub enum SiemFunctionType {
     ISOLATE_ENDPOINT,
     FILTER_IP,
     FILTER_DOMAIN,
+    FILTER_EMAIL_SENDER,
     /// Function name, Map<ParamName, Description>
     OTHER(
         Cow<'static, str>,
@@ -170,9 +175,14 @@ pub enum SiemFunctionType {
 
 /// A simple object with the logic to parse Logs
 pub trait LogParser {
+    /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
+    /// Check if the parser can parse the log. Must be fast.
     fn device_match(&self, log: &SiemLog) -> bool;
+    /// Name of the parser
     fn name(&self) -> &str;
+    /// Description of the parser
+    fn description(&self) -> &str;
 }
 
 /// Error at parsing a log
@@ -186,26 +196,30 @@ pub enum LogParsingError {
 
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum SiemFunctionCall {
-    /// Component name
+    /// Starts a component. Params: Component name
     START_COMPONENT(Cow<'static, str>),
-    /// Component name
+    /// Stops a component. Params: Component name
     STOP_COMPONENT(Cow<'static, str>),
-    /// Query in database format
+    /// Query in database format. Ex SQL vs Elastic
     LOG_QUERY(Cow<'static, str>),
     /// IP of the device to isolate
     ISOLATE_IP(SiemIp),
     /// IP of the device to isolate
     ISOLATE_ENDPOINT(SiemIp),
-    /// (IP, Comment)
+    /// Adds a IP to a BlockList with a comment or reference (IP, Comment)
     FILTER_IP(SiemIp, Cow<'static, str>),
-    /// (Domain, Comment)
+    /// Adds a domain to a BlockList with a comment or reference (Domain, Comment)
     FILTER_DOMAIN(Cow<'static, str>, Cow<'static, str>),
-    /// Function name, Parameters
+    /// Adds a email to a BlockList with a comment or reference (Email, Comment)
+    FILTER_EMAIL_SENDER(Cow<'static, str>, Cow<'static, str>),
+    /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(Cow<'static, str>, serde_json::Value),
 }
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
+#[non_exhaustive]
 pub enum SiemFunctionResponse {
     START_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
     STOP_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
@@ -216,8 +230,11 @@ pub enum SiemFunctionResponse {
     FILTER_IP(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (Domain, Comment)
     FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
+    /// (Email, Comment)
+    FILTER_EMAIL_SENDER(Result<Cow<'static, str>, Cow<'static, str>>),
     OTHER(
         Cow<'static, str>,
         Result<serde_json::Value,serde_json::Value>,
     ),
 }
+//TODO: Authentication command, to allow login using third party systems: LDAP...
