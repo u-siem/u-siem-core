@@ -142,18 +142,21 @@ impl DatasetDefinition {
             min_permission
         }
     }
+    /// Name of the dataset
     pub fn name(&self) -> &Cow<'static, str> {
         &self.name
     }
+    /// Description of the dataset
     pub fn description(&self) -> &Cow<'static, str> {
         &self.description
     }
+    /// Permission needed to access this dataset
     pub fn min_permission(&self) -> &UserRole {
         &self.min_permission
     }
 }
 
-/// Function launch and forget
+/// Define commands to be used by the users or other components.
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
@@ -173,7 +176,7 @@ pub enum SiemFunctionType {
     ),
 }
 
-/// A simple object with the logic to parse Logs
+/// A simple object with the logic to parse Logs.
 pub trait LogParser {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
@@ -185,6 +188,26 @@ pub trait LogParser {
     fn description(&self) -> &str;
 }
 
+/// This is the most complex type of parser. It's statefull to store past logs.
+/// Think of the USB event in linux, we need the rest of the logs to extract all information.
+/// The Parser component which uses this parsers must be able to store and load past Logs 
+/// if the user connects to a different SIEM node (LoadBalancing).
+pub trait MultilineLogParser {
+    /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
+    fn parse_log(&mut self, log: SiemLog) -> Result<Option<SiemLog>, LogParsingError>;
+    /// Check if the parser can parse the log. Must be fast.
+    fn device_match(&self, log: &SiemLog) -> bool;
+    /// Name of the parser
+    fn name(&self) -> &str;
+    /// Description of the parser
+    fn description(&self) -> &str;
+    /// The connection with the origin has been closed. We must preserve the logs stored inside this parser 
+    /// so another node can use them to parse the logs of the same machine.
+    fn cleaning(&mut self) -> Vec<SiemLog>;
+    /// Return those logs that would not be used by the parser, or are older as to reduce the memmory usage.
+    fn unused(&mut self) -> Vec<SiemLog>;
+}
+
 /// Error at parsing a log
 #[derive(Serialize, Debug)]
 pub enum LogParsingError {
@@ -194,6 +217,7 @@ pub enum LogParsingError {
     ParserError(SiemLog),
 }
 
+/// Execute a command with parameters
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
@@ -217,6 +241,8 @@ pub enum SiemFunctionCall {
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(Cow<'static, str>, serde_json::Value),
 }
+
+/// The response of a command execution
 #[derive(Serialize, Debug)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]

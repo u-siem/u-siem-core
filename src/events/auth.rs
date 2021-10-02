@@ -29,7 +29,8 @@ impl AuthEvent {
 pub enum AuthLoginType {
     Local(LocalLogin),
     Remote(RemoteLogin),
-    Upgrade(UpgradeLogin)
+    Upgrade(UpgradeLogin),
+    Validation(ValidationLogin)
 }
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
@@ -43,6 +44,8 @@ pub enum LoginOutcome {
     /// Pre authentication phase: trying to connect
     ESTABLISH
 }
+
+/// A user is login in locally, in front of the computer (or almost).
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct LocalLogin {
     /// User that logged in
@@ -50,6 +53,8 @@ pub struct LocalLogin {
     /// User domain
     pub domain : Cow<'static, str>
 }
+
+/// Someone tries to login in the system from another computer.
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct RemoteLogin {
     /// User that logged in
@@ -59,6 +64,8 @@ pub struct RemoteLogin {
     /// Ip or hostname of the remote location
     pub source_address : Cow<'static, str>,
 }
+
+/// A user changes into another account, like a "su" command in linux
 #[derive(Serialize, Debug, PartialEq, Clone)]
 pub struct UpgradeLogin {
     /// Original user name
@@ -67,6 +74,15 @@ pub struct UpgradeLogin {
     pub destination_user : Cow<'static, str>,
     /// Domain of the user to be logged as
     pub destination_domain : Cow<'static, str>,
+}
+
+/// This does not imply a user login in the system, only validation of credentials. Like LoginType=3 in Windows.
+#[derive(Serialize, Debug, PartialEq, Clone)]
+pub struct ValidationLogin {
+    /// User doing the login
+    pub user_name : Cow<'static, str>,
+    /// Origin og the connection
+    pub source_address : Cow<'static, str>
 }
 
 
