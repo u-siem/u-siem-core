@@ -55,3 +55,6 @@ pub static DNS_QUESTION_CLASS: &'static str = "dns.question.class";
 pub static DNS_QUESTION_NAME: &'static str = "dns.question.name";
 pub static DNS_QUESTION_TYPE: &'static str = "dns.question.type";
 pub static DNS_RESOLVED_IP: &'static str = "dns.resolved_ip";
+
+
+pub static DHCP_RECORD_TYPE: &'static str = "dhcp.type";

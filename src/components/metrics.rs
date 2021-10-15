@@ -2,15 +2,15 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 use serde::Serialize;
 
-pub static connected_agents : &'static str = "connected_agents";
-pub static processing_logs_input : &'static str = "processing_logs_input";
-pub static processing_logs_parser : &'static str = "processing_logs_parser";
-pub static logs_parsing_time : &'static str = "logs_parsing_time";
-pub static processing_logs_enchancer : &'static str = "processing_logs_enchancer";
-pub static processing_logs_indexer : &'static str = "processing_logs_indexer";
-pub static logs_indexing_time : &'static str = "logs_indexing_time";
-pub static processed_bytes_input : &'static str = "processed_bytes_input";
-pub static processed_bytes_indexer : &'static str = "processed_bytes_indexer";
+pub static CONNECTED_AGENTS : &'static str = "connected_agents";
+pub static PROCESSING_LOGS_INPUT : &'static str = "processing_logs_input";
+pub static PROCESSING_LOGS_PARSER : &'static str = "processing_logs_parser";
+pub static LOGS_PARSING_TIME : &'static str = "logs_parsing_time";
+pub static PROCESSING_LOGS_ENCHANCER : &'static str = "processing_logs_enchancer";
+pub static PROCESSING_LOGS_INDEXER : &'static str = "processing_logs_indexer";
+pub static LOGS_INDEXING_TIME : &'static str = "logs_indexing_time";
+pub static PROCESSED_BYTES_INPUT : &'static str = "processed_bytes_input";
+pub static PROCESSED_BYTES_INDEXER : &'static str = "processed_bytes_indexer";
 
 #[derive(Serialize, Debug)]
 pub enum SiemMetric {

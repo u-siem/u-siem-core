@@ -34,7 +34,7 @@ pub enum SiemField {
     /// decimal number with 64 bits
     F64(f64),
     ///A date in a decimal number format with 64 bits
-    Date(i64),
+    Date(i64)
 }
 impl SiemField {
     pub fn from_str<S>(val : S) -> SiemField where S: Into<Cow<'static, str>> {

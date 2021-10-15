@@ -6,8 +6,10 @@ use std::collections::BTreeMap;
 use super::dataset::SiemDataset;
 use super::alert::SiemAlert;
 use super::metrics::SiemMetric;
+use super::task::{SiemTask, SiemTaskResult};
 
 #[derive(Serialize, Debug)]
+#[non_exhaustive]
 pub enum SiemMessage {
     /// Execute a function in the component, first element is the ID of the Command to keep track
     Command(u64,SiemFunctionCall),
@@ -17,12 +19,14 @@ pub enum SiemMessage {
     Log(SiemLog),
     /// Local logging system. First element is the ID of the component, to be able to route messages
     Notification(u64, Cow<'static, str>),
-    /// Dataset updated, this is the last state of it. The first element is the name of the tenant for which this dataset applies.
-    Dataset(Cow<'static, str>, SiemDataset),
+    /// Dataset updated, this is the last state of it.
+    Dataset(SiemDataset),
     /// Alerting
     Alert(SiemAlert),
     /// Send/Receive Metrics, first element is the ID of the component, second is the name of the metric
-    Metrics(u64, Cow<'static, str>, SiemMetric)//TODO: use metrics like prometheus
+    Metrics(u64, Cow<'static, str>, SiemMetric), //TODO: use metrics like prometheus
+    Task(u64, SiemTask),
+    TaskResult(u64, SiemTaskResult)
 }
 
 pub trait SiemComponentStateStorage {

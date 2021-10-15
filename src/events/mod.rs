@@ -12,6 +12,7 @@ pub mod dns;
 pub mod field_dictionary;
 pub mod auth;
 pub mod schema;
+pub mod dhcp;
 //use serde::ser::{Serializer, SerializeStruct};
 use field::{SiemField, SiemIp};
 use firewall::FirewallEvent;
@@ -20,7 +21,7 @@ use webserver::WebServerEvent;
 use intrusion::IntrusionEvent;
 use dns::{DnsEvent, DnsEventType};
 use auth::{AuthEvent, AuthLoginType};
-
+use dhcp::{DhcpEvent, DhcpRecordType};
 #[derive(Serialize, Debug)]
 #[serde(tag = "type")]
 pub enum SiemEvent {
@@ -28,7 +29,7 @@ pub enum SiemEvent {
     Firewall(FirewallEvent),
     /// Intrusion detection/protection systems. Ex: Suricata, Snort, OSSEC, Wazuh, NGFW... 
     Intrusion(IntrusionEvent),
-    /// Security related assessment, like the output of vulnerability scanners (Nessus) or policy enforcers (OpenSCAP)
+    /// Security related assessment, like the output of vulnerability scanners (Nessus) or policy enforcers (OpenSCAP). PulseSecure and Forescout can also get in this category.
     Assessment,
     /// Web Browsing Proxy
     WebProxy(WebProxyEvent),
@@ -47,7 +48,7 @@ pub enum SiemEvent {
     /// Data Loss Prevention are devices that detect anomalous behavour related to
     /// data exfiltration.
     ///
-    /// Ex: CloudSOC
+    /// Ex: Boldon
     DLP,
     /// Some devices like email gateways generates a large number of logs when an email arrives: Header processing, AV scan, attachment information...
     /// In those cases, each log is associated with an action using a trace ID or a transaction ID.
@@ -66,7 +67,7 @@ pub enum SiemEvent {
     /// used in the organization, like a DNS talking to another DNS.
     DNS(DnsEvent),
     /// DHCP logs associating an IP with a MAC address.
-    DHCP,
+    DHCP(DhcpEvent),
     /// Logs related to authentication, like a user trying to log in to a Router,
     /// a server or any kind of system.
     ///
@@ -341,6 +342,31 @@ impl<'a> SiemLog {
                             },
                             Err(_) => {}
                         };
+                    },
+                    AuthLoginType::Delegation(evnt) => {
+                        self.add_field(field_dictionary::USER_NAME, SiemField::User(evnt.destination_user.to_string()));
+                        self.add_field("source.user.name", SiemField::User(evnt.source_user.to_string()));
+                        self.add_field(field_dictionary::USER_DOMAIN, SiemField::Domain(evnt.destination_domain.to_string()));
+                        self.add_field("source.user.domain", SiemField::Domain(evnt.source_domain.to_string()));
+                    }
+                };
+            },
+            SiemEvent::DHCP(dhcp) => {
+                self.add_field("host.hostname", SiemField::Text(Cow::Owned(dhcp.hostname().to_string())));
+                self.add_field("server.hostname", SiemField::Text(Cow::Owned(dhcp.hostname().to_string())));
+                self.add_field("client.hostname", SiemField::Text(Cow::Owned(dhcp.source_hostname().to_string())));
+                self.add_field("client.ip", SiemField::IP(dhcp.source_ip().clone()));
+                self.add_field("client.mac", SiemField::from_str(dhcp.source_mac().to_string()));
+                self.add_field(field_dictionary::DHCP_RECORD_TYPE, SiemField::from_str(dhcp.record_type().to_string()));
+                match dhcp.record_type() {
+                    DhcpRecordType::Assign => {
+                        
+                    },
+                    DhcpRecordType::Release => {
+
+                    },
+                    DhcpRecordType::Request => {
+                        self.add_field("dhcp.requested_ip", SiemField::IP(dhcp.source_ip().clone()));
                     }
                 };
             },

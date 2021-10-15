@@ -1,4 +1,3 @@
-use super::field::SiemIp;
 use serde::Serialize;
 use std::borrow::Cow;
 
@@ -30,7 +29,8 @@ pub enum AuthLoginType {
     Local(LocalLogin),
     Remote(RemoteLogin),
     Upgrade(UpgradeLogin),
-    Validation(ValidationLogin)
+    Validation(ValidationLogin),
+    Delegation(DelegationLogin)
 }
 
 #[derive(Serialize, Debug, PartialEq, Clone)]
@@ -52,6 +52,18 @@ pub struct LocalLogin {
     pub user_name : Cow<'static, str>,
     /// User domain
     pub domain : Cow<'static, str>
+}
+
+/// A user uses a Credential Vault like CyberArk to use an account
+#[derive(Serialize, Debug, PartialEq, Clone)]
+pub struct DelegationLogin {
+    /// Original user name
+    pub source_user : Cow<'static, str>,
+    pub source_domain : Cow<'static, str>,
+    /// User to be logged as
+    pub destination_user : Cow<'static, str>,
+    /// Domain of the user to be logged as
+    pub destination_domain : Cow<'static, str>
 }
 
 /// Someone tries to login in the system from another computer.

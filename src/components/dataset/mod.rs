@@ -18,8 +18,8 @@ use calendar::{CalendarSynDataset, UpdateCalendar};
 use serde::Serialize;
 use serde::ser::{SerializeStruct, Serializer};
 use std::borrow::Cow;
-use text_map_list::{TextMapListDataset, TextMapListSynDataset};
-use ip_map_list::{IpMapListDataset ,IpMapListSynDataset};
+use text_map_list::{UpdateTextMapList, TextMapListSynDataset};
+use ip_map_list::{UpdateIpMapList ,IpMapListSynDataset};
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
@@ -35,7 +35,7 @@ pub enum SiemDataset {
     /// IP associated with a MAC address
     IpMac(IpMapSynDataset),
     /// IP associated with a resolved domain
-    IpDNS(IpMapSynDataset),
+    IpDNS(IpMapListSynDataset),
     /// MAC address associated with a Hostname
     MacHost(TextMapSynDataset),
     /// Hostname associated with a username
@@ -66,6 +66,8 @@ pub enum SiemDataset {
     CustomMapIpNet((Cow<'static, str>, IpNetSynDataset)),
     /// User custom dataset Text => Text
     CustomMapText((Cow<'static, str>, TextMapSynDataset)),
+    /// User custom dataset Text => Text
+    CustomMapTextList((Cow<'static, str>, TextMapListSynDataset)),
     /// User custom dataset IP list
     CustomIpList((Cow<'static, str>, IpSetSynDataset)),
     /// User custom dataset Text list
@@ -113,6 +115,8 @@ pub enum SiemDatasetType {
     CustomMapIpNet(Cow<'static, str>),
     /// User custom dataset Text => Text
     CustomMapText(Cow<'static, str>),
+    /// User custom dataset Text => Text[]
+    CustomMapTextList(Cow<'static, str>),
     /// User custom dataset IP list
     CustomIpList(Cow<'static, str>),
     /// User custom dataset Text list
@@ -162,6 +166,10 @@ impl Serialize for SiemDataset {
                 state.serialize_field("name", name)?;
                 "CustomTextList"
             },
+            SiemDataset::CustomMapTextList((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomMapTextList"
+            }
         };
         state.serialize_field("type", typ)?;
         state.end()
@@ -178,7 +186,7 @@ pub enum UpdateDataset {
     CustomMapIpNet(UpdateNetIp),
     IpHost(UpdateIpMap),
     IpMac(UpdateIpMap),
-    IpDNS(UpdateIpMap),
+    IpDNS(UpdateIpMapList),
     MacHost(UpdateTextMap),
     HostUser(UpdateTextMap),
     UserTag(UpdateTextMap),
@@ -191,5 +199,6 @@ pub enum UpdateDataset {
     BlockEmailSender(UpdateTextSet),
     BlockCountry(UpdateTextSet),
     CustomTextList(UpdateTextSet),
+    CustomMapTextList(UpdateTextMapList),
     MantainceCalendar(UpdateCalendar)
 }

@@ -2,13 +2,14 @@ use super::mitre::{MitreTactics, MitreTechniques};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use super::SiemLog;
-use super::soar::SoarRequestAction;
+use super::actuator::ActuatorRequest;
 use serde::Serialize;
 
 /// Common rule format to create rock solid rules
+/// The rule must be stateless
 pub trait SolidRule {
     /// Checks if the log matches this rule. It can return an alert and/or an action to be executed by the SOAR
-    fn match_log(&self, log: &Arc<SiemLog>) -> Result<(Option<SiemAlert>, Option<SoarRequestAction>),()>;
+    fn match_log(&self, log: &Arc<SiemLog>) -> Option<(Option<SiemAlert>, Option<ActuatorRequest>)>;
     /// Name of the rule
     fn name(&self) -> &'static str;
     /// Name of the Service applied to match this rule
@@ -43,8 +44,8 @@ pub struct SiemAlert {
     pub date : i64,
     /// List of tags to be added to the alert
     pub tags : Vec<String>,
-    /// Name of the service that generated the alert
-    pub service : String,
+    /// Name of the rule that generated the alert
+    pub rule : String,
     /// The log that triggered this alert
     pub log : SiemLog
 }

@@ -7,8 +7,9 @@ use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 use std::boxed::Box;
 pub mod mitre;
 pub mod alert;
-pub mod soar;
+pub mod actuator;
 pub mod metrics;
+pub mod task;
 
 pub trait SiemComponent {
     fn id(&self) -> u64 {
