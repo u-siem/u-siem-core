@@ -11,7 +11,7 @@ pub mod actuator;
 pub mod metrics;
 pub mod task;
 
-pub trait SiemComponent {
+pub trait SiemComponent : Send {
     fn id(&self) -> u64 {
         return 0
     }
