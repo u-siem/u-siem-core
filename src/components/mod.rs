@@ -10,6 +10,9 @@ pub mod alert;
 pub mod actuator;
 pub mod metrics;
 pub mod task;
+use dataset::{SiemDataset};
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
 
 pub trait SiemComponent : Send {
     fn id(&self) -> u64 {
@@ -38,4 +41,27 @@ pub trait SiemComponent : Send {
 
     /// Allows the Kernel to duplicate this component
     fn duplicate(&self) -> Box<dyn SiemComponent>;
+    
+    /// Initialize the component with the datasets before executing run
+    fn set_datasets(&mut self, datasets : Vec<SiemDataset>);
+}
+
+pub trait SiemDatasetManager : Send {
+    fn name(&self) -> Cow<'static, str>{
+        return Cow::Borrowed("SiemComponent")
+    }
+    /// Get the channel to this component
+    fn local_channel(&self) -> Sender<SiemMessage>;
+
+    /// Sets the channel to communicate with the kernel.
+    fn set_kernel_sender(&mut self, sender : Sender<SiemMessage>);
+
+    /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
+    fn run(&mut self);
+
+    /// Get the list of datasets to initialize components
+    fn get_datasets(&self) -> Vec<SiemDataset>;
+
+    /// Sets the map of components that need dataset updates
+    fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
 }
