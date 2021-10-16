@@ -12,7 +12,7 @@ pub enum UpdateCalendar {
     Remove((i64,i64)),
     Replace(CalendarDataset),
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CalendarSynDataset {
     dataset: Arc<CalendarDataset>,
     comm: Sender<UpdateCalendar>,
