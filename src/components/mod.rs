@@ -11,7 +11,7 @@ pub mod actuator;
 pub mod metrics;
 pub mod task;
 
-pub trait SiemComponent : Clone + Copy{
+pub trait SiemComponent {
     fn id(&self) -> u64 {
         return 0
     }
@@ -35,4 +35,6 @@ pub trait SiemComponent : Clone + Copy{
 
     /// Capabilities and actions that can be performed by this component
     fn capabilities(&self) -> SiemComponentCapabilities;
+
+    fn duplicate(&self) -> dyn SiemComponent;
 }
