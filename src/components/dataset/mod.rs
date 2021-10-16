@@ -25,7 +25,7 @@ use ip_map_list::{UpdateIpMapList ,IpMapListSynDataset};
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
 /// 
 /// The custom datasets are associated with the name of the dataset
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude

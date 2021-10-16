@@ -10,7 +10,7 @@ pub enum UpdateIpSet {
     Remove(SiemIp),
     Replace(IpSetDataset),
 }
-#[derive( Debug)]
+#[derive(Debug, Clone)]
 pub struct IpSetSynDataset {
     dataset: Arc<IpSetDataset>,
     comm: Sender<UpdateIpSet>,

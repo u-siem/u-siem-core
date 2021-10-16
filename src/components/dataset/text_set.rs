@@ -9,7 +9,7 @@ pub enum UpdateTextSet {
     Remove(Cow<'static, str>),
     Replace(TextSetDataset),
 }
-#[derive( Debug)]
+#[derive(Debug, Clone)]
 pub struct TextSetSynDataset {
     dataset: Arc<TextSetDataset>,
     comm: Sender<UpdateTextSet>,

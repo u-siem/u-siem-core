@@ -11,7 +11,7 @@ pub enum UpdateTextMapList {
     Remove(Cow<'static, str>),
     Replace(TextMapListDataset),
 }
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct TextMapListSynDataset {
     dataset: Arc<TextMapListDataset>,
     comm: Sender<UpdateTextMapList>,

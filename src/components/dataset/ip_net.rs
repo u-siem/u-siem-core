@@ -11,7 +11,7 @@ pub enum UpdateNetIp {
     Remove((SiemIp, u8)),
     Replace(IpNetDataset),
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IpNetSynDataset {
     dataset: Arc<IpNetDataset>,
     comm: Sender<UpdateNetIp>,

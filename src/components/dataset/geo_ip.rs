@@ -20,7 +20,7 @@ pub struct GeoIpInfo {
     pub longitude: f32,
     pub isp: Cow<'static, str>,// More important than country in my opinion because Geolocalization is very imprecise.
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
     dataset: Arc<GeoIpDataset>,
     comm: Sender<UpdateGeoIp>,

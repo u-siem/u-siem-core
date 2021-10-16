@@ -12,7 +12,7 @@ pub enum UpdateIpMapList {
     Remove(SiemIp),
     Replace(IpMapListDataset),
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IpMapListSynDataset {
     dataset: Arc<IpMapListDataset>,
     comm: Sender<UpdateIpMapList>,
