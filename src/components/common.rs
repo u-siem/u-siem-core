@@ -223,7 +223,7 @@ pub enum LogParsingError {
 }
 
 /// Execute a command with parameters
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemFunctionCall {
@@ -248,7 +248,7 @@ pub enum SiemFunctionCall {
 }
 
 /// The response of a command execution
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemFunctionResponse {
