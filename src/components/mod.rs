@@ -66,5 +66,5 @@ pub trait SiemDatasetManager : Send {
     fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
 
     /// Allows the Kernel to duplicate this component
-    fn duplicate(&self) -> Box<dyn SiemComponent>;
+    fn duplicate(&self) -> Box<dyn SiemDatasetManager>;
 }
