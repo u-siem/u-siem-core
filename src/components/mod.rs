@@ -60,7 +60,7 @@ pub trait SiemDatasetManager : Send {
     fn run(&mut self);
 
     /// Get the list of datasets to initialize components
-    fn get_datasets(&self) -> Vec<SiemDataset>;
+    fn get_datasets(&self) -> Arc<Mutex<Vec<SiemDataset>>>;
 
     /// Sets the map of components that need dataset updates
     fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
