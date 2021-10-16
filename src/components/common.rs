@@ -29,12 +29,13 @@ pub enum SiemMessage {
     TaskResult(u64, SiemTaskResult)
 }
 
-pub trait SiemComponentStateStorage {
+pub trait SiemComponentStateStorage : Send {
     /// Read a key value from the database
     fn read_value(&self,key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
     /// Write to the database a key/value pair
     fn set_value(&mut self, key: Cow<'static, str>, value: serde_json::Value)
         -> Result<(), Cow<'static, str>>;
+    fn duplicate(&self) -> Box<dyn SiemComponentStateStorage>;
 }
 
 #[derive(Serialize, Debug)]
