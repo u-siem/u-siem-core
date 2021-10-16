@@ -36,5 +36,6 @@ pub trait SiemComponent {
     /// Capabilities and actions that can be performed by this component
     fn capabilities(&self) -> SiemComponentCapabilities;
 
-    fn duplicate(&self) -> dyn SiemComponent;
+    /// Allows the Kernel to duplicate this component
+    fn duplicate(&self) -> Box<dyn SiemComponent>;
 }
