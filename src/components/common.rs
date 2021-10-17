@@ -45,6 +45,7 @@ pub struct SiemComponentCapabilities {
     view : Cow<'static, str>,
     datasets : Vec<DatasetDefinition>,
     commands: Vec<CommandDefinition>,
+    tasks : Vec<TaskDefinition>
 }
 impl SiemComponentCapabilities {
     pub fn new(
@@ -53,13 +54,15 @@ impl SiemComponentCapabilities {
         view : Cow<'static, str>,
         datasets : Vec<DatasetDefinition>,
         commands: Vec<CommandDefinition>,
+        tasks : Vec<TaskDefinition>
     ) -> SiemComponentCapabilities {
         return SiemComponentCapabilities {
             name,
             description,
             view,
             datasets,
-            commands
+            commands,
+            tasks
         };
     }
     pub fn name(&self) -> &str {
@@ -76,6 +79,9 @@ impl SiemComponentCapabilities {
     }
     pub fn commands(&self) -> &Vec<CommandDefinition> {
         &self.commands
+    }
+    pub fn tasks(&self) -> &Vec<TaskDefinition> {
+        &self.tasks
     }
 }
 
@@ -130,6 +136,42 @@ impl CommandDefinition {
 }
 
 #[derive(Serialize, Debug)]
+pub struct TaskDefinition {
+    class: SiemTaskType,
+    name: Cow<'static, str>,
+    description: Cow<'static, str>,
+    min_permission: UserRole,
+}
+impl TaskDefinition {
+    pub fn new(
+        class: SiemTaskType,
+        name: Cow<'static, str>,
+        description: Cow<'static, str>,
+        min_permission: UserRole,
+    ) -> TaskDefinition {
+        TaskDefinition {
+            class,
+            name,
+            description,
+            min_permission
+        }
+    }
+
+    pub fn class(&self) -> &SiemTaskType {
+        &self.class
+    }
+    pub fn name(&self) -> &Cow<'static, str> {
+        &self.name
+    }
+    pub fn description(&self) -> &Cow<'static, str> {
+        &self.description
+    }
+    pub fn min_permission(&self) -> &UserRole {
+        &self.min_permission
+    }
+}
+
+#[derive(Serialize, Debug)]
 pub struct DatasetDefinition {
     name: Cow<'static, str>,
     description: Cow<'static, str>,
@@ -159,6 +201,17 @@ impl DatasetDefinition {
     pub fn min_permission(&self) -> &UserRole {
         &self.min_permission
     }
+}
+
+#[derive(Serialize, Debug)]
+#[allow(non_camel_case_types)]
+#[non_exhaustive]
+pub enum SiemTaskType {
+    /// Task name, Map<ParamName, Description>
+    OTHER(
+        Cow<'static, str>,
+        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    ),
 }
 
 /// Define commands to be used by the users or other components.
