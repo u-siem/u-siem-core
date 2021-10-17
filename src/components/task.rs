@@ -7,16 +7,15 @@ use serde::Serialize;
 /// The ID is to get the Task result
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemTask {
-    pub created_at : u64,
-    pub enqueued_at : u64,
+    pub created_at : i64,
+    pub enqueued_at : i64,
     pub origin : String,
-    pub id : String,
-    pub data : serde_json::Value,
-    pub description : String,
-    pub result : Option<(u64, Result<String, String>)>
+    pub id : u64,
+    pub data : serde_json::Value
 }
+
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemTaskResult {
-    pub id : String,
+    pub id : u64,
     pub data : Option<serde_json::Value>
 }
