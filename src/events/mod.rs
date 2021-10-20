@@ -22,6 +22,8 @@ use intrusion::IntrusionEvent;
 use dns::{DnsEvent, DnsEventType};
 use auth::{AuthEvent, AuthLoginType};
 use dhcp::{DhcpEvent, DhcpRecordType};
+use schema::{FieldSchema, FieldType};
+
 
 #[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -92,7 +94,7 @@ pub enum SiemEvent {
 /// better describe the content inside.
 #[derive(Serialize,Debug, Clone)]
 pub struct SiemLog {
-    /// IP or Hostname of the server that sended the log.
+    /// IP or Hostname of the server that sent the log.
     origin: SiemIp,
     /// Customer name for SOC environments. Ex: Contoso
     tenant: Cow<'static, str>,
@@ -377,32 +379,87 @@ impl<'a> SiemLog {
         
     }
 }
-/*
-impl Serialize for SiemLog {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // 3 is the number of fields in the struct.
-        let mut state = serializer.serialize_struct("Color", 3)?;
-        state.serialize_field("category", &self.category)?;
-        state.serialize_field("event_created", &self.event_created)?;
-        state.serialize_field("event_received", &self.event_received)?;
-        state.serialize_field("message", &self.message)?;
-        state.serialize_field("origin", &self.origin)?;
-        state.serialize_field("product", &self.product)?;
-        state.serialize_field("service", &self.service)?;
-        state.serialize_field("tags", &self.tags)?;
-        state.serialize_field("tenant", &self.tenant)?;
-        state.serialize_field("vendor", &self.vendor)?;
-        for (name, value) in &self.fields {
-            let a = name.to_string();
-            state.serialize_field(&a[..], value)?;
-        }
-        state.end()
+
+pub fn get_default_schema() -> FieldSchema {
+    let mut fields = BTreeMap::new();
+    fields.insert("origin", FieldType::Ip("IP or Hostname of the server that sent the log"));
+    fields.insert("tenant", FieldType::Text("Customer name for SOC environments. Ex: Contoso"));
+    fields.insert("product", FieldType::Text("Name of the product for wich the log belongs. Ex: ASA"));
+    fields.insert("service", FieldType::Text("Subset of the product logs. Like a OS that can have multiple programs running inside generating multiple logs."));
+    fields.insert("category", FieldType::Text("Category of the device: Firewall, web, antivirus"));
+    fields.insert("vendor", FieldType::Text("Company that created the product. Ex: Cisco"));
+    fields.insert("event.type", FieldType::Text("uSIEM log type: SiemEvent"));
+    fields.insert("tags", FieldType::Text("Tags to better describe the event"));
+    fields.insert("message", FieldType::Text("Original log message including syslog header"));
+    fields.insert("event_received", FieldType::Date("Timestamp at witch the log arrived  "));
+    fields.insert("event_created", FieldType::Date("Timestamp at witch the log was generated"));
+    fields.insert("host.hostname", FieldType::Text("Hostname of the host"));
+    fields.insert("server.hostname", FieldType::Text("Hostname of the server"));
+    fields.insert("client.hostname", FieldType::Text("Hostname of the client"));
+    fields.insert("client.ip", FieldType::Ip("Ip of the client"));
+    fields.insert("client.mac", FieldType::Text("MAC address of the client"));
+    fields.insert(field_dictionary::DHCP_RECORD_TYPE, FieldType::Text("DHCP record type"));
+    fields.insert("dhcp.requested_ip", FieldType::Ip("DHCP requested IP"));
+    fields.insert(field_dictionary::USER_NAME, FieldType::Text("User name"));
+    fields.insert(field_dictionary::USER_DOMAIN, FieldType::Text("Domain of the user"));
+    fields.insert("source.user.name", FieldType::Text("Username of the initiator of an action"));
+    fields.insert("source.user.domain", FieldType::Text("Domain of the initiator of an action"));
+    fields.insert(field_dictionary::SOURCE_IP, FieldType::Ip("IP of the initiator of a connection"));
+    fields.insert(field_dictionary::DESTINATION_IP, FieldType::Ip("IP of the target of a conector"));
+    fields.insert(field_dictionary::SOURCE_PORT, FieldType::Numeric("Port of the source"));
+    fields.insert(field_dictionary::DESTINATION_PORT, FieldType::Numeric("Port of the destination"));
+    fields.insert(field_dictionary::SOURCE_BYTES, FieldType::Numeric("Bytes sent from the source to the destination."));
+    fields.insert(field_dictionary::DESTINATION_BYTES, FieldType::Numeric("Bytes sent from the destination to the source"));
+    fields.insert(field_dictionary::IN_INTERFACE, FieldType::Text("Name of the interface receiving the connection"));
+    fields.insert(field_dictionary::OUT_INTERFACE, FieldType::Text("Name of the egress interface"));
+    fields.insert(field_dictionary::NETWORK_TRANSPORT, FieldType::Text("Name of the transport protocl: udp, tcp..."));
+    fields.insert(field_dictionary::NETWORK_PROTOCOL, FieldType::Text("Name of the network protocol: http, snmp..."));
+    fields.insert("source.address", FieldType::Text("An IP, a domain or a unix socket."));
+    fields.insert(field_dictionary::HTTP_RESPONSE_STATUS_CODE, FieldType::Numeric("HTTP Status code: 404, 200..."));
+    fields.insert(field_dictionary::HTTP_REQUEST_METHOD, FieldType::Text("HTTP Request method: get, post..."));
+    fields.insert(field_dictionary::URL_FULL, FieldType::Text("Full url"));
+    fields.insert(field_dictionary::URL_DOMAIN, FieldType::Text("Domain of the url"));
+    fields.insert(field_dictionary::HTTP_RESPONSE_MIME_TYPE, FieldType::Text("HTTP response mime type"));
+    fields.insert(field_dictionary::RULE_CATEGORY, FieldType::Text("Category of the rule"));
+    fields.insert(field_dictionary::RULE_NAME, FieldType::Text("Name of the rule"));
+    fields.insert(field_dictionary::DNS_OP_CODE, FieldType::Text("Operation code in DNS"));
+    fields.insert(field_dictionary::DNS_ANSWER_NAME, FieldType::Text("DNS answer name"));
+    fields.insert(field_dictionary::DNS_ANSWER_TYPE, FieldType::Text("DNS answer type"));
+    fields.insert(field_dictionary::DNS_QUESTION_NAME, FieldType::Text("DNS question name"));
+    fields.insert(field_dictionary::DNS_QUESTION_TYPE, FieldType::Text("DNS question type"));
+    fields.insert(field_dictionary::RULE_ID, FieldType::Text("Identifier of the rule"));
+    fields.insert(field_dictionary::URL_PATH, FieldType::Text("URL path: /api/v1"));
+    fields.insert(field_dictionary::URL_QUERY, FieldType::Text("URL query: ?a=b&c=d"));
+    fields.insert("url.extension", FieldType::Text("URL extension: exe, html"));
+    fields.insert(field_dictionary::NETWORK_DURATION, FieldType::Decimal("Duration of the communication"));
+    fields.insert("user_agent.original", FieldType::Text("Full user agent"));
+
+    let mut event_outcome = BTreeMap::new();
+    // Login
+    event_outcome.insert("SUCCESS", "Login success");
+    event_outcome.insert("FAIL", "Login failed");
+    event_outcome.insert("LOCKOUT", "Account locked out");
+    event_outcome.insert("ESTABLISH", "Pre authentication phase: trying to connect");
+    // Firewall, WebProxy and WebServer
+    event_outcome.insert("BLOCK", "Connection was blocked");
+    event_outcome.insert("ALLOW", "Connection was allowed");
+    event_outcome.insert("END", "Connection ended, the event contains information about bytes sended/received");
+    event_outcome.insert("STATS", "The connection is still ongoing, but we log statistics about it");
+    event_outcome.insert("OPEN", "Oppened connection. Later can be dropped due to policy settings. Ej: Sonicwall or Firepower have this behavior.");
+    event_outcome.insert("UNKNOWN", "Unknow connection state.");
+    // Intrusion
+    event_outcome.insert("DETECTED", "The attack has not been prevented and may affect systems");
+    event_outcome.insert("BLOCKED", "The attack was prevented");
+    event_outcome.insert("MONITOR", "The attack was not prevented but it does not affect assets");
+    event_outcome.insert("IMPACTED", "The attack has not been prevented and has affected assets");
+
+    fields.insert(field_dictionary::EVENT_OUTCOME, FieldType::TextOptions(event_outcome));
+    FieldSchema {
+        fields,
+        allow_unknown_fields: false,
+        gdpr: None,
     }
 }
-*/
 
 #[cfg(test)]
 mod tests {
