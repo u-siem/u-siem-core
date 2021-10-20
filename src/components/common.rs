@@ -271,6 +271,8 @@ pub trait MultilineLogParser {
     fn cleaning(&mut self) -> Vec<SiemLog>;
     /// Return those logs that would not be used by the parser, or are older as to reduce the memmory usage.
     fn unused(&mut self) -> Vec<SiemLog>;
+    /// Get parser schema
+    fn schema(&self) -> &'static FieldSchema;
 }
 
 /// Error at parsing a log

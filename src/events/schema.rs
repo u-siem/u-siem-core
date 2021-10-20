@@ -34,11 +34,11 @@ impl FieldSchema {
     pub fn add_schema(&mut self, schema: &FieldSchema) {
         for (name, element) in &schema.fields {
             match element {
-                FieldType::TextOptions(list_val) => {
+                FieldType::TextOptions(list_val, _doc) => {
                     match self.fields.get_mut(name) {
                         Some(alredy_val) => {
                             match alredy_val {
-                                FieldType::TextOptions(alredy_val) => {
+                                FieldType::TextOptions(alredy_val, _doc2) => {
                                     for (vl_1, vl_2) in list_val {
                                         alredy_val.insert(vl_1, vl_2);
                                     }
@@ -87,7 +87,7 @@ pub enum FieldType {
     /// Date Type
     Date(&'static str),
     /// List of posible text values. This is like Text but with autocomplete help
-    TextOptions(BTreeMap<&'static str, &'static str>),
+    TextOptions(BTreeMap<&'static str, &'static str>, &'static str),
 }
 
 #[derive(Serialize, Debug, Clone)]

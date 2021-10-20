@@ -453,7 +453,7 @@ pub fn get_default_schema() -> FieldSchema {
     event_outcome.insert("MONITOR", "The attack was not prevented but it does not affect assets");
     event_outcome.insert("IMPACTED", "The attack has not been prevented and has affected assets");
 
-    fields.insert(field_dictionary::EVENT_OUTCOME, FieldType::TextOptions(event_outcome));
+    fields.insert(field_dictionary::EVENT_OUTCOME, FieldType::TextOptions(event_outcome,"Outcome of the event"));
     FieldSchema {
         fields,
         allow_unknown_fields: false,
