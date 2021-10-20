@@ -7,6 +7,7 @@ use super::dataset::SiemDataset;
 use super::alert::SiemAlert;
 use super::metrics::SiemMetric;
 use super::task::{SiemTask, SiemTaskResult};
+use super::super::events::schema::FieldSchema;
 
 #[derive(Serialize, Debug)]
 #[non_exhaustive]
@@ -248,6 +249,8 @@ pub trait LogParser {
     fn name(&self) -> &str;
     /// Description of the parser
     fn description(&self) -> &str;
+    /// Get parser schema
+    fn schema(&self) -> &'static FieldSchema;
 }
 
 /// This is the most complex type of parser. It's statefull to store past logs.
