@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use super::common::{HttpMethod, WebProtocol};
 
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct WebProxyEvent {
     pub source_ip: SiemIp,

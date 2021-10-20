@@ -3,7 +3,7 @@ use super::protocol::NetworkProtocol;
 use serde::Serialize;
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct FirewallEvent {
     /// Ip that started the connection

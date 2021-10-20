@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct AuthEvent {
     /// Login type: local, remote, upgrade (change user)

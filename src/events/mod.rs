@@ -22,7 +22,8 @@ use intrusion::IntrusionEvent;
 use dns::{DnsEvent, DnsEventType};
 use auth::{AuthEvent, AuthLoginType};
 use dhcp::{DhcpEvent, DhcpRecordType};
-#[derive(Serialize, Debug)]
+
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum SiemEvent {
     /// Firewall events: connections between IPs, blocked connections...
@@ -89,7 +90,7 @@ pub enum SiemEvent {
 /// this log, the client if we are working in a multi-client environments aka SOC,
 /// some fields to facilitate correlation with SIGMA rules, timestamps and tags to
 /// better describe the content inside.
-#[derive(Serialize,Debug)]
+#[derive(Serialize,Debug, Clone)]
 pub struct SiemLog {
     /// IP or Hostname of the server that sended the log.
     origin: SiemIp,

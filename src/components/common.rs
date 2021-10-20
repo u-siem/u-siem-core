@@ -207,6 +207,10 @@ impl DatasetDefinition {
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemTaskType {
+    EXECUTE_ENDPOINT_SCRIPT(
+        Cow<'static, str>,
+        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    ),
     /// Task name, Map<ParamName, Description>
     OTHER(
         Cow<'static, str>,

@@ -73,7 +73,11 @@ pub enum SiemDataset {
     /// User custom dataset Text list
     CustomTextList((Cow<'static, str>, TextSetSynDataset)),
     /// Mantaince Calendar
-    MantainceCalendar(CalendarSynDataset)
+    MantainceCalendar(CalendarSynDataset),
+    /// Configuration of components. Allows modifications of behaviour in real time.
+    Configuration(TextMapSynDataset),
+    /// Secret store. A component will only be able to access to his own secrets.
+    Secrets((Cow<'static, str>,TextMapSynDataset))
 }
 #[non_exhaustive]
 pub enum SiemDatasetType {
@@ -122,7 +126,9 @@ pub enum SiemDatasetType {
     /// User custom dataset Text list
     CustomTextList(Cow<'static, str>),
     /// Mantaince Calendar
-    MantainceCalendar
+    MantainceCalendar,
+    Configuration,
+    Secrets(Cow<'static, str>),
 }
 
 impl Serialize for SiemDataset {
@@ -150,6 +156,7 @@ impl Serialize for SiemDataset {
             SiemDataset::IpHeadquarters(_) => "IpHeadquarters",
             SiemDataset::HeadquartersWorkingHours => "HeadquartersWorkingHours",
             SiemDataset::MantainceCalendar(_) => "MantainceCalendar",
+            SiemDataset::Configuration(_) => "Configuration",
             SiemDataset::CustomMapIpNet((name,_)) => {
                 state.serialize_field("name", name)?;
                 "CustomMapIpNet"
@@ -169,6 +176,10 @@ impl Serialize for SiemDataset {
             SiemDataset::CustomMapTextList((name,_)) => {
                 state.serialize_field("name", name)?;
                 "CustomMapTextList"
+            },
+            SiemDataset::Secrets((name,_)) => {
+                state.serialize_field("name", name)?;
+                "Secrets"
             }
         };
         state.serialize_field("type", typ)?;
@@ -200,5 +211,7 @@ pub enum UpdateDataset {
     BlockCountry(UpdateTextSet),
     CustomTextList(UpdateTextSet),
     CustomMapTextList(UpdateTextMapList),
-    MantainceCalendar(UpdateCalendar)
+    MantainceCalendar(UpdateCalendar),
+    Configuration(UpdateTextMap),
+    Secrets(UpdateTextMap)
 }

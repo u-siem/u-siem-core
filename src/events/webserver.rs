@@ -5,7 +5,7 @@ use std::borrow::Cow;
 
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
 /// the path requested, the user agent and the size of the resource returned
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct WebServerEvent {
     pub source_ip: SiemIp,

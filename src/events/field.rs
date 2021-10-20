@@ -4,7 +4,7 @@ use super::super::utilities::ip_utils::{ipv4_from_str, ipv4_to_str, ipv6_from_st
 use serde::Serialize;
 use std::fmt::Display;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum SiemField {
     /// A basic String field

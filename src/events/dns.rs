@@ -2,7 +2,7 @@ use super::field::SiemIp;
 use serde::Serialize;
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct DnsEvent {
     /// Client that queried
