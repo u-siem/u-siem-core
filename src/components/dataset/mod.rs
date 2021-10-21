@@ -48,6 +48,8 @@ pub enum SiemDataset {
     BlockEmailSender(TextSetSynDataset),
     /// List of countries in the block list
     BlockCountry(TextSetSynDataset),
+    /// Association of hostname with a vulnerability.
+    HostVulnerable(TextMapListSynDataset),
     /// Tag each user with roles => user.roles = [vip, admin, extern, guest, director, super_user, local_user]
     UserTag(TextMapSynDataset),
     /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
@@ -115,6 +117,8 @@ pub enum SiemDatasetType {
     IpHeadquarters,
     /// Working hours of each headquarter
     HeadquartersWorkingHours,
+    /// Vulnerabilities on a computer  
+    HostVulnerable,
     /// User custom dataset IP_NET => Text
     CustomMapIpNet(Cow<'static, str>),
     /// User custom dataset Text => Text
@@ -157,6 +161,7 @@ impl Serialize for SiemDataset {
             SiemDataset::HeadquartersWorkingHours => "HeadquartersWorkingHours",
             SiemDataset::MantainceCalendar(_) => "MantainceCalendar",
             SiemDataset::Configuration(_) => "Configuration",
+            SiemDataset::HostVulnerable(_) => "HostVulnerable",
             SiemDataset::CustomMapIpNet((name,_)) => {
                 state.serialize_field("name", name)?;
                 "CustomMapIpNet"
@@ -213,5 +218,6 @@ pub enum UpdateDataset {
     CustomMapTextList(UpdateTextMapList),
     MantainceCalendar(UpdateCalendar),
     Configuration(UpdateTextMap),
-    Secrets(UpdateTextMap)
+    Secrets(UpdateTextMap),
+    HostVulnerable(UpdateTextMapList)
 }

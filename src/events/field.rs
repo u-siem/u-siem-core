@@ -20,7 +20,7 @@ pub enum SiemField {
     /// 
     /// This field should be used with a dataset to recover information about an asset 
     /// during the enchance phase:
-    /// Getting the IP address, the users logged in the system or other information.
+    /// Getting the IP address, the users logged in the system or another information.
     /// 
     /// Can be multiple AssetsID associated with the same event because multiple virtual 
     /// machines can be running in the same asset.

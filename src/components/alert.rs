@@ -2,14 +2,14 @@ use super::mitre::{MitreTactics, MitreTechniques};
 use std::collections::BTreeMap;
 use super::SiemLog;
 use super::dataset::{SiemDataset, SiemDatasetType};
-use super::actuator::ActuatorRequest;
+use super::task::{SiemTask};
 use serde::Serialize;
 
 /// Common rule format to create rock solid rules
 /// The rule must be stateless
 pub trait SolidRule {
     /// Checks if the log matches this rule. It can return an alert and/or an action to be executed by the SOAR
-    fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<ActuatorRequest>)>;
+    fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)>;
     /// Name of the rule
     fn name(&self) -> &'static str;
     /// Name of the Service applied to match this rule
@@ -92,7 +92,7 @@ mod tests {
         }
     }
     impl SolidRule for ExampleRule {
-        fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<ActuatorRequest>)> {
+        fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)> {
             let lang = self.mapping.get(log.tenant()).unwrap_or(&"en");
             let description = self.templates.get(lang).unwrap_or(&"Alert default example").to_string();
             return Some((Some(SiemAlert {
@@ -145,7 +145,7 @@ mod tests {
         }
     }
     impl SolidRule for StatefulRule {
-        fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<ActuatorRequest>)> {
+        fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)> {
             let lang = self.mapping.get(log.tenant()).unwrap_or(&"en");
             let description = self.templates.get(lang).unwrap_or(&"Alert for user $domain\\$username. $number login errors in less than a minute");
 
