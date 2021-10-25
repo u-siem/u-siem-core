@@ -4,10 +4,11 @@ use super::SiemLog;
 use super::dataset::{SiemDataset, SiemDatasetType};
 use super::task::{SiemTask};
 use serde::Serialize;
+use dyn_clone::{clone_trait_object, DynClone};
 
 /// Common rule format to create rock solid rules
 /// The rule must be stateless
-pub trait SolidRule {
+pub trait SolidRule : DynClone {
     /// Checks if the log matches this rule. It can return an alert and/or an action to be executed by the SOAR
     fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)>;
     /// Name of the rule
@@ -27,6 +28,7 @@ pub trait SolidRule {
     /// List of datasets needed by this rule
     fn datasets(&self) -> &'static Vec<SiemDatasetType>;
 }
+clone_trait_object!(SolidRule);
 
 #[derive(Serialize, Debug, Clone)]
 pub enum AlertSeverity {
@@ -76,7 +78,7 @@ mod tests {
         static ref EXAMPLE_RULE_DATASETS : Vec<SiemDatasetType> = vec!();
         static ref RULE_STATE : Arc<Mutex<BTreeMap<String, Vec<i64>>>> = Arc::new(Mutex::new(BTreeMap::new()));
     }
-
+    #[derive(Clone)]
     struct ExampleRule {
         templates : BTreeMap<&'static str,&'static str>,
         mapping : BTreeMap<&'static str,&'static str>,
@@ -131,7 +133,7 @@ mod tests {
             return &EXAMPLE_RULE_DATASETS
         }
     }
-
+    #[derive(Clone)]
     struct StatefulRule {
         templates : BTreeMap<&'static str,&'static str>,
         mapping : BTreeMap<&'static str,&'static str>,

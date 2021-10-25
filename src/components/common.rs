@@ -2,12 +2,14 @@ use super::super::events::field::SiemIp;
 use super::super::events::SiemLog;
 use serde::Serialize;
 use std::borrow::Cow;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap};
 use super::dataset::SiemDataset;
-use super::alert::SiemAlert;
+use super::alert::{SiemAlert, SolidRule};
 use super::metrics::SiemMetric;
 use super::task::{SiemTask, SiemTaskResult};
 use super::super::events::schema::FieldSchema;
+use super::use_case::{SiemUseCase};
+use dyn_clone::{clone_trait_object, DynClone};
 
 #[derive(Serialize, Debug)]
 #[non_exhaustive]
@@ -30,7 +32,7 @@ pub enum SiemMessage {
     TaskResult(u64, SiemTaskResult)
 }
 
-pub trait SiemComponentStateStorage : Send {
+pub trait SiemComponentStateStorage : DynClone {
     /// Read a key value from the database
     fn read_value(&self,key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
     /// Write to the database a key/value pair
@@ -38,6 +40,7 @@ pub trait SiemComponentStateStorage : Send {
         -> Result<(), Cow<'static, str>>;
     fn duplicate(&self) -> Box<dyn SiemComponentStateStorage>;
 }
+clone_trait_object!(SiemComponentStateStorage);
 
 #[derive(Serialize, Debug)]
 pub struct SiemComponentCapabilities {
@@ -87,7 +90,7 @@ impl SiemComponentCapabilities {
 }
 
 /// An easy to use role based system
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum UserRole {
     /// Review the system (Read-Only configuration: rules, use-cases, Sources with parsers)
     Compliance,
@@ -208,10 +211,16 @@ impl DatasetDefinition {
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemTaskType {
+    /// Script name and Script parameters
     EXECUTE_ENDPOINT_SCRIPT(
         Cow<'static, str>,
         BTreeMap<Cow<'static, str>, Cow<'static, str>>,
     ),
+    /// Remediate a list of emails. List of parameters
+    REMEDIATE_EMAILS(BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+    /// Report IP, email to abuse mail. Needed provider name and parameters
+    REPORT_ABUSE(BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+    UPDATE_GEOIP,
     /// Task name, Map<ParamName, Description>
     OTHER(
         Cow<'static, str>,
@@ -232,6 +241,12 @@ pub enum SiemFunctionType {
     FILTER_IP,
     FILTER_DOMAIN,
     FILTER_EMAIL_SENDER,
+    LIST_USE_CASES,
+    GET_USE_CASES,
+    LIST_RULES,
+    GET_RULE,
+    LIST_TASKS,
+    LIST_DATASETS,
     /// Function name, Map<ParamName, Description>
     OTHER(
         Cow<'static, str>,
@@ -240,7 +255,7 @@ pub enum SiemFunctionType {
 }
 
 /// A simple object with the logic to parse Logs.
-pub trait LogParser {
+pub trait LogParser : DynClone {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
     /// Check if the parser can parse the log. Must be fast.
@@ -252,6 +267,7 @@ pub trait LogParser {
     /// Get parser schema
     fn schema(&self) -> &'static FieldSchema;
 }
+clone_trait_object!(LogParser);
 
 /// This is the most complex type of parser. It's statefull to store past logs.
 /// Think of the USB event in linux, we need the rest of the logs to extract all information.
@@ -305,6 +321,13 @@ pub enum SiemFunctionCall {
     FILTER_DOMAIN(Cow<'static, str>, Cow<'static, str>),
     /// Adds a email to a BlockList with a comment or reference (Email, Comment)
     FILTER_EMAIL_SENDER(Cow<'static, str>, Cow<'static, str>),
+    /// List use cases: offset, limit
+    LIST_USE_CASES(u32,u32),
+    GET_USE_CASE(String),
+    LIST_RULES(u32,u32),
+    GET_RULE(String),
+    LIST_DATASETS(u32,u32),
+    LIST_TASKS(u32,u32),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(Cow<'static, str>, serde_json::Value),
 }
@@ -325,6 +348,13 @@ pub enum SiemFunctionResponse {
     FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (Email, Comment)
     FILTER_EMAIL_SENDER(Result<Cow<'static, str>, Cow<'static, str>>),
+    /// List of UseCases
+    LIST_USE_CASES(Vec<&'static SiemUseCase>),
+    GET_USE_CASE(Option<&'static SiemUseCase>),
+    LIST_RULES(Vec<(&'static str, &'static str)>),
+    GET_RULE(Option<(&'static str, &'static str)>),
+    LIST_DATASETS(Vec<Cow<'static, str>>),
+    LIST_TASKS(Vec<Cow<'static, str>>),
     OTHER(
         Cow<'static, str>,
         Result<serde_json::Value,serde_json::Value>,
