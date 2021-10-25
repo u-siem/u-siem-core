@@ -4,7 +4,7 @@ use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::{BTreeMap};
 use super::dataset::SiemDataset;
-use super::alert::{SiemAlert, SolidRule};
+use super::alert::{SiemAlert};
 use super::metrics::SiemMetric;
 use super::task::{SiemTask, SiemTaskResult};
 use super::super::events::schema::FieldSchema;
@@ -32,7 +32,7 @@ pub enum SiemMessage {
     TaskResult(u64, SiemTaskResult)
 }
 
-pub trait SiemComponentStateStorage : DynClone {
+pub trait SiemComponentStateStorage : DynClone + Send {
     /// Read a key value from the database
     fn read_value(&self,key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
     /// Write to the database a key/value pair
@@ -255,7 +255,7 @@ pub enum SiemFunctionType {
 }
 
 /// A simple object with the logic to parse Logs.
-pub trait LogParser : DynClone {
+pub trait LogParser : DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
     /// Check if the parser can parse the log. Must be fast.
@@ -273,7 +273,7 @@ clone_trait_object!(LogParser);
 /// Think of the USB event in linux, we need the rest of the logs to extract all information.
 /// The Parser component which uses this parsers must be able to store and load past Logs 
 /// if the user connects to a different SIEM node (LoadBalancing).
-pub trait MultilineLogParser {
+pub trait MultilineLogParser : DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&mut self, log: SiemLog) -> Result<Option<SiemLog>, LogParsingError>;
     /// Check if the parser can parse the log. Must be fast.
@@ -290,6 +290,8 @@ pub trait MultilineLogParser {
     /// Get parser schema
     fn schema(&self) -> &'static FieldSchema;
 }
+
+clone_trait_object!(MultilineLogParser);
 
 /// Error at parsing a log
 #[derive(Serialize, Debug)]

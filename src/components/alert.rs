@@ -8,7 +8,7 @@ use dyn_clone::{clone_trait_object, DynClone};
 
 /// Common rule format to create rock solid rules
 /// The rule must be stateless
-pub trait SolidRule : DynClone {
+pub trait SolidRule : DynClone + Send{
     /// Checks if the log matches this rule. It can return an alert and/or an action to be executed by the SOAR
     fn match_log(&self, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)>;
     /// Name of the rule

@@ -57,7 +57,7 @@ pub enum SiemPlaybookStep {
     Automated(SiemAutomatedStep)
 }
 
-pub trait SiemAutoActionBuilder : DynClone {
+pub trait SiemAutoActionBuilder : DynClone + Send{
     fn build(&self, key : String) -> SiemTask;
 }
 clone_trait_object!(SiemAutoActionBuilder);
