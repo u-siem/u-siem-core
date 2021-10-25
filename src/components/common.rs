@@ -350,9 +350,9 @@ pub enum SiemFunctionResponse {
     FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
     /// (Email, Comment)
     FILTER_EMAIL_SENDER(Result<Cow<'static, str>, Cow<'static, str>>),
-    /// List of UseCases
-    LIST_USE_CASES(Vec<&'static SiemUseCase>),
-    GET_USE_CASE(Option<&'static SiemUseCase>),
+    /// List of UseCases: (Name,Description)
+    LIST_USE_CASES(Vec<(Cow<'static, str>,Cow<'static, str>)>),
+    GET_USE_CASE(Option<(Cow<'static, str>,Cow<'static, str>)>),
     LIST_RULES(Vec<(&'static str, &'static str)>),
     GET_RULE(Option<(&'static str, &'static str)>),
     LIST_DATASETS(Vec<Cow<'static, str>>),
