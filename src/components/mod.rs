@@ -10,7 +10,7 @@ pub mod alert;
 pub mod metrics;
 pub mod task;
 pub mod use_case;
-use dataset::{SiemDataset};
+use dataset::{SiemDataset, SiemDatasetType};
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
@@ -58,6 +58,9 @@ pub trait SiemDatasetManager : Send {
 
     /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
     fn run(&mut self);
+
+    /// The kernel registers the datasets of the components
+    fn register_dataset(&mut self, dataset : SiemDatasetType);
 
     /// Get the list of datasets to initialize components
     fn get_datasets(&self) -> Arc<Mutex<Vec<SiemDataset>>>;

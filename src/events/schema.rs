@@ -60,6 +60,9 @@ impl FieldSchema {
             }
         }
     }
+    pub fn insert(&mut self, key : &'static str, value : FieldType) -> Option<FieldType> {
+        self.fields.insert(key, value)
+    }
     pub fn set_gdpr(&mut self, protection: Option<GdprProtection>) {
         self.gdpr = protection;
     }

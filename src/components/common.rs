@@ -216,6 +216,11 @@ pub enum SiemTaskType {
         Cow<'static, str>,
         BTreeMap<Cow<'static, str>, Cow<'static, str>>,
     ),
+    /// Log query and log parameters
+    LOG_QUERY(
+        String,
+        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    ),
     /// Remediate a list of emails. List of parameters
     REMEDIATE_EMAILS(BTreeMap<Cow<'static, str>, Cow<'static, str>>),
     /// Report IP, email to abuse mail. Needed provider name and parameters
