@@ -8,14 +8,13 @@ use super::alert::{SiemAlert};
 use super::metrics::SiemMetric;
 use super::task::{SiemTask, SiemTaskResult};
 use super::super::events::schema::FieldSchema;
-use super::use_case::{SiemUseCase};
 use dyn_clone::{clone_trait_object, DynClone};
 
 #[derive(Serialize, Debug)]
 #[non_exhaustive]
 pub enum SiemMessage {
-    /// Execute a function in the component, first element is the ID of the Command to keep track
-    Command(u64,SiemFunctionCall),
+    /// Execute a function in the component, first element is the ID of the Component and the second the ID of the command to keep track
+    Command(u64,u64, SiemFunctionCall),
     /// Response to a function call, first element is the ID of the Response
     Response(u64,SiemFunctionResponse),
     /// Process a log
@@ -32,12 +31,35 @@ pub enum SiemMessage {
     TaskResult(u64, SiemTaskResult)
 }
 
+#[derive(Serialize, Debug)]
+#[non_exhaustive]
+pub enum StorageError {
+    NotExists,
+    ConnectionError,
+    AlredyExists
+}
+
 pub trait SiemComponentStateStorage : DynClone + Send {
     /// Read a key value from the database
-    fn read_value(&self,key: Cow<'static, str>) -> Result<serde_json::Value, Cow<'static, str>>;
+    fn get_value(&self,key: Cow<'static, str>) -> Result<String, StorageError>;
     /// Write to the database a key/value pair
-    fn set_value(&mut self, key: Cow<'static, str>, value: serde_json::Value)
-        -> Result<(), Cow<'static, str>>;
+    fn set_value(&mut self, key: Cow<'static, str>, value: String, replace : bool) -> Result<(), StorageError>;
+    
+    /// Get a file
+    fn get_file(&self, filepath : String) -> Result<Vec<u8>,StorageError>;
+
+    /// Get the size of a file
+    fn get_file_size(&self, filepath : String) -> Result<u64,StorageError>;
+
+    /// Get a file part
+    fn get_file_range(&self, filepath : String, start : u64, end : u64) -> Result<Vec<u8>,StorageError>;
+
+    /// Sets the content of a file
+    fn set_file(&mut self, filepath : String, content : Vec<u8>) -> Result<(), StorageError>;
+
+    /// Sets the content of a file
+    fn set_file_range(&mut self, filepath : String, content : Vec<u8>, start : u64, end : u64) -> Result<(), StorageError>;
+    
     fn duplicate(&self) -> Box<dyn SiemComponentStateStorage>;
 }
 clone_trait_object!(SiemComponentStateStorage);
@@ -252,6 +274,7 @@ pub enum SiemFunctionType {
     GET_RULE,
     LIST_TASKS,
     LIST_DATASETS,
+    DOWNLOAD_QUERY,
     /// Function name, Map<ParamName, Description>
     OTHER(
         Cow<'static, str>,
@@ -316,8 +339,10 @@ pub enum SiemFunctionCall {
     START_COMPONENT(Cow<'static, str>),
     /// Stops a component. Params: Component name
     STOP_COMPONENT(Cow<'static, str>),
-    /// Query in database format. Ex SQL vs Elastic
+    /// Query in database format. Ex SQL,  Elastic
     LOG_QUERY(Cow<'static, str>),
+    /// Get rows of query
+    LOG_QUERY_RANGE(Cow<'static, str>, u64,u64),
     /// IP of the device to isolate
     ISOLATE_IP(SiemIp),
     /// IP of the device to isolate
@@ -335,8 +360,17 @@ pub enum SiemFunctionCall {
     GET_RULE(String),
     LIST_DATASETS(u32,u32),
     LIST_TASKS(u32,u32),
+    DOWNLOAD_QUERY(),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
-    OTHER(Cow<'static, str>, serde_json::Value),
+    OTHER(Cow<'static, str>, BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[non_exhaustive]
+pub enum CommandError {
+    BadParameters(Cow<'static, str>),
+    SyntaxError(Cow<'static, str>),
+    NotFound(Cow<'static, str>)
 }
 
 /// The response of a command execution
@@ -344,27 +378,29 @@ pub enum SiemFunctionCall {
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemFunctionResponse {
-    START_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
-    STOP_COMPONENT(Result<Cow<'static, str>, Cow<'static, str>>),
-    LOG_QUERY(Result<serde_json::Value, Cow<'static, str>>),
-    ISOLATE_IP(Result<Cow<'static, str>, Cow<'static, str>>),
-    ISOLATE_ENDPOINT(Result<Cow<'static, str>, Cow<'static, str>>),
+    START_COMPONENT(Result<Cow<'static, str>, CommandError>),
+    STOP_COMPONENT(Result<Cow<'static, str>, CommandError>),
+    /// Query created with an ID
+    LOG_QUERY(Result<String, CommandError>),
+    LOG_QUERY_RANGE(String, u64,u64, Result<Vec<SiemLog>, CommandError>),
+    ISOLATE_IP(Result<Cow<'static, str>, CommandError>),
+    ISOLATE_ENDPOINT(Result<Cow<'static, str>, CommandError>),
     /// (IP, Comment)
-    FILTER_IP(Result<Cow<'static, str>, Cow<'static, str>>),
+    FILTER_IP(Result<Cow<'static, str>, CommandError>),
     /// (Domain, Comment)
-    FILTER_DOMAIN(Result<Cow<'static, str>, Cow<'static, str>>),
+    FILTER_DOMAIN(Result<Cow<'static, str>, CommandError>),
     /// (Email, Comment)
-    FILTER_EMAIL_SENDER(Result<Cow<'static, str>, Cow<'static, str>>),
+    FILTER_EMAIL_SENDER(Result<Cow<'static, str>, CommandError>),
     /// List of UseCases: (Name,Description)
-    LIST_USE_CASES(Vec<(Cow<'static, str>,Cow<'static, str>)>),
-    GET_USE_CASE(Option<(Cow<'static, str>,Cow<'static, str>)>),
-    LIST_RULES(Vec<(&'static str, &'static str)>),
-    GET_RULE(Option<(&'static str, &'static str)>),
-    LIST_DATASETS(Vec<Cow<'static, str>>),
-    LIST_TASKS(Vec<Cow<'static, str>>),
+    LIST_USE_CASES(Result<Vec<(Cow<'static, str>,Cow<'static, str>)>, CommandError>),
+    GET_USE_CASE(Result<(Cow<'static, str>,Cow<'static, str>), CommandError>),
+    LIST_RULES(Result<Vec<(&'static str, &'static str)>, CommandError>),
+    GET_RULE(Result<(&'static str, &'static str), CommandError>),
+    LIST_DATASETS(Result<Vec<Cow<'static, str>>, CommandError>),
+    LIST_TASKS(Result<Vec<Cow<'static, str>>, CommandError>),
     OTHER(
         Cow<'static, str>,
-        Result<serde_json::Value,serde_json::Value>,
+        Result<BTreeMap<Cow<'static, str>, Cow<'static, str>>, CommandError>,
     ),
 }
 //TODO: Authentication command, to allow login using third party systems: LDAP...

@@ -1,10 +1,7 @@
-use super::task::SiemTask;
-use super::alert::{SolidRule};
 use super::common::UserRole;
 use serde::ser::{Serializer, SerializeStruct};
 use serde::Serialize;
 use std::fmt;
-use dyn_clone::{clone_trait_object, DynClone};
 
 #[derive(Clone)]
 pub struct SiemUseCase {

@@ -11,11 +11,11 @@ pub struct SiemTask {
     pub enqueued_at : i64,
     pub origin : String,
     pub id : u64,
-    pub data : serde_json::Value
+    pub data : String
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemTaskResult {
     pub id : u64,
-    pub data : Option<serde_json::Value>
+    pub data : Option<String>
 }
