@@ -51,9 +51,9 @@ pub enum SiemDataset {
     /// Association of hostname with a vulnerability.
     HostVulnerable(TextMapListSynDataset),
     /// Tag each user with roles => user.roles = [vip, admin, extern, guest, director, super_user, local_user]
-    UserTag(TextMapSynDataset),
+    UserTag(TextMapListSynDataset),
     /// Tag each host with categories => [web_server, sec_related, critical, ad_related, net_related]
-    AssetTag(TextMapSynDataset),
+    AssetTag(TextMapListSynDataset),
     /// Cloud service => Office 365, G Suit ...
     IpCloudService(IpNetSynDataset),
     /// Cloud Provider => Azure, Google Cloud, AWS
@@ -72,6 +72,8 @@ pub enum SiemDataset {
     CustomMapTextList((Cow<'static, str>, TextMapListSynDataset)),
     /// User custom dataset IP list
     CustomIpList((Cow<'static, str>, IpSetSynDataset)),
+    /// User custom dataset IP list
+    CustomIpMap((Cow<'static, str>, IpMapSynDataset)),
     /// User custom dataset Text list
     CustomTextList((Cow<'static, str>, TextSetSynDataset)),
     /// Mantaince Calendar
@@ -170,11 +172,15 @@ impl Serialize for SiemDataset {
             },
             SiemDataset::CustomMapText((name,_)) => {
                 state.serialize_field("name", name)?;
-                "CustomMapIpNet"
+                "CustomMapText"
             },
             SiemDataset::CustomIpList((name,_)) => {
                 state.serialize_field("name", name)?;
                 "CustomIpList"
+            },
+            SiemDataset::CustomIpMap((name,_)) => {
+                state.serialize_field("name", name)?;
+                "CustomIpMap"
             },
             SiemDataset::CustomTextList((name,_)) => {
                 state.serialize_field("name", name)?;
