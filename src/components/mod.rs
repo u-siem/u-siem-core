@@ -67,7 +67,4 @@ pub trait SiemDatasetManager : Send {
 
     /// Sets the map of components that need dataset updates
     fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
-
-    /// Allows the Kernel to duplicate this component
-    fn duplicate(&self) -> Box<dyn SiemDatasetManager>;
 }
