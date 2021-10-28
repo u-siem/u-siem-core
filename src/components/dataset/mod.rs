@@ -81,6 +81,8 @@ pub enum SiemDataset {
     /// Secret store. A component will only be able to access to his own secrets.
     Secrets((Cow<'static, str>,TextMapSynDataset))
 }
+
+#[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SiemDatasetType {
     /// Map IP to country, city, latitude and longitude
