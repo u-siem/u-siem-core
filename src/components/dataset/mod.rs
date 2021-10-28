@@ -140,6 +140,40 @@ pub enum SiemDatasetType {
     Secrets(Cow<'static, str>),
 }
 
+impl SiemDataset {
+    pub fn dataset_type(&self) -> SiemDatasetType {
+        match self {
+            SiemDataset::GeoIp(_) =>SiemDatasetType::GeoIp,
+            SiemDataset::IpHost(_) => SiemDatasetType::IpHost,
+            SiemDataset::IpMac(_) => SiemDatasetType::IpMac,
+            SiemDataset::IpDNS(_) => SiemDatasetType::IpDNS,
+            SiemDataset::MacHost(_) => SiemDatasetType::MacHost,
+            SiemDataset::HostUser(_) => SiemDatasetType::HostUser,
+            SiemDataset::BlockIp(_) => SiemDatasetType::BlockIp,
+            SiemDataset::BlockDomain(_) => SiemDatasetType::BlockDomain,
+            SiemDataset::BlockEmailSender(_) => SiemDatasetType::BlockEmailSender,
+            SiemDataset::BlockCountry(_) => SiemDatasetType::BlockCountry,
+            SiemDataset::UserTag(_) => SiemDatasetType::UserTag,
+            SiemDataset::AssetTag(_) => SiemDatasetType::AssetTag,
+            SiemDataset::IpCloudService(_) => SiemDatasetType::IpCloudService,
+            SiemDataset::IpCloudProvider(_) => SiemDatasetType::IpCloudProvider,
+            SiemDataset::UserHeadquarters(_) => SiemDatasetType::UserHeadquarters,
+            SiemDataset::IpHeadquarters(_) => SiemDatasetType::IpHeadquarters,
+            SiemDataset::HeadquartersWorkingHours => SiemDatasetType::HeadquartersWorkingHours,
+            SiemDataset::MantainceCalendar(_) => SiemDatasetType::MantainceCalendar,
+            SiemDataset::Configuration(_) => SiemDatasetType::Configuration,
+            SiemDataset::HostVulnerable(_) => SiemDatasetType::HostVulnerable,
+            SiemDataset::CustomMapIpNet((name,_)) => SiemDatasetType::CustomMapIpNet(name.clone()),
+            SiemDataset::CustomMapText((name,_)) => SiemDatasetType::CustomMapText(name.clone()),
+            SiemDataset::CustomIpList((name,_)) => SiemDatasetType::CustomIpList(name.clone()),
+            SiemDataset::CustomIpMap((name,_))=> SiemDatasetType::CustomIpMap(name.clone()),
+            SiemDataset::CustomTextList((name,_))=> SiemDatasetType::CustomTextList(name.clone()),
+            SiemDataset::CustomMapTextList((name,_)) => SiemDatasetType::CustomMapTextList(name.clone()),
+            SiemDataset::Secrets((name,_)) => SiemDatasetType::Secrets(name.clone())
+        }
+    }
+}
+
 impl Serialize for SiemDataset {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
