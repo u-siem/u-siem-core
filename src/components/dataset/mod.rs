@@ -131,6 +131,7 @@ pub enum SiemDatasetType {
     CustomMapTextList(Cow<'static, str>),
     /// User custom dataset IP list
     CustomIpList(Cow<'static, str>),
+    CustomIpMap(Cow<'static, str>),
     /// User custom dataset Text list
     CustomTextList(Cow<'static, str>),
     /// Mantaince Calendar
