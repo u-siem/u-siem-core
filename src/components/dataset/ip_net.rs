@@ -133,6 +133,9 @@ impl IpNetDataset {
             }
         }
     }
+    pub fn internal_ref(&self) -> (&BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,&BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>) {
+        (&self.data4, &self.data6)
+    }
 }
 
 #[cfg(test)]

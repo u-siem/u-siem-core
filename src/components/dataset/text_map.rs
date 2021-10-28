@@ -61,6 +61,9 @@ impl TextMapDataset {
     pub fn get(&self, key : Cow<'static, str>) -> Option<&Cow<'static, str>> {
         self.data.get(&key)
     }
+    pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Cow<'static, str>> {
+        &self.data
+    }
 }
 
 #[cfg(test)]

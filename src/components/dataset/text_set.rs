@@ -61,6 +61,9 @@ impl TextSetDataset {
     pub fn contains(&self, val: &Cow<'static, str>) -> bool {
         self.data.contains(val)
     }
+    pub fn internal_ref(&self) -> &BTreeSet<Cow<'static, str>> {
+        &self.data
+    }
 }
 
 #[cfg(test)]

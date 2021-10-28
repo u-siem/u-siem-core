@@ -252,7 +252,7 @@ pub fn ipv6_from_str(s: &str) -> Result<u128, &'static str> {
     // Build the IPv6 address from the array of hextets
     return Ok(((address[0] as u128) << 112)
         + ((address[1] as u128) << 96)
-        + ((address[2] as u128) << 90)
+        + ((address[2] as u128) << 80)
         + ((address[3] as u128) << 64)
         + ((address[4] as u128) << 48)
         + ((address[5] as u128) << 32)

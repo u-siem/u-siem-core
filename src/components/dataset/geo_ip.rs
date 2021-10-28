@@ -129,6 +129,9 @@ impl GeoIpDataset {
             }
         }
     }
+    pub fn internal_ref(&self) -> (&BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,&BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>) {
+        (&self.data4, &self.data6)
+    }
 }
 #[cfg(test)]
 mod tests {

@@ -79,6 +79,10 @@ impl IpSetDataset {
             }
         }
     }
+    pub fn internal_ref(&self) -> (&BTreeSet<u32>,&BTreeSet<u128>) {
+        (&self.data4, &self.data6)
+    }
+
 }
 
 #[cfg(test)]

@@ -81,6 +81,9 @@ impl IpMapListDataset {
             }
         }
     }
+    pub fn internal_ref(&self) -> (&BTreeMap<u32, Vec<Cow<'static, str>>>,&BTreeMap<u128, Vec<Cow<'static, str>>>) {
+        (&self.data4, &self.data6)
+    }
 }
 
 #[cfg(test)]
