@@ -11,7 +11,7 @@ pub mod metrics;
 pub mod task;
 pub mod use_case;
 use dataset::{SiemDataset, SiemDatasetType};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap,BTreeSet};
 use std::sync::{Arc, Mutex};
 
 pub trait SiemComponent : Send {
@@ -63,7 +63,7 @@ pub trait SiemDatasetManager : Send {
     fn register_dataset(&mut self, dataset : SiemDatasetType);
 
     /// Get the list of datasets to initialize components
-    fn get_datasets(&self) -> Arc<Mutex<Vec<SiemDataset>>>;
+    fn get_datasets(&self) -> Arc<Mutex<BTreeSet<SiemDataset>>>;
 
     /// Sets the map of components that need dataset updates
     fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
