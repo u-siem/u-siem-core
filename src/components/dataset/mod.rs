@@ -21,6 +21,7 @@ use std::borrow::Cow;
 use text_map_list::{UpdateTextMapList, TextMapListSynDataset};
 use ip_map_list::{UpdateIpMapList ,IpMapListSynDataset};
 use std::fmt;
+use std::cmp::Ordering;
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
@@ -181,6 +182,24 @@ impl fmt::Display for SiemDataset {
         // fmt::Debug::fmt(self, f)
     }
 }
+impl PartialEq for SiemDataset {
+    fn eq(&self, other: &Self) -> bool {
+        self.dataset_type() == other.dataset_type()
+    }
+}
+impl Eq for SiemDataset {}
+
+impl PartialOrd for SiemDataset {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for SiemDataset {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.dataset_type().cmp(&other.dataset_type())
+    }
+}
+
 
 impl Serialize for SiemDataset {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
