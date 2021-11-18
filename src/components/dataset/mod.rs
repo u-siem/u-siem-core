@@ -20,6 +20,7 @@ use serde::ser::{SerializeStruct, Serializer};
 use std::borrow::Cow;
 use text_map_list::{UpdateTextMapList, TextMapListSynDataset};
 use ip_map_list::{UpdateIpMapList ,IpMapListSynDataset};
+use std::fmt;
 
 /// Common work datasets that allow a rapid development of rules and that the information of some logs allows enriching others.
 /// Other datasets like the ones associated with headquarters is controlled by the CMDB
@@ -84,7 +85,7 @@ pub enum SiemDataset {
     Secrets((Cow<'static, str>,TextMapSynDataset))
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum SiemDatasetType {
     /// Map IP to country, city, latitude and longitude
@@ -171,6 +172,13 @@ impl SiemDataset {
             SiemDataset::CustomMapTextList((name,_)) => SiemDatasetType::CustomMapTextList(name.clone()),
             SiemDataset::Secrets((name,_)) => SiemDatasetType::Secrets(name.clone())
         }
+    }
+}
+impl fmt::Display for SiemDataset {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
     }
 }
 
