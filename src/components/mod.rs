@@ -66,5 +66,5 @@ pub trait SiemDatasetManager : Send {
     fn get_datasets(&self) -> Arc<Mutex<BTreeMap<SiemDatasetType,SiemDataset>>>;
 
     /// Sets the map of components that need dataset updates
-    fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<String,Vec<Sender<SiemMessage>>>>>);
+    fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<u64,Vec<Sender<SiemMessage>>>>>);
 }
