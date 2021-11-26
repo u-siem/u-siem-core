@@ -10,6 +10,7 @@ pub mod alert;
 pub mod metrics;
 pub mod task;
 pub mod use_case;
+pub mod query;
 use dataset::{SiemDataset, SiemDatasetType};
 use std::collections::{BTreeMap};
 use std::sync::{Arc, Mutex};

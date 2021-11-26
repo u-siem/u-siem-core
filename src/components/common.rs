@@ -1,22 +1,22 @@
 use super::super::events::field::SiemIp;
+use super::super::events::schema::FieldSchema;
 use super::super::events::SiemLog;
-use serde::Serialize;
-use std::borrow::Cow;
-use std::collections::{BTreeMap};
+use super::alert::SiemAlert;
 use super::dataset::SiemDataset;
-use super::alert::{SiemAlert};
 use super::metrics::SiemMetric;
 use super::task::{SiemTask, SiemTaskResult};
-use super::super::events::schema::FieldSchema;
 use dyn_clone::{clone_trait_object, DynClone};
+use serde::Serialize;
+use std::borrow::Cow;
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Debug)]
 #[non_exhaustive]
 pub enum SiemMessage {
-    /// Execute a function in the component, first element is the ID of the Component and the second the ID of the command to keep track
-    Command(u64,u64, SiemFunctionCall),
+    /// Execute a command in the component
+    Command(SiemCommandHeader, SiemCommandCall),
     /// Response to a function call, first element is the ID of the Response
-    Response(u64,SiemFunctionResponse),
+    Response(SiemCommandHeader, SiemCommandResponse),
     /// Process a log
     Log(SiemLog),
     /// Local logging system. First element is the ID of the component, to be able to route messages
@@ -27,8 +27,8 @@ pub enum SiemMessage {
     Alert(SiemAlert),
     /// Send/Receive Metrics, first element is the ID of the component, second is the name of the metric
     Metrics(u64, Cow<'static, str>, SiemMetric), //TODO: use metrics like prometheus
-    Task(u64, SiemTask),
-    TaskResult(u64, SiemTaskResult)
+    Task(SiemCommandHeader, SiemTask),
+    TaskResult(SiemCommandHeader, SiemTaskResult),
 }
 
 #[derive(Serialize, Debug)]
@@ -36,30 +36,46 @@ pub enum SiemMessage {
 pub enum StorageError {
     NotExists,
     ConnectionError,
-    AlredyExists
+    AlredyExists,
 }
 
-pub trait SiemComponentStateStorage : DynClone + Send {
+pub trait SiemComponentStateStorage: DynClone + Send {
     /// Read a key value from the database
-    fn get_value(&self,key: Cow<'static, str>) -> Result<String, StorageError>;
+    fn get_value(&self, key: Cow<'static, str>) -> Result<String, StorageError>;
     /// Write to the database a key/value pair
-    fn set_value(&mut self, key: Cow<'static, str>, value: String, replace : bool) -> Result<(), StorageError>;
-    
+    fn set_value(
+        &mut self,
+        key: Cow<'static, str>,
+        value: String,
+        replace: bool,
+    ) -> Result<(), StorageError>;
+
     /// Get a file
-    fn get_file(&self, filepath : String) -> Result<Vec<u8>,StorageError>;
+    fn get_file(&self, filepath: String) -> Result<Vec<u8>, StorageError>;
 
     /// Get the size of a file
-    fn get_file_size(&self, filepath : String) -> Result<u64,StorageError>;
+    fn get_file_size(&self, filepath: String) -> Result<u64, StorageError>;
 
     /// Get a file part
-    fn get_file_range(&self, filepath : String, start : u64, end : u64) -> Result<Vec<u8>,StorageError>;
+    fn get_file_range(
+        &self,
+        filepath: String,
+        start: u64,
+        end: u64,
+    ) -> Result<Vec<u8>, StorageError>;
 
     /// Sets the content of a file
-    fn set_file(&mut self, filepath : String, content : Vec<u8>) -> Result<(), StorageError>;
+    fn set_file(&mut self, filepath: String, content: Vec<u8>) -> Result<(), StorageError>;
 
     /// Sets the content of a file
-    fn set_file_range(&mut self, filepath : String, content : Vec<u8>, start : u64, end : u64) -> Result<(), StorageError>;
-    
+    fn set_file_range(
+        &mut self,
+        filepath: String,
+        content: Vec<u8>,
+        start: u64,
+        end: u64,
+    ) -> Result<(), StorageError>;
+
     fn duplicate(&self) -> Box<dyn SiemComponentStateStorage>;
 }
 clone_trait_object!(SiemComponentStateStorage);
@@ -68,19 +84,19 @@ clone_trait_object!(SiemComponentStateStorage);
 pub struct SiemComponentCapabilities {
     name: Cow<'static, str>,
     description: Cow<'static, str>,
-    view : Cow<'static, str>,
-    datasets : Vec<DatasetDefinition>,
+    view: Cow<'static, str>,
+    datasets: Vec<DatasetDefinition>,
     commands: Vec<CommandDefinition>,
-    tasks : Vec<TaskDefinition>
+    tasks: Vec<TaskDefinition>,
 }
 impl SiemComponentCapabilities {
     pub fn new(
         name: Cow<'static, str>,
         description: Cow<'static, str>,
-        view : Cow<'static, str>,
-        datasets : Vec<DatasetDefinition>,
+        view: Cow<'static, str>,
+        datasets: Vec<DatasetDefinition>,
         commands: Vec<CommandDefinition>,
-        tasks : Vec<TaskDefinition>
+        tasks: Vec<TaskDefinition>,
     ) -> SiemComponentCapabilities {
         return SiemComponentCapabilities {
             name,
@@ -88,7 +104,7 @@ impl SiemComponentCapabilities {
             view,
             datasets,
             commands,
-            tasks
+            tasks,
         };
     }
     pub fn name(&self) -> &str {
@@ -124,7 +140,6 @@ pub enum UserRole {
     Administrator,
 }
 
-
 #[derive(Serialize, Debug)]
 pub struct CommandDefinition {
     class: SiemFunctionType,
@@ -143,7 +158,7 @@ impl CommandDefinition {
             class,
             name,
             description,
-            min_permission
+            min_permission,
         }
     }
 
@@ -179,7 +194,7 @@ impl TaskDefinition {
             class,
             name,
             description,
-            min_permission
+            min_permission,
         }
     }
 
@@ -212,7 +227,7 @@ impl DatasetDefinition {
         DatasetDefinition {
             name,
             description,
-            min_permission
+            min_permission,
         }
     }
     /// Name of the dataset
@@ -236,11 +251,6 @@ pub enum SiemTaskType {
     /// Script name and Script parameters
     EXECUTE_ENDPOINT_SCRIPT(
         Cow<'static, str>,
-        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
-    ),
-    /// Log query and log parameters
-    LOG_QUERY(
-        String,
         BTreeMap<Cow<'static, str>, Cow<'static, str>>,
     ),
     /// Remediate a list of emails. List of parameters
@@ -283,7 +293,7 @@ pub enum SiemFunctionType {
 }
 
 /// A simple object with the logic to parse Logs.
-pub trait LogParser : DynClone + Send {
+pub trait LogParser: DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
     /// Check if the parser can parse the log. Must be fast.
@@ -299,9 +309,9 @@ clone_trait_object!(LogParser);
 
 /// This is the most complex type of parser. It's statefull to store past logs.
 /// Think of the USB event in linux, we need the rest of the logs to extract all information.
-/// The Parser component which uses this parsers must be able to store and load past Logs 
+/// The Parser component which uses this parsers must be able to store and load past Logs
 /// if the user connects to a different SIEM node (LoadBalancing).
-pub trait MultilineLogParser : DynClone + Send {
+pub trait MultilineLogParser: DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
     fn parse_log(&mut self, log: SiemLog) -> Result<Option<SiemLog>, LogParsingError>;
     /// Check if the parser can parse the log. Must be fast.
@@ -310,7 +320,7 @@ pub trait MultilineLogParser : DynClone + Send {
     fn name(&self) -> &str;
     /// Description of the parser
     fn description(&self) -> &str;
-    /// The connection with the origin has been closed. We must preserve the logs stored inside this parser 
+    /// The connection with the origin has been closed. We must preserve the logs stored inside this parser
     /// so another node can use them to parse the logs of the same machine.
     fn cleaning(&mut self) -> Vec<SiemLog>;
     /// Return those logs that would not be used by the parser, or are older as to reduce the memmory usage.
@@ -330,19 +340,24 @@ pub enum LogParsingError {
     ParserError(SiemLog),
 }
 
+#[derive(Serialize, Debug)]
+pub struct SiemCommandHeader {
+    user: String,
+    comp_id: u64,
+    comm_id: u64,
+}
+
 /// Execute a command with parameters
 #[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
-pub enum SiemFunctionCall {
+pub enum SiemCommandCall {
     /// Starts a component. Params: Component name
     START_COMPONENT(Cow<'static, str>),
     /// Stops a component. Params: Component name
     STOP_COMPONENT(Cow<'static, str>),
     /// Query in database format. Ex SQL,  Elastic
-    LOG_QUERY(Cow<'static, str>),
-    /// Get rows of query
-    LOG_QUERY_RANGE(Cow<'static, str>, u64,u64),
+    LOG_QUERY(QueryInfo),
     /// IP of the device to isolate
     ISOLATE_IP(SiemIp),
     /// IP of the device to isolate
@@ -354,15 +369,18 @@ pub enum SiemFunctionCall {
     /// Adds a email to a BlockList with a comment or reference (Email, Comment)
     FILTER_EMAIL_SENDER(Cow<'static, str>, Cow<'static, str>),
     /// List use cases: offset, limit
-    LIST_USE_CASES(u32,u32),
+    LIST_USE_CASES(u32, u32),
     GET_USE_CASE(String),
-    LIST_RULES(u32,u32),
+    LIST_RULES(u32, u32),
     GET_RULE(String),
-    LIST_DATASETS(u32,u32),
-    LIST_TASKS(u32,u32),
+    LIST_DATASETS(u32, u32),
+    LIST_TASKS(u32, u32),
     DOWNLOAD_QUERY(),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
-    OTHER(Cow<'static, str>, BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+    OTHER(
+        Cow<'static, str>,
+        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    ),
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -370,19 +388,18 @@ pub enum SiemFunctionCall {
 pub enum CommandError {
     BadParameters(Cow<'static, str>),
     SyntaxError(Cow<'static, str>),
-    NotFound(Cow<'static, str>)
+    NotFound(Cow<'static, str>),
 }
 
 /// The response of a command execution
 #[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
-pub enum SiemFunctionResponse {
+pub enum SiemCommandResponse {
     START_COMPONENT(Result<Cow<'static, str>, CommandError>),
     STOP_COMPONENT(Result<Cow<'static, str>, CommandError>),
     /// Query created with an ID
-    LOG_QUERY(Result<String, CommandError>),
-    LOG_QUERY_RANGE(String, u64,u64, Result<Vec<SiemLog>, CommandError>),
+    LOG_QUERY(QueryInfo,Result<Vec<SiemLog>, CommandError>),
     ISOLATE_IP(Result<Cow<'static, str>, CommandError>),
     ISOLATE_ENDPOINT(Result<Cow<'static, str>, CommandError>),
     /// (IP, Comment)
@@ -392,8 +409,8 @@ pub enum SiemFunctionResponse {
     /// (Email, Comment)
     FILTER_EMAIL_SENDER(Result<Cow<'static, str>, CommandError>),
     /// List of UseCases: (Name,Description)
-    LIST_USE_CASES(Result<Vec<(Cow<'static, str>,Cow<'static, str>)>, CommandError>),
-    GET_USE_CASE(Result<(Cow<'static, str>,Cow<'static, str>), CommandError>),
+    LIST_USE_CASES(Result<Vec<(Cow<'static, str>, Cow<'static, str>)>, CommandError>),
+    GET_USE_CASE(Result<(Cow<'static, str>, Cow<'static, str>), CommandError>),
     LIST_RULES(Result<Vec<(&'static str, &'static str)>, CommandError>),
     GET_RULE(Result<(&'static str, &'static str), CommandError>),
     LIST_DATASETS(Result<Vec<Cow<'static, str>>, CommandError>),
@@ -402,5 +419,27 @@ pub enum SiemFunctionResponse {
         Cow<'static, str>,
         Result<BTreeMap<Cow<'static, str>, Cow<'static, str>>, CommandError>,
     ),
+    //TODO: Authentication command, to allow login using third party systems: LDAP...
 }
-//TODO: Authentication command, to allow login using third party systems: LDAP...
+
+#[derive(Serialize, Debug, Clone)]
+pub struct QueryInfo {
+    /// The user that created the query pettition
+    pub user : String,
+    /// Use storage native query language: SQL, Elastic
+    pub is_native : bool,
+    /// If there are alredy a query resolved, make a query agaist it
+    pub query_id : Option<String>,
+    /// Starting time for event_created: Unix datetime from 1970
+    pub from : i64,
+    /// Ending time for event_created: Unix datetime from 1970
+    pub to : i64,
+    /// Number of rows returned
+    pub limit : usize,
+    /// Offseting the query
+    pub offset : usize,
+    /// Time to live of the query results
+    pub ttl : i64,
+    /// If empty and query_id has something, then return the stored query
+    pub query : String
+}
