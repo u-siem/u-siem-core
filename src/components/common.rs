@@ -1,4 +1,4 @@
-use super::super::events::field::SiemIp;
+use super::super::events::field::{SiemIp,SiemField};
 use super::super::events::schema::FieldSchema;
 use super::super::events::SiemLog;
 use super::alert::SiemAlert;
@@ -399,7 +399,7 @@ pub enum SiemCommandResponse {
     START_COMPONENT(Result<Cow<'static, str>, CommandError>),
     STOP_COMPONENT(Result<Cow<'static, str>, CommandError>),
     /// Query created with an ID
-    LOG_QUERY(QueryInfo,Result<Vec<SiemLog>, CommandError>),
+    LOG_QUERY(QueryInfo,Result<Vec<BTreeMap<String,SiemField>>, CommandError>),
     ISOLATE_IP(Result<Cow<'static, str>, CommandError>),
     ISOLATE_ENDPOINT(Result<Cow<'static, str>, CommandError>),
     /// (IP, Comment)
