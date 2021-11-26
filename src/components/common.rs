@@ -342,9 +342,9 @@ pub enum LogParsingError {
 
 #[derive(Serialize, Debug)]
 pub struct SiemCommandHeader {
-    user: String,
-    comp_id: u64,
-    comm_id: u64,
+    pub user: String,
+    pub comp_id: u64,
+    pub comm_id: u64,
 }
 
 /// Execute a command with parameters

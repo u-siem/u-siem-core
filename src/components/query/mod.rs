@@ -1,5 +1,3 @@
-use std::panic;
-
 pub struct QueryLexer {
     input: Vec<char>,
     pub position: usize,
