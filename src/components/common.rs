@@ -441,5 +441,7 @@ pub struct QueryInfo {
     /// Time to live of the query results
     pub ttl : i64,
     /// If empty and query_id has something, then return the stored query
-    pub query : String
+    pub query : String,
+    /// List of fields to be returned, empty for all
+    pub fields : Vec<String>
 }

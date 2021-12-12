@@ -330,7 +330,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_dataset_creation() {
-        let input = String::from("filter field_name2=\"*something\" | fields os_actor_process_file_size as osapfs | filter to_string(osapfs,'something') = \"12345\"");
+        let input = String::from("filter field_name2=\"*something\" | fields os.actor_process as osap | filter to_string(osap,'something') = \"12345\"");
         let mut l = QueryLexer::new(input.chars().collect());
         l.read_char();
         loop {

@@ -27,10 +27,10 @@ impl DhcpEvent {
     pub fn record_type(&self) -> &DhcpRecordType {
         &self.record_type
     }
-    pub fn source_hostname(&self) -> &Cow<'static, str> {
+    pub fn source_hostname(&self) -> &str {
         &self.source_hostname
     }
-    pub fn hostname(&self) -> &Cow<'static, str> {
+    pub fn hostname(&self) -> &str {
         &self.hostname
     }
 }

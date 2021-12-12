@@ -20,8 +20,8 @@ pub trait SiemComponent : Send {
         return 0
     }
     fn set_id(&mut self, id: u64);
-    fn name(&self) -> Cow<'static, str>{
-        return Cow::Borrowed("SiemComponent")
+    fn name(&self) -> &str {
+        return &"SiemComponent"
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;
@@ -48,8 +48,8 @@ pub trait SiemComponent : Send {
 }
 
 pub trait SiemDatasetManager : Send {
-    fn name(&self) -> Cow<'static, str>{
-        return Cow::Borrowed("SiemDatasetManager")
+    fn name(&self) -> &str {
+        return &"SiemDatasetManager"
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;

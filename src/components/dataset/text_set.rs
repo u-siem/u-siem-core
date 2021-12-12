@@ -18,16 +18,16 @@ impl TextSetSynDataset {
     pub fn new(dataset: Arc<TextSetDataset>, comm: Sender<UpdateTextSet>) -> TextSetSynDataset {
         return TextSetSynDataset { dataset, comm };
     }
-    pub fn insert(&mut self, val: Cow<'static, str>) {
+    pub fn insert<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextSet::Add(val)) {
+        match self.comm.try_send(UpdateTextSet::Add(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&mut self, val: Cow<'static, str>) {
+    pub fn remove<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextSet::Remove(val)) {
+        match self.comm.try_send(UpdateTextSet::Remove(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
@@ -55,8 +55,8 @@ impl TextSetDataset {
             data: BTreeSet::new()
         };
     }
-    pub fn insert(&mut self, val: Cow<'static, str>) {
-        self.data.insert(val);
+    pub fn insert<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
+        self.data.insert(val.into());
     }
     pub fn contains(&self, val: &Cow<'static, str>) -> bool {
         self.data.contains(val)

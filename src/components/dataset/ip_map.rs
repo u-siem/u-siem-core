@@ -60,13 +60,13 @@ impl IpMapDataset {
             data6: BTreeMap::new(),
         };
     }
-    pub fn insert(&mut self, ip: SiemIp, data: Cow<'static, str>) {
+    pub fn insert<S>(&mut self, ip: SiemIp, data: S) where S: Into<Cow<'static, str>> {
         match ip {
             SiemIp::V4(ip) => {
-                self.data4.insert(ip, data);
+                self.data4.insert(ip, data.into());
             }
             SiemIp::V6(ip) => {
-                self.data6.insert(ip, data);
+                self.data6.insert(ip, data.into());
             }
         }
     }

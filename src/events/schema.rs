@@ -75,6 +75,13 @@ impl FieldSchema {
     pub fn get_field(&self, field: &str) -> Option<&FieldType> {
         self.fields.get(field)
     }
+    pub fn field_names(&self) -> Vec<String> {
+        let mut to_ret = Vec::with_capacity(self.fields.len());
+        for key in self.fields.keys() {
+            to_ret.push(key.to_string());
+        }
+        to_ret
+    }
 }
 
 #[derive(Serialize, Debug, Clone)]

@@ -123,6 +123,10 @@ pub struct SiemLog {
 
 impl<'a> SiemLog {
     pub fn new(message: String, received: i64, origin: SiemIp) -> SiemLog {
+        let mut fields = BTreeMap::new();
+        fields.insert(Cow::Borrowed("message"), SiemField::Text(Cow::Owned(message.to_string())));
+        fields.insert(Cow::Borrowed("received"), SiemField::IP(origin.clone()));
+        fields.insert(Cow::Borrowed("origin"), SiemField::I64(received));
         SiemLog {
             message,
             event_received: received,
@@ -134,7 +138,7 @@ impl<'a> SiemLog {
             vendor: Cow::default(),
             event: SiemEvent::Unknown,
             tags: BTreeSet::default(),
-            fields: BTreeMap::default(),
+            fields,
             event_created: received,
         }
     }
@@ -148,32 +152,43 @@ impl<'a> SiemLog {
     pub fn tenant(&'a self) -> &'a str {
         &self.tenant
     }
-    pub fn set_tenant(&mut self, tenant: Cow<'static, str>) {
+    pub fn set_tenant<S>(&mut self, tenant: S) where S: Into<Cow<'static, str>> {
+        let tenant = tenant.into();
+        self.fields.insert(Cow::Borrowed("tenant"), SiemField::Text(tenant.clone()));
         self.tenant = tenant;
     }
     pub fn product(&'a self) -> &'a str {
         &self.product
     }
-    pub fn set_product(&mut self, val: Cow<'static, str>) {
-        self.product = val;
+    pub fn set_product<S>(&mut self, product: S) where S: Into<Cow<'static, str>> {
+        let product = product.into();
+        self.fields.insert(Cow::Borrowed("product"), SiemField::Text(product.clone()));
+        self.product = product;
     }
     pub fn service(&'a self) -> &'a str {
         &self.service
     }
-    pub fn set_service(&mut self, val: Cow<'static, str>) {
-        self.service = val;
+    
+    pub fn set_service<S>(&mut self, service: S) where S: Into<Cow<'static, str>> {
+        let service = service.into();
+        self.fields.insert(Cow::Borrowed("service"), SiemField::Text(service.clone()));
+        self.service = service;
     }
     pub fn category(&'a self) -> &'a str {
         &self.category
     }
-    pub fn set_category(&mut self, val: Cow<'static, str>) {
-        self.category = val;
+    pub fn set_category<S>(&mut self, category: S) where S: Into<Cow<'static, str>> {
+        let category = category.into();
+        self.fields.insert(Cow::Borrowed("category"), SiemField::Text(category.clone()));
+        self.category = category;
     }
     pub fn vendor(&'a self) -> &'a str {
         &self.vendor
     }
-    pub fn set_vendor(&mut self, val: Cow<'static, str>) {
-        self.vendor = val;
+    pub fn set_vendor<S>(&mut self, vendor: S) where S: Into<Cow<'static, str>> {
+        let vendor = vendor.into();
+        self.fields.insert(Cow::Borrowed("vendor"), SiemField::Text(vendor.clone()));
+        self.vendor = vendor;
     }
     pub fn event_received(&'a self) -> i64 {
         self.event_received
@@ -183,12 +198,14 @@ impl<'a> SiemLog {
     }
     pub fn set_event_created(&mut self, date: i64) {
         self.event_created = date;
+        self.fields.insert(Cow::Borrowed("event_created"), SiemField::I64(date));
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
     }
     pub fn add_tag(&mut self, tag: &str) {
         self.tags.insert(Cow::Owned(tag.to_lowercase()));
+        self.fields.insert(Cow::Borrowed("tags"), SiemField::Text(Cow::Owned(self.tags.iter().map(|x| x.to_uppercase()).collect::<Vec<String>>().join(","))));
     }
     pub fn tags(&'a self) -> &'a BTreeSet<Cow<'static, str>> {
         &self.tags

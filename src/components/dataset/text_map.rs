@@ -18,16 +18,15 @@ impl TextMapSynDataset {
     pub fn new(dataset: Arc<TextMapDataset>, comm: Sender<UpdateTextMap>) -> TextMapSynDataset {
         return TextMapSynDataset { dataset, comm };
     }
-    pub fn insert(&mut self, key : Cow<'static, str>, data: Cow<'static, str>) {
-        // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMap::Add((key, data))) {
+    pub fn insert<S>(&mut self, key : S, data: S) where S: Into<Cow<'static, str>> {
+        match self.comm.try_send(UpdateTextMap::Add((key.into(), data.into()))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&mut self, key : Cow<'static, str>) {
+    pub fn remove<S>(&mut self, key : S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMap::Remove(key)) {
+        match self.comm.try_send(UpdateTextMap::Remove(key.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
@@ -39,7 +38,7 @@ impl TextMapSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, key : Cow<'static, str>) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, key : &Cow<'static, str>) -> Option<&Cow<'static, str>> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
@@ -55,11 +54,11 @@ impl TextMapDataset {
             data: BTreeMap::new()
         };
     }
-    pub fn insert(&mut self, key : Cow<'static, str>, data: Cow<'static, str>) {
-        self.data.insert(key, data);
+    pub fn insert<S>(&mut self, key : S, data: S) where S: Into<Cow<'static, str>> {
+        self.data.insert(key.into(), data.into());
     }
-    pub fn get(&self, key : Cow<'static, str>) -> Option<&Cow<'static, str>> {
-        self.data.get(&key)
+    pub fn get(&self, key : &Cow<'static, str>) -> Option<&Cow<'static, str>> {
+        self.data.get(key)
     }
     pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Cow<'static, str>> {
         &self.data
@@ -77,7 +76,7 @@ mod tests {
             Cow::Borrowed("Local IP"),
         );
         assert_eq!(
-            dataset.get(Cow::Borrowed("192.168.1.1")),
+            dataset.get(&Cow::Borrowed("192.168.1.1")),
             Some(&Cow::Borrowed("Local IP"))
         );
     }

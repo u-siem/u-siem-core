@@ -59,20 +59,20 @@ impl IpNetDataset {
             data6: BTreeMap::new(),
         };
     }
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
+    pub fn insert<S>(&mut self, ip: SiemIp, net: u8, data: S) where S: Into<Cow<'static, str>> {
         match ip {
             SiemIp::V4(ip) => {
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
                 if self.data4.contains_key(&(net as u32)) {
                     match self.data4.get_mut(&(net as u32)) {
                         Some(dataset) => {
-                            dataset.insert(ip_net, data);
+                            dataset.insert(ip_net, data.into());
                         }
                         None => {}
                     };
                 } else {
                     let mut new_net = BTreeMap::new();
-                    new_net.insert(ip_net, data);
+                    new_net.insert(ip_net, data.into());
                     self.data4.insert(net as u32, new_net);
                 }
             }
@@ -81,13 +81,13 @@ impl IpNetDataset {
                 if self.data6.contains_key(&(net as u32)) {
                     match self.data6.get_mut(&(net as u32)) {
                         Some(dataset) => {
-                            dataset.insert(ip_net, data);
+                            dataset.insert(ip_net, data.into());
                         }
                         None => {}
                     };
                 } else {
                     let mut new_net = BTreeMap::new();
-                    new_net.insert(ip_net, data);
+                    new_net.insert(ip_net, data.into());
                     self.data6.insert(net as u32, new_net);
                 }
             }
