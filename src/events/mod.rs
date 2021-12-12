@@ -125,8 +125,8 @@ impl<'a> SiemLog {
     pub fn new(message: String, received: i64, origin: SiemIp) -> SiemLog {
         let mut fields = BTreeMap::new();
         fields.insert(Cow::Borrowed("message"), SiemField::Text(Cow::Owned(message.to_string())));
-        fields.insert(Cow::Borrowed("received"), SiemField::IP(origin.clone()));
-        fields.insert(Cow::Borrowed("origin"), SiemField::I64(received));
+        fields.insert(Cow::Borrowed("origin"), SiemField::IP(origin.clone()));
+        fields.insert(Cow::Borrowed("received"), SiemField::I64(received));
         SiemLog {
             message,
             event_received: received,
