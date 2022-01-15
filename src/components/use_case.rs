@@ -35,7 +35,7 @@ impl Serialize for SiemUseCase {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("SiemAutomatedStep", 2)?;
+        let mut state = serializer.serialize_struct("SiemAutomatedStep", 7)?;
         state.serialize_field("name", &self.name)?;
         state.serialize_field("description", &self.description)?;
         state.serialize_field("case_logic", &self.case_logic)?;
@@ -73,7 +73,7 @@ impl Serialize for SiemAutomatedStep {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("SiemAutomatedStep", 2)?;
+        let mut state = serializer.serialize_struct("SiemAutomatedStep", 3)?;
         state.serialize_field("min_role", &self.min_role)?;
         state.serialize_field("name", &self.name)?;
         state.serialize_field("description", &self.description)?;

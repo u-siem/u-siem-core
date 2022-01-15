@@ -81,9 +81,9 @@ pub enum SiemDataset {
     CustomTextList((Cow<'static, str>, TextSetSynDataset)),
     /// Mantaince Calendar
     MantainceCalendar(CalendarSynDataset),
-    /// Configuration of components. Allows modifications of behaviour in real time.
+    /// Configuration of components. Allows modifications of component parameters in real time.
     Configuration(TextMapSynDataset),
-    /// Secret store. A component will only be able to access to his own secrets.
+    /// Secret store. A component will only be able to access his own secrets.
     Secrets((Cow<'static, str>, TextMapSynDataset)),
 }
 

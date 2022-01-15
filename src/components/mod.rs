@@ -1,19 +1,20 @@
-use std::borrow::Cow;
 use crossbeam_channel::{Sender, Receiver};
 use super::events::SiemLog;
-pub mod common;
-pub mod dataset;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 use std::boxed::Box;
+use dataset::{SiemDataset, SiemDatasetType};
+use std::collections::{BTreeMap};
+use std::sync::{Arc, Mutex};
+
+pub mod common;
+pub mod dataset;
 pub mod mitre;
 pub mod alert;
 pub mod metrics;
 pub mod task;
 pub mod use_case;
 pub mod query;
-use dataset::{SiemDataset, SiemDatasetType};
-use std::collections::{BTreeMap};
-use std::sync::{Arc, Mutex};
+pub mod command;
 
 pub trait SiemComponent : Send {
     fn id(&self) -> u64 {

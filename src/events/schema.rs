@@ -82,6 +82,12 @@ impl FieldSchema {
         }
         to_ret
     }
+    /// Remove fields from the schema
+    pub fn filter_fields(&mut self, fields : &BTreeSet<&'static str>) {
+        for key in fields.iter() {
+            self.fields.remove(*key);
+        }
+    }
 }
 
 #[derive(Serialize, Debug, Clone)]

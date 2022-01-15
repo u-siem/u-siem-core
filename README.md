@@ -129,11 +129,11 @@ pub enum WebProxyRuleCategory {
 ## TODO List
 
 - [x] Log structure
-- [ ] Design of components with local horizontal scalability: The kernel must be able to increase the number of threads assigned to a components if there is a congestion in the event queue.
-- [ ] Prometheus metrics: processed events of each type, errors, users connected, number of querys...
+- [x] Design of components with local horizontal scalability: The kernel must be able to increase the number of threads assigned to a components if there is a congestion in the event queue.
+- [x] Prometheus metrics: processed events of each type, errors, users connected, number of querys...
 - [x] Event types with fields.
 - [ ] Components and kernel interfaces. The components must be registered in the kernel, but the kernel in another instance must be able to know that they exist.
-- [ ] SIEM inter-Kernel channels, to allow horizontal scaling (Redis channels).
+- [ ] SIEM inter-Kernel channels, to allow horizontal scaling (Redis channels). Depends on the kernel implementation.
 - [x] Datasets that allow Real-Time log enhancement.
 - [ ] User role design. Inspiration from [PaloAlto Cortex XDR](https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/get-started-with-cortex-xdr-pro/manage-cortex-xdr-roles/administrative-roles.html)
 - [ ] Behavour Engine component: Inspiration from Darktrace that uses a lot of small rules to generate a threat score for the event and increse the total score for the user.
