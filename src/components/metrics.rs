@@ -18,7 +18,7 @@ pub static PROCESSED_BYTES_INDEXER: &'static str = "processed_bytes_indexer";
 
 /// Metrics to be registered in the kernel.
 #[derive(Debug, Clone)]
-pub enum SiemMetricType {
+pub enum SiemMetric {
     Counter(Arc<AtomicI64>),
     /// Atomic reference and a multiplier
     Gauge(Arc<AtomicI64>, f32),
@@ -30,12 +30,7 @@ pub enum SiemMetricType {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemMetricDefinition {
-    pub metrics: Vec<SiemMetric>,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct SiemMetric {
-    pub metric: SiemMetricType,
+    pub metric: SiemMetric,
     pub name: Cow<'static, str>,
     pub tags: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
 }
@@ -104,31 +99,31 @@ impl Serialize for SummaryMetric {
     }
 }
 
-impl Serialize for SiemMetricType {
+impl Serialize for SiemMetric {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("SiemMetricDefinition", 2)?;
         match self {
-            SiemMetricType::Counter(cnt) => {
+            SiemMetric::Counter(cnt) => {
                 state.serialize_field("type", "Counter")?;
                 state.serialize_field("value", &(**cnt))?;
             }
-            SiemMetricType::Gauge(cnt, mlt) => {
+            SiemMetric::Gauge(cnt, mlt) => {
                 state.serialize_field("type", "Gauge")?;
                 let counter: f64 = (&(**cnt)).load(std::sync::atomic::Ordering::Relaxed) as f64;
                 state.serialize_field("value", &(counter * (*mlt as f64)))?;
             }
-            SiemMetricType::Timer(cnt) => {
+            SiemMetric::Timer(cnt) => {
                 state.serialize_field("type", "Timer")?;
                 state.serialize_field("value", &(**cnt))?;
             }
-            SiemMetricType::Histogram(hst) => {
+            SiemMetric::Histogram(hst) => {
                 state.serialize_field("type", "Histogram")?;
                 state.serialize_field("value", hst)?;
             }
-            SiemMetricType::Summary(smr) => {
+            SiemMetric::Summary(smr) => {
                 state.serialize_field("type", "Summary")?;
                 state.serialize_field("value", smr)?;
             }

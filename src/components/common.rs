@@ -1,11 +1,10 @@
-use super::super::events::field::{SiemIp,SiemField};
 use super::super::events::schema::FieldSchema;
 use super::super::events::SiemLog;
 use super::alert::SiemAlert;
 use super::dataset::SiemDataset;
 use super::command::{CommandDefinition, SiemCommandResponse, SiemCommandCall, SiemCommandHeader};
 use super::metrics::{SiemMetric, SiemMetricDefinition};
-use super::task::{SiemTask, SiemTaskResult, SiemTaskType, TaskDefinition};
+use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use dyn_clone::{clone_trait_object, DynClone};
 use serde::Serialize;
 use std::borrow::Cow;
