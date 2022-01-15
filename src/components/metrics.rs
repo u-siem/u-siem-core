@@ -32,6 +32,7 @@ pub enum SiemMetric {
 pub struct SiemMetricDefinition {
     pub metric: SiemMetric,
     pub name: Cow<'static, str>,
+    pub description: Cow<'static, str>,
     pub tags: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
 }
 #[derive(Debug, Clone)]
