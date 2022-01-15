@@ -195,7 +195,7 @@ impl TryFrom<(SiemDatasetType, IpNetSynDataset)> for SiemDataset {
 }
 
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[non_exhaustive]
 pub enum SiemDatasetType {
     /// Map IP to country, city, latitude and longitude

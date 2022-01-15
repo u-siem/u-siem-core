@@ -1,7 +1,7 @@
 use super::super::events::schema::FieldSchema;
 use super::super::events::SiemLog;
 use super::alert::SiemAlert;
-use super::dataset::SiemDataset;
+use super::dataset::{SiemDataset, SiemDatasetType};
 use super::command::{CommandDefinition, SiemCommandResponse, SiemCommandCall, SiemCommandHeader};
 use super::metrics::{SiemMetric, SiemMetricDefinition};
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
@@ -149,24 +149,24 @@ pub enum UserRole {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct DatasetDefinition {
-    name: Cow<'static, str>,
+    name: SiemDatasetType,
     description: Cow<'static, str>,
-    min_permission: UserRole,
+    required_permission: UserRole,
 }
 impl DatasetDefinition {
     pub fn new(
-        name: Cow<'static, str>,
+        name: SiemDatasetType,
         description: Cow<'static, str>,
-        min_permission: UserRole,
+        required_permission: UserRole,
     ) -> DatasetDefinition {
         DatasetDefinition {
             name,
             description,
-            min_permission,
+            required_permission,
         }
     }
     /// Name of the dataset
-    pub fn name(&self) -> &Cow<'static, str> {
+    pub fn name(&self) -> &SiemDatasetType {
         &self.name
     }
     /// Description of the dataset
@@ -174,8 +174,8 @@ impl DatasetDefinition {
         &self.description
     }
     /// Permission needed to access this dataset
-    pub fn min_permission(&self) -> &UserRole {
-        &self.min_permission
+    pub fn required_permission(&self) -> &UserRole {
+        &self.required_permission
     }
 }
 
