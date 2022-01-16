@@ -58,3 +58,5 @@ pub static DNS_RESOLVED_IP: &'static str = "dns.resolved_ip";
 
 
 pub static DHCP_RECORD_TYPE: &'static str = "dhcp.type";
+
+pub static TAG_REPROCESS: &'static str = "reprocess_log";

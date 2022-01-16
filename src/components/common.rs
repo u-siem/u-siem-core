@@ -3,7 +3,7 @@ use super::super::events::SiemLog;
 use super::alert::SiemAlert;
 use super::dataset::{SiemDataset, SiemDatasetType};
 use super::command::{CommandDefinition, SiemCommandResponse, SiemCommandCall, SiemCommandHeader};
-use super::metrics::{SiemMetric, SiemMetricDefinition};
+use super::metrics::{SiemMetricDefinition};
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use dyn_clone::{clone_trait_object, DynClone};
 use serde::Serialize;
@@ -24,8 +24,6 @@ pub enum SiemMessage {
     Dataset(SiemDataset),
     /// Alerting
     Alert(SiemAlert),
-    /// Send/Receive Metrics, first element is the ID of the component, second is the name of the metric
-    Metrics(u64, Cow<'static, str>, SiemMetric), //TODO: use metrics like prometheus
     Task(SiemCommandHeader, SiemTask),
     TaskResult(SiemCommandHeader, SiemTaskResult),
 }
@@ -228,8 +226,12 @@ clone_trait_object!(MultilineLogParser);
 pub enum LogParsingError {
     /// The parser can't be used with this log
     NoValidParser(SiemLog),
-    /// The parser can be used with this log but has some bug
-    ParserError(SiemLog),
+    /// The log is for this parser but there is a bug in the code
+    ParserError(SiemLog, String),
+    /// The log is for this parser but the submodule has not been implemented.
+    NotImplemented(SiemLog),
+    /// The log has change format the parser cant process it.
+    FormatError(SiemLog, String)
 }
 
 

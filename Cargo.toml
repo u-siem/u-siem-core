@@ -1,12 +1,12 @@
 [package]
 name = "u-siem"
-version = "0.0.97"
+version = "0.0.98"
 authors = ["Samuel Garcés <samuel.garces@protonmail.com>"]
 license = "MIT"
 description = "A framework for building custom SIEMs"
 repository = "https://github.com/u-siem/u-siem-core"
 keywords = ["SIEM", "security", "logs"]
-categories = ["security"]
+categories = ["parsing"]
 edition = "2018"
 
 [lib]
@@ -22,3 +22,4 @@ dyn-clone = "1.0"
 
 [dev-dependencies]
 lazy_static = "1.4.0"
+async-std = { version = "1.10.0", features = ["attributes"] }

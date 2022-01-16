@@ -77,5 +77,5 @@ pub struct SiemTask {
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemTaskResult {
     pub id : u64,
-    pub data : Option<String>
+    pub data : Option<Result<String, String>>
 }
