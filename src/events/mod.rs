@@ -94,7 +94,7 @@ pub enum SiemEvent {
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemLog {
     /// IP or Hostname of the server that sent the log.
-    origin: SiemIp,
+    origin: Cow<'static, str>,
     /// Customer name for SOC environments. Ex: Contoso
     tenant: Cow<'static, str>,
     /// Name of the product for wich the log belongs. Ex: ASA
@@ -122,16 +122,18 @@ pub struct SiemLog {
 }
 
 impl<'a> SiemLog {
-    pub fn new(message: String, received: i64, origin: SiemIp) -> SiemLog {
+    pub fn new<S,M>(message: M, received: i64, origin: S) -> SiemLog where S: Into<Cow<'static, str>>, M: Into<String>  {
+        let cw = origin.into();
+        let ms = message.into();
         let mut fields = BTreeMap::new();
-        fields.insert(Cow::Borrowed("message"), SiemField::Text(Cow::Owned(message.to_string())));
-        fields.insert(Cow::Borrowed("origin"), SiemField::IP(origin.clone()));
+        fields.insert(Cow::Borrowed("message"), SiemField::Text(Cow::Owned(ms.clone())));
+        fields.insert(Cow::Borrowed("origin"), SiemField::Text(cw.clone()));
         fields.insert(Cow::Borrowed("event_received"), SiemField::I64(received));
         fields.insert(Cow::Borrowed("event_created"), SiemField::I64(received));
         SiemLog {
-            message,
+            message : ms,
             event_received: received,
-            origin,
+            origin : cw,
             tenant: Cow::default(),
             product: Cow::default(),
             service: Cow::default(),
@@ -147,7 +149,7 @@ impl<'a> SiemLog {
     pub fn message(&'a self) -> &'a str {
         &self.message
     }
-    pub fn origin(&'a self) -> &'a SiemIp {
+    pub fn origin(&'a self) -> &'a str {
         &self.origin
     }
     pub fn tenant(&'a self) -> &'a str {
@@ -1102,8 +1104,7 @@ mod tests {
 
     #[test]
     fn check_log() {
-        let message = "<134>Aug 23 20:30:25 OPNsense.localdomain filterlog[21853]: 82,,,0,igb0,match,pass,out,4,0x0,,62,25678,0,DF,17,udp,60,192.168.1.8,8.8.8.8,5074,53,40";
-        let mut log = SiemLog::new(message.to_owned(), 0, SiemIp::V4(0));
+        let mut log = SiemLog::new("<134>Aug 23 20:30:25 OPNsense.localdomain filterlog[21853]: 82,,,0,igb0,match,pass,out,4,0x0,,62,25678,0,DF,17,udp,60,192.168.1.8,8.8.8.8,5074,53,40", 0, "localhost");
         log.set_event(SiemEvent::Firewall(FirewallEvent {
             source_ip: SiemIp::V4(0),
             destination_ip: SiemIp::V4(10000),

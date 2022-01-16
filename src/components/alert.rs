@@ -130,7 +130,6 @@ pub struct SiemAlert {
 #[cfg(test)]
 mod tests {
     use super::super::super::events::auth::{AuthEvent, AuthLoginType, LoginOutcome, RemoteLogin};
-    use super::super::super::events::field::SiemIp;
     use super::super::super::events::SiemEvent;
     use super::*;
     use lazy_static::lazy_static;
@@ -355,7 +354,7 @@ mod tests {
     #[async_std::test]
     async fn test_async_rule() {
         let async_rule : SiemRuleMatchAsync = example_async_rule;
-        let mut log = SiemLog::new(String::from("This is a log example"), 0, SiemIp::V4(0));
+        let mut log = SiemLog::new(String::from("This is a log example"), 0, "localhost");
         log.set_tenant(Cow::Borrowed("Contoso"));
         log.set_event(SiemEvent::Auth(AuthEvent {
             hostname: Cow::Borrowed("hostname1"),
@@ -392,7 +391,7 @@ mod tests {
     #[test]
     fn templates_and_mappings_in_alert() {
         let rule = EXAMPLE_RULE.clone();
-        let mut log = SiemLog::new(String::from("This is a log example"), 0, SiemIp::V4(0));
+        let mut log = SiemLog::new(String::from("This is a log example"), 0, "localhost");
         log.set_tenant(Cow::Borrowed("Contoso"));
 
         match rule.match_log(&log) {
@@ -404,7 +403,7 @@ mod tests {
                 panic!("Add template test failed")
             }
         }
-        let mut log = SiemLog::new(String::from("This is a log example"), 0, SiemIp::V4(0));
+        let mut log = SiemLog::new(String::from("This is a log example"), 0, "localhost");
         log.set_tenant(Cow::Borrowed("Cancamusa"));
 
         match rule.match_log(&log) {
@@ -421,7 +420,7 @@ mod tests {
     #[test]
     fn check_stateful_rule() {
         let rule = EXAMPLE_STATEFUL_RULE.clone();
-        let mut log = SiemLog::new(String::from("This is a log example"), 0, SiemIp::V4(0));
+        let mut log = SiemLog::new(String::from("This is a log example"), 0, "localhost");
         log.set_event(SiemEvent::Auth(AuthEvent {
             hostname: Cow::Borrowed("hostname1"),
             outcome: LoginOutcome::FAIL,
