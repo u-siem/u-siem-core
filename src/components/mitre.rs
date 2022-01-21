@@ -30,7 +30,7 @@ pub const TACTIC_IMPACT_MOBILE :  MitreTactics = MitreTactics::TA0034;
 pub const TACTIC_NETWORK_EFFECTS_MOBILE :  MitreTactics = MitreTactics::TA0038;
 pub const TACTIC_REMOTE_SERVICE_EFFECTS_MOBILE :  MitreTactics = MitreTactics::TA0039;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum MitreTactics {
     /// Reconnaissance: The adversary is trying to gather information they can use to plan future operations.
     /// https://attack.mitre.org/tactics/TA0043
@@ -671,7 +671,7 @@ pub const TECHNIQUE_BUILD_IMAGE_ON_HOST : MitreTechniques = MitreTechniques::T16
 pub const TECHNIQUE_CONTAINER_AND_RESOURCE_DISCOVERY : MitreTechniques = MitreTechniques::T1613;
 pub const TECHNIQUE_SYSTEM_LOCATION_DISCOVERY : MitreTechniques = MitreTechniques::T1614;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum MitreTechniques {
     /// Data Obfuscation: Adversaries may obfuscate command and control traffic to make it more difficult to detect. Command and control (C2) communications are hidden (but not necessarily encrypted) in an attempt to make the content more difficult to discover or decipher and to make the communication less conspicuous and hide commands from being seen. This encompasses many methods, such as adding junk data to protocol traffic, using steganography, or impersonating legitimate protocols.
     ///

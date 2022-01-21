@@ -1,4 +1,4 @@
-use std::{thread::JoinHandle, borrow::Cow};
+use std::{thread::JoinHandle};
 
 use crossbeam_channel::{Sender, SendError};
 
@@ -16,7 +16,7 @@ where
         action();
         sender.send(SiemMessage::Command(
             SiemCommandHeader{ comp_id : 0, comm_id : 0, user : String::from("kernel")},
-            SiemCommandCall::STOP_COMPONENT(Cow::Owned(comp_name)),
+            SiemCommandCall::STOP_COMPONENT(comp_name),
         ))
     })
 }

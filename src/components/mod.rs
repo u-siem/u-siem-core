@@ -15,7 +15,7 @@ pub mod task;
 pub mod use_case;
 pub mod query;
 pub mod command;
-
+pub mod command_types;
 pub trait SiemComponent : Send {
     fn id(&self) -> u64 {
         return 0
