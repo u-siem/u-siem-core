@@ -12,6 +12,19 @@ pub type SiemRuleMatchSync =
     fn(rule: &SiemRule, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)>;
 
 /// Adds the *timestamp* to the *key_name* key and returns the number of elements stored after removing the elements older than *remove_older*
+/// 
+/// If implemented using redis:
+/// eval "
+/// 
+/// redis.call("zadd", KEYS[1], 0, ARGV[1])
+/// 
+/// 
+/// redis.call("expire", KEYS[1], 0, ((ARGV[1] - ARGV[2])/1000))
+/// 
+/// 
+/// redis.call("zremrangebylex", KEYS[1], 0, ARGV[2])
+///
+/// return redis.call("zcount", KEYS[1] -inf, +inf)"
 pub type SharedKeyStore = fn(
     key_name: String,
     timestamp: i64,
