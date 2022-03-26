@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use super::{SiemDataset, SiemDatasetType};
 
+#[derive(Clone)]
 pub struct DatasetHolder {
     datasets : BTreeMap<SiemDatasetType, SiemDataset>
 }
