@@ -6,6 +6,11 @@ pub struct DatasetHolder {
 }
 
 impl DatasetHolder {
+    pub fn new() -> Self {
+        Self {
+            datasets : BTreeMap::new()
+        }
+    }
     pub fn add(&mut self, dataset : SiemDataset) {
         self.datasets.insert(dataset.dataset_type().clone(), dataset);
     }
