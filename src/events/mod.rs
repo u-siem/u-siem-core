@@ -628,7 +628,7 @@ pub fn get_default_schema() -> FieldSchema {
     let mut fields = BTreeMap::new();
     fields.insert(
         "origin",
-        FieldType::Ip("IP or Hostname of the server that sent the log"),
+        FieldType::Text("IP or Hostname of the server that sent the log"),
     );
     fields.insert(
         "tenant",
