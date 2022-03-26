@@ -17,6 +17,7 @@ pub mod query;
 pub mod command;
 pub mod command_types;
 pub mod parsing;
+pub mod enrichment;
 
 pub trait SiemComponent : Send {
     fn id(&self) -> u64 {

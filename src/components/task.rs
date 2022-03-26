@@ -9,6 +9,7 @@ pub struct TaskDefinition {
     name: Cow<'static, str>,
     description: Cow<'static, str>,
     min_permission: UserRole,
+    fire_mode : TaskFireMode
 }
 impl TaskDefinition {
     pub fn new(
@@ -16,29 +17,45 @@ impl TaskDefinition {
         name: Cow<'static, str>,
         description: Cow<'static, str>,
         min_permission: UserRole,
+        fire_mode : TaskFireMode
     ) -> TaskDefinition {
         TaskDefinition {
             class,
             name,
             description,
             min_permission,
+            fire_mode
         }
     }
 
     pub fn class(&self) -> &SiemTaskType {
         &self.class
     }
-    pub fn name(&self) -> &Cow<'static, str> {
+    pub fn name(&self) -> &str {
         &self.name
     }
-    pub fn description(&self) -> &Cow<'static, str> {
+    pub fn description(&self) -> &str {
         &self.description
     }
     pub fn min_permission(&self) -> &UserRole {
         &self.min_permission
     }
+    pub fn fire_mode(&self) -> &TaskFireMode {
+        &self.fire_mode
+    }
 }
 
+#[derive(Serialize, Debug, Clone)]
+pub enum TaskFireMode {
+    /// Execute this tasks as soon as posible
+    Inmediate,
+    /// Execute this taks using a cron definition
+    Cron(u32,u32,u32,u32,u32),
+    /// Execute each X miliseconds
+    Repetitive(u32),
+    /// Execute this task once in the future
+    Future(i64)
+}
 
 #[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]

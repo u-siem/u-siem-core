@@ -53,14 +53,20 @@ pub fn ipv4_to_u32_bytes(ipv4: &[u8]) -> Result<u32, &'static str> {
     let mut number = 0;
     for character in ipv4 {
         if *character == 46 {
-            number += chars.parse::<u32>().expect("Cannot parse as u32") << desplazamiento;
+            number += match chars.parse::<u32>() {
+                Ok(val) => val,
+                Err(_) => {return Err("Cannot parse as u32")}
+            } << desplazamiento;
             chars = String::new();
             desplazamiento -= 8;
         } else {
             chars.push(*character as char);
         }
     }
-    number += chars.parse::<u32>().expect("Cannot parse as u32") << desplazamiento;
+    number += match chars.parse::<u32>() {
+        Ok(val) => val,
+        Err(_) => {return Err("Cannot parse as u32")}
+    } << desplazamiento;
     return Ok(number);
 }
 

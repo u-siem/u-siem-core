@@ -25,7 +25,7 @@ You can see a more updated document here: https://github.com/u-siem/parser-bench
                                                  |      |---------------|                   |
                                                  |                                          |
 |---------|       |------------|       |------------------|       |--------------|          |
-|InputNode| ----> | ParsingNode| ----> | EnchancementNode | ----> | IndexingNode |          |
+|InputNode| ----> | ParsingNode| ----> |  Enrichment Node | ----> | IndexingNode |          |
 |---------|       |------------|       |------------------| |     |--------------|          |
                                                             |                               |
                                                             |   |----------|       |--------------|       |----------|           
@@ -42,7 +42,7 @@ Note: It has changed quite a lot and is still changing.
 ## Node Types
 
 ### Kernel
-The kernel will be executed in a single thread with high priority and will be responsible of scaling the nuimber of nodes of each type if it detects a congestion in a element. It will alse route messages between nodes.
+The kernel will be executed in a single thread with high priority and will be responsible of scaling the number of nodes of each type if it detects a congestion in a element. It will alse route messages between nodes.
 
 ### Commander
 This component will accept commands from a user and sent it to be routed by the kernel to specific nodes.
@@ -55,11 +55,11 @@ We can support elasticsearch type (Like API-REST) or syslog.
 This node will be the most important and will be able to parse the logs sent to him by the input node.
 There will be a special node still being designed to process logs like MySQL or Linux logs that are multiline.
 
-### EnchancemetNode
+### EnrichmentNode
 It adds information about the IP, if its in a blocklist, if its a AmazonWebServices/Azure/GoogleCloud IP, if the IP has never been seen it then it contacts the GatheringNode to find information about that IP. It adds the tag "never_seen_ip" in that cases. It uses datasets to access information in a non-blocking form. See https://1drv.ms/p/s!AvHbai5ZA14wjV9J4rbBlSWyIw0t?e=AgBWNf
 
 ### GatheringNode
-Consults feeds or databases like AbuseIP/Virus total to know if the IP is malicios or not, the same with domains and Hashes. It then updates the appropiated Dataset with the info to enchance future logs.
+Consults feeds or databases like AbuseIP/Virus total to know if the IP is malicios or not, the same with domains and Hashes. It then updates the appropiated Dataset with the info to enrich future logs.
 
 ### IndexingNode
 Send logs to index in the database (elasticsearch) and queries them when asked.
@@ -132,12 +132,13 @@ pub enum WebProxyRuleCategory {
 - [x] Design of components with local horizontal scalability: The kernel must be able to increase the number of threads assigned to a components if there is a congestion in the event queue.
 - [x] Prometheus metrics: processed events of each type, errors, users connected, number of querys...
 - [x] Event types with fields.
+- [ ] Custom error system as to work with ?
 - [ ] Components and kernel interfaces. The components must be registered in the kernel, but the kernel in another instance must be able to know that they exist.
 - [ ] SIEM inter-Kernel channels, to allow horizontal scaling (Redis channels). Depends on the kernel implementation.
 - [x] Datasets that allow Real-Time log enhancement.
-- [ ] User role design. Inspiration from [PaloAlto Cortex XDR](https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/get-started-with-cortex-xdr-pro/manage-cortex-xdr-roles/administrative-roles.html)
+- [x] User role design. Inspiration from [PaloAlto Cortex XDR](https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/get-started-with-cortex-xdr-pro/manage-cortex-xdr-roles/administrative-roles.html)
 - [ ] Behavour Engine component: Inspiration from Darktrace that uses a lot of small rules to generate a threat score for the event and increse the total score for the user.
-- [ ] Active Directory integration for enchance event logs related to users. 
+- [ ] Active Directory integration for enrich event logs related to users. 
 - [ ] Desing a lightweight components that works as agents to get logs from Cloud related sources [Agent Ingestion Components](https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/external-data-ingestion/ingest-authentication-logs-and-data/ingest-authentication-logs-and-data-from-azure-ad.html)
 - [ ] SIGMA rule engine with redis as a Working Memmory.
 - [ ] Enforced storage schema for logs. Each source extracts multiple fields with different names. In elastic its not recomended to have more than 1000 fields. Also, it must allow renaming of fields because ECS uses dots in the field names but the majority of databases cant.

@@ -7,6 +7,7 @@ pub mod ip_set;
 pub mod text_map;
 pub mod text_map_list;
 pub mod text_set;
+pub mod holder;
 
 use calendar::{CalendarSynDataset, UpdateCalendar};
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
@@ -33,8 +34,6 @@ use text_set::{TextSetSynDataset, UpdateTextSet};
 pub enum SiemDataset {
     /// Map IP to country, city, latitude and longitude
     GeoIp(GeoIpSynDataset),
-    /// IP associated with a hostname
-    IpHost(IpMapSynDataset),
     /// IP associated with a MAC address
     IpMac(IpMapSynDataset),
     /// IP associated with a resolved domain
@@ -103,7 +102,6 @@ impl TryFrom<(SiemDatasetType, IpMapSynDataset)> for SiemDataset {
 
     fn try_from(value: (SiemDatasetType, IpMapSynDataset)) -> Result<Self, Self::Error> {
         match value.0 {
-            SiemDatasetType::IpHost => Ok(SiemDataset::IpHost(value.1)),
             SiemDatasetType::IpMac => Ok(SiemDataset::IpMac(value.1)),
             SiemDatasetType::CustomIpMap(name) => {
                 Ok(SiemDataset::CustomIpMap((name.clone(), value.1)))
@@ -200,8 +198,6 @@ impl TryFrom<(SiemDatasetType, IpNetSynDataset)> for SiemDataset {
 pub enum SiemDatasetType {
     /// Map IP to country, city, latitude and longitude
     GeoIp,
-    /// IP associated with a hostname
-    IpHost,
     /// IP associated with a MAC address
     IpMac,
     /// IP associated with a resolved domain
@@ -255,7 +251,6 @@ impl SiemDataset {
     pub fn dataset_type(&self) -> SiemDatasetType {
         match self {
             SiemDataset::GeoIp(_) => SiemDatasetType::GeoIp,
-            SiemDataset::IpHost(_) => SiemDatasetType::IpHost,
             SiemDataset::IpMac(_) => SiemDatasetType::IpMac,
             SiemDataset::IpDNS(_) => SiemDatasetType::IpDNS,
             SiemDataset::MacHost(_) => SiemDatasetType::MacHost,
@@ -319,7 +314,6 @@ impl Serialize for SiemDataset {
         let mut state = serializer.serialize_struct("SiemDataset", 2)?;
         let typ = match self {
             SiemDataset::GeoIp(_) => "GeoIp",
-            SiemDataset::IpHost(_) => "IpHost",
             SiemDataset::IpMac(_) => "IpMac",
             SiemDataset::IpDNS(_) => "IpDNS",
             SiemDataset::MacHost(_) => "MacHost",
@@ -380,7 +374,6 @@ pub enum UpdateDataset {
     IpCloudProvider(UpdateNetIp),
     IpHeadquarters(UpdateNetIp),
     CustomMapIpNet(UpdateNetIp),
-    IpHost(UpdateIpMap),
     IpMac(UpdateIpMap),
     IpDNS(UpdateIpMapList),
     MacHost(UpdateTextMap),

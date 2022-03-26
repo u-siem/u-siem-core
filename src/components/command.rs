@@ -75,8 +75,16 @@ impl CommandDefinition {
 
 #[derive(Serialize, Debug)]
 pub struct SiemCommandHeader {
+    /// User that created the command
     pub user: String,
+    /// Component ID that created the command or the response
     pub comp_id: u64,
+    /// Internal command ID: serves as an internal mapping betwen components as to replay to a specific component
+    /// 
+    /// COMMAND => (COMPONENT) CMP_ID ->(KERNEL)-> CMP_ID<=>CMP_KRNL_ID ->(OTHER COMPONENT) -> CMP_KRNL_ID
+    /// 
+    /// 
+    /// RESPONSE => (OTHER COMPONENT) RSP_ID=CMP_KRNL_ID ->(KERNEL)-> RSP_ID=CMP_KRNL_ID<=>CMP_ID -> (COMPONENT) -> CMP_ID
     pub comm_id: u64,
 }
 
@@ -102,18 +110,18 @@ pub enum SiemCommandCall {
     /// Adds a email to a BlockList with a comment or reference (Email, Comment)
     FILTER_EMAIL_SENDER(FilterEmail),
     /// List use cases: offset, limit
-    LIST_USE_CASES(u32, u32),
+    LIST_USE_CASES(Pagination),
     GET_USE_CASE(String),
     /// List rules: offset, limit
-    LIST_RULES(u32, u32),
+    LIST_RULES(Pagination),
     /// Get rule by name
     GET_RULE(String),
     /// List datasets: offset, limit
-    LIST_DATASETS(u32, u32),
+    LIST_DATASETS(Pagination),
     /// List tasks: offset, limit
-    LIST_TASKS(u32, u32),
+    LIST_TASKS(Pagination),
     DOWNLOAD_QUERY(),
-    LIST_PARSERS(u32,u32),
+    LIST_PARSERS(Pagination),
     LOGIN_USER(LoginUser),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(
@@ -121,6 +129,13 @@ pub enum SiemCommandCall {
         BTreeMap<Cow<'static, str>, Cow<'static, str>>,
     ),
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct Pagination {
+    pub offset : u32,
+    pub limit : u32
+}
+
 
 #[derive(Serialize, Debug, Clone)]
 #[non_exhaustive]
