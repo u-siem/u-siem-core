@@ -20,21 +20,21 @@ impl IpSetSynDataset {
         return IpSetSynDataset { dataset, comm };
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&mut self, ip: SiemIp) {
+    pub fn insert(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpSet::Add(ip)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&mut self, ip: SiemIp) {
+    pub fn remove(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpSet::Remove(ip)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&mut self, data : IpSetDataset) {
+    pub fn update(&self, data : IpSetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpSet::Replace(data)) {
             Ok(_) => {}

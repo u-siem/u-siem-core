@@ -18,20 +18,20 @@ impl TextMapSynDataset {
     pub fn new(dataset: Arc<TextMapDataset>, comm: Sender<UpdateTextMap>) -> TextMapSynDataset {
         return TextMapSynDataset { dataset, comm };
     }
-    pub fn insert<S>(&mut self, key : S, data: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&self, key : S, data: S) where S: Into<Cow<'static, str>> {
         match self.comm.try_send(UpdateTextMap::Add((key.into(), data.into()))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove<S>(&mut self, key : S) where S: Into<Cow<'static, str>> {
+    pub fn remove<S>(&self, key : S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMap::Remove(key.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&mut self, data : TextMapDataset) {
+    pub fn update(&self, data : TextMapDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMap::Replace(data)) {
             Ok(_) => {}

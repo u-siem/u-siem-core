@@ -22,21 +22,21 @@ impl IpMapListSynDataset {
         return IpMapListSynDataset { dataset, comm };
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&mut self, ip: SiemIp, data: Vec<Cow<'static, str>>) {
+    pub fn insert(&self, ip: SiemIp, data: Vec<Cow<'static, str>>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpMapList::Add((ip, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&mut self, ip: SiemIp) {
+    pub fn remove(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpMapList::Remove(ip)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&mut self, data : IpMapListDataset) {
+    pub fn update(&self, data : IpMapListDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpMapList::Replace(data)) {
             Ok(_) => {}

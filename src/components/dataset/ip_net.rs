@@ -20,21 +20,21 @@ impl IpNetSynDataset {
     pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> IpNetSynDataset {
         return IpNetSynDataset { dataset, comm };
     }
-    pub fn add_ip(&mut self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
+    pub fn insert(&self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Add((ip, net, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove_ip(&mut self, ip: SiemIp, net: u8) {
+    pub fn remove(&self, ip: SiemIp, net: u8) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Remove((ip, net))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn replace_ip(&mut self, data : IpNetDataset) {
+    pub fn update(&self, data : IpNetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Replace(data)) {
             Ok(_) => {}

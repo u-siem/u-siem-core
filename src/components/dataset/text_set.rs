@@ -18,21 +18,21 @@ impl TextSetSynDataset {
     pub fn new(dataset: Arc<TextSetDataset>, comm: Sender<UpdateTextSet>) -> TextSetSynDataset {
         return TextSetSynDataset { dataset, comm };
     }
-    pub fn insert<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&self, val: S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Add(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
+    pub fn remove<S>(&self, val: S) where S: Into<Cow<'static, str>> {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Remove(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&mut self, data : TextSetDataset) {
+    pub fn update(&self, data : TextSetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Replace(data)) {
             Ok(_) => {}

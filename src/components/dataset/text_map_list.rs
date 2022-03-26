@@ -20,21 +20,21 @@ impl TextMapListSynDataset {
     pub fn new(dataset: Arc<TextMapListDataset>, comm: Sender<UpdateTextMapList>) -> TextMapListSynDataset {
         return TextMapListSynDataset { dataset, comm };
     }
-    pub fn insert(&mut self, key : Cow<'static, str>, data: Vec<Cow<'static, str>>) {
+    pub fn insert(&self, key : Cow<'static, str>, data: Vec<Cow<'static, str>>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Add((key, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&mut self, key : Cow<'static, str>) {
+    pub fn remove(&self, key : Cow<'static, str>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Remove(key)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&mut self, data : TextMapListDataset) {
+    pub fn update(&self, data : TextMapListDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Replace(data)) {
             Ok(_) => {}
