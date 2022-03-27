@@ -622,6 +622,9 @@ impl<'a> SiemLog {
         }
         self.event = event;
     }
+    pub fn fields(&self) -> &BTreeMap<Cow<'static, str>, SiemField> {
+        &self.fields
+    }
 }
 
 pub fn get_default_schema() -> FieldSchema {
