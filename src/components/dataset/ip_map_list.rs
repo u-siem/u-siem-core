@@ -43,7 +43,7 @@ impl IpMapListSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&Vec<Cow<'static, str>>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&Vec<Cow<'static, str>>> {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
@@ -71,13 +71,13 @@ impl IpMapListDataset {
             }
         }
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&Vec<Cow<'static, str>>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&Vec<Cow<'static, str>>> {
         match ip {
             SiemIp::V4(ip) => {
-                self.data4.get(&ip)
+                self.data4.get(ip)
             }
             SiemIp::V6(ip) => {
-                self.data6.get(&ip)
+                self.data6.get(ip)
             }
         }
     }
@@ -97,7 +97,7 @@ mod tests {
             vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")],
         );
         assert_eq!(
-            dataset.get(SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
             Some(&(vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")]))
         );
     }

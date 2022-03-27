@@ -41,7 +41,7 @@ impl IpSetSynDataset {
             Err(_) => {}
         };
     }
-    pub fn contains(&self, ip: SiemIp) -> bool {
+    pub fn contains(&self, ip: &SiemIp) -> bool {
         // Todo improve with cached content
         self.dataset.contains(ip)
     }
@@ -69,13 +69,13 @@ impl IpSetDataset {
             }
         }
     }
-    pub fn contains(&self, ip: SiemIp) -> bool {
+    pub fn contains(&self, ip: &SiemIp) -> bool {
         match ip {
             SiemIp::V4(ip) => {
-                self.data4.contains(&ip)
+                self.data4.contains(ip)
             }
             SiemIp::V6(ip) => {
-                self.data6.contains(&ip)
+                self.data6.contains(ip)
             }
         }
     }
@@ -95,7 +95,7 @@ mod tests {
             SiemIp::from_ip_str("192.168.1.1").unwrap()
         );
         assert_eq!(
-            dataset.contains(SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.contains(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
             true
         );
     }

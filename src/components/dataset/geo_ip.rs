@@ -37,7 +37,7 @@ impl GeoIpSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&GeoIpInfo> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&GeoIpInfo> {
         // Todo improve with cached added IPs
         self.dataset.get(ip)
     }
@@ -89,7 +89,7 @@ impl GeoIpDataset {
             }
         }
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&GeoIpInfo> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&GeoIpInfo> {
         match ip {
             SiemIp::V4(ip) => {
                 let zeros = ip.trailing_zeros();
@@ -152,7 +152,7 @@ mod tests {
             info,
         );
         assert_eq!(
-            &dataset.get(SiemIp::from_ip_str("192.168.1.1").unwrap()).unwrap().city[..],
+            &dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()).unwrap().city[..],
             &(&Cow::Borrowed("LocalCity"))[..]
         );
     }

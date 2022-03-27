@@ -41,7 +41,7 @@ impl TextMapListSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, key : Cow<'static, str>) -> Option<&Vec<Cow<'static, str>>> {
+    pub fn get(&self, key : &str) -> Option<&Vec<Cow<'static, str>>> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
@@ -60,8 +60,8 @@ impl TextMapListDataset {
     pub fn insert(&mut self, key : Cow<'static, str>, data: Vec<Cow<'static, str>>) {
         self.data.insert(key, data);
     }
-    pub fn get(&self, key : Cow<'static, str>) -> Option<&Vec<Cow<'static, str>>> {
-        self.data.get(&key)
+    pub fn get(&self, key : &str) -> Option<&Vec<Cow<'static, str>>> {
+        self.data.get(key)
     }
     pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Vec<Cow<'static, str>>> {
         &self.data
@@ -79,7 +79,7 @@ mod tests {
             vec![Cow::Borrowed("Local IP "), Cow::Borrowed("Remote IP")],
         );
         assert_eq!(
-            dataset.get(Cow::Borrowed("192.168.1.1")),
+            dataset.get("192.168.1.1"),
             Some(&(vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")]))
         );
     }

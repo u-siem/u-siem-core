@@ -38,7 +38,7 @@ impl TextMapSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, key : &Cow<'static, str>) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, key : &str) -> Option<&Cow<'static, str>> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
@@ -57,7 +57,7 @@ impl TextMapDataset {
     pub fn insert<S>(&mut self, key : S, data: S) where S: Into<Cow<'static, str>> {
         self.data.insert(key.into(), data.into());
     }
-    pub fn get(&self, key : &Cow<'static, str>) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, key : &str) -> Option<&Cow<'static, str>> {
         self.data.get(key)
     }
     pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Cow<'static, str>> {
@@ -76,7 +76,7 @@ mod tests {
             Cow::Borrowed("Local IP"),
         );
         assert_eq!(
-            dataset.get(&Cow::Borrowed("192.168.1.1")),
+            dataset.get("192.168.1.1"),
             Some(&Cow::Borrowed("Local IP"))
         );
     }

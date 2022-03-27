@@ -41,7 +41,7 @@ impl IpNetSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&Cow<'static, str>> {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
@@ -93,7 +93,7 @@ impl IpNetDataset {
             }
         }
     }
-    pub fn get(&self, ip: SiemIp) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&Cow<'static, str>> {
         match ip {
             SiemIp::V4(ip) => {
                 let zeros = ip.trailing_zeros();
@@ -150,7 +150,7 @@ mod tests {
             Cow::Borrowed("Local IP "),
         );
         assert_eq!(
-            dataset.get(SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
             Some(&Cow::Borrowed("Local IP "))
         );
     }
