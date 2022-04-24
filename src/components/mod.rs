@@ -68,6 +68,8 @@ pub trait SiemDatasetManager : Send {
 
     /// The kernel registers the datasets of the components
     fn register_dataset(&mut self, dataset : SiemDatasetType);
+    /// The kernel registers the datasets of the components
+    fn register_datasets(&mut self, datasets : Vec<SiemDatasetType>);
 
     /// Get the list of datasets to initialize components
     fn get_datasets(&self) -> DatasetHolder;

@@ -3,11 +3,13 @@ use serde::Serialize;
 
 use crate::events::{SiemLog, schema::FieldSchema};
 
+use super::dataset::holder::DatasetHolder;
+
 
 /// A simple object with the logic to parse Logs.
 pub trait LogParser: DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
-    fn parse_log(&self, log: SiemLog) -> Result<SiemLog, LogParsingError>;
+    fn parse_log(&self, log: SiemLog, datasets : &DatasetHolder) -> Result<SiemLog, LogParsingError>;
     /// Name of the parser
     fn name(&self) -> &str;
     /// Description of the parser
@@ -25,7 +27,7 @@ clone_trait_object!(LogParser);
 /// if the user connects to a different SIEM node (LoadBalancing).
 pub trait MultilineLogParser: DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
-    fn parse_log(&mut self, log: SiemLog) -> Result<Option<SiemLog>, LogParsingError>;
+    fn parse_log(&mut self, log: SiemLog, datasets : &DatasetHolder) -> Result<Option<SiemLog>, LogParsingError>;
     /// Name of the parser
     fn name(&self) -> &str;
     /// Description of the parser
