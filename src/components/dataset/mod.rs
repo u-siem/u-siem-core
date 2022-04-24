@@ -97,6 +97,32 @@ impl TryFrom<(SiemDatasetType, GeoIpSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for GeoIpSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        if let SiemDataset::GeoIp(geoip) =  value {
+            Ok(geoip)
+        }else{
+            Err("GeoIPSynDataset is only valid for GeoIP dataset!")
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a GeoIpSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        if let SiemDataset::GeoIp(geoip) =  value {
+            Ok(geoip)
+        }else{
+            Err("GeoIPSynDataset is only valid for GeoIP dataset!")
+        }
+    }
+}
+
+
+
+
 impl TryFrom<(SiemDatasetType, IpMapSynDataset)> for SiemDataset {
     type Error = &'static str;
 
@@ -110,6 +136,30 @@ impl TryFrom<(SiemDatasetType, IpMapSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for IpMapSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpMac(v) => Ok(v),
+            SiemDataset::CustomIpMap((_name,v)) => Ok(v),
+            _ => Err("IpMapSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a IpMapSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpMac(v) => Ok(v),
+            SiemDataset::CustomIpMap((_name,v)) => Ok(v),
+            _ => Err("IpMapSynDataset not valid for this type"),
+        }
+    }
+}
+
+
 impl TryFrom<(SiemDatasetType, TextMapSynDataset)> for SiemDataset {
     type Error = &'static str;
 
@@ -127,6 +177,38 @@ impl TryFrom<(SiemDatasetType, TextMapSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for TextMapSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::MacHost(v) => Ok(v),
+            SiemDataset::HostUser(v) => Ok(v),
+            SiemDataset::UserHeadquarters(v) => Ok(v),
+            SiemDataset::Configuration(v) => Ok(v),
+            SiemDataset::CustomMapText((_name,v)) => Ok(v),
+            SiemDataset::Secrets((_name,v)) => Ok(v),
+            _ => Err("TextMapSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a TextMapSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::MacHost(v) => Ok(v),
+            SiemDataset::HostUser(v) => Ok(v),
+            SiemDataset::UserHeadquarters(v) => Ok(v),
+            SiemDataset::Configuration(v) => Ok(v),
+            SiemDataset::CustomMapText((_name,v)) => Ok(v),
+            SiemDataset::Secrets((_name,v)) => Ok(v),
+            _ => Err("TextMapSynDataset not valid for this type"),
+        }
+    }
+}
+
+
 impl TryFrom<(SiemDatasetType, IpMapListSynDataset)> for SiemDataset {
     type Error = &'static str;
 
@@ -137,6 +219,28 @@ impl TryFrom<(SiemDatasetType, IpMapListSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for IpMapListSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpDNS(v) => Ok(v),
+            _ => Err("IpMapListSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a IpMapListSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpDNS(v) => Ok(v),
+            _ => Err("IpMapListSynDataset not valid for this type"),
+        }
+    }
+}
+
+
 
 impl TryFrom<(SiemDatasetType, IpSetSynDataset)> for SiemDataset {
     type Error = &'static str;
@@ -149,6 +253,30 @@ impl TryFrom<(SiemDatasetType, IpSetSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for IpSetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::BlockIp(v) => Ok(v),
+            SiemDataset::CustomIpList((_name,v)) => Ok(v),
+            _ => Err("IpSetSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a IpSetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::BlockIp(v) => Ok(v),
+            SiemDataset::CustomIpList((_name,v)) => Ok(v),
+            _ => Err("IpSetSynDataset not valid for this type"),
+        }
+    }
+}
+
+
 
 impl TryFrom<(SiemDatasetType, TextSetSynDataset)> for SiemDataset {
     type Error = &'static str;
@@ -163,6 +291,35 @@ impl TryFrom<(SiemDatasetType, TextSetSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for TextSetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::BlockDomain(v) => Ok(v),
+            SiemDataset::BlockEmailSender(v) => Ok(v),
+            SiemDataset::BlockCountry(v) => Ok(v),
+            SiemDataset::CustomTextList((_name,v)) => Ok(v),
+            _ => Err("TextSetSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a TextSetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::BlockDomain(v) => Ok(v),
+            SiemDataset::BlockEmailSender(v) => Ok(v),
+            SiemDataset::BlockCountry(v) => Ok(v),
+            SiemDataset::CustomTextList((_name,v)) => Ok(v),
+            _ => Err("TextSetSynDataset not valid for this type"),
+        }
+    }
+}
+
+
+
 
 impl TryFrom<(SiemDatasetType, TextMapListSynDataset)> for SiemDataset {
     type Error = &'static str;
@@ -177,6 +334,37 @@ impl TryFrom<(SiemDatasetType, TextMapListSynDataset)> for SiemDataset {
         }
     }
 }
+impl TryFrom<SiemDataset> for TextMapListSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::HostVulnerable(v) => Ok(v),
+            SiemDataset::UserTag(v) => Ok(v),
+            SiemDataset::AssetTag(v) => Ok(v),
+            SiemDataset::CustomMapTextList((_name,v)) => Ok(v),
+            _ => Err("TextMapListSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a TextMapListSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::HostVulnerable(v) => Ok(v),
+            SiemDataset::UserTag(v) => Ok(v),
+            SiemDataset::AssetTag(v) => Ok(v),
+            SiemDataset::CustomMapTextList((_name,v)) => Ok(v),
+            _ => Err("TextMapListSynDataset not valid for this type"),
+        }
+    }
+}
+
+
+
+
+
 
 impl TryFrom<(SiemDatasetType, IpNetSynDataset)> for SiemDataset {
     type Error = &'static str;
@@ -188,6 +376,32 @@ impl TryFrom<(SiemDatasetType, IpNetSynDataset)> for SiemDataset {
             SiemDatasetType::IpHeadquarters => Ok(SiemDataset::IpHeadquarters(value.1)),
             SiemDatasetType::CustomMapIpNet(name) => Ok(SiemDataset::CustomMapIpNet((name.clone(), value.1))),
             _ => Err("IpMapSynDataset not valid for this type"),
+        }
+    }
+}
+impl TryFrom<SiemDataset> for IpNetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpCloudService(v) => Ok(v),
+            SiemDataset::IpCloudProvider(v) => Ok(v),
+            SiemDataset::IpHeadquarters(v) => Ok(v),
+            SiemDataset::CustomMapIpNet((_name,v)) => Ok(v),
+            _ => Err("IpNetSynDataset not valid for this type"),
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a IpNetSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        match value {
+            SiemDataset::IpCloudService(v) => Ok(v),
+            SiemDataset::IpCloudProvider(v) => Ok(v),
+            SiemDataset::IpHeadquarters(v) => Ok(v),
+            SiemDataset::CustomMapIpNet((_name,v)) => Ok(v),
+            _ => Err("IpNetSynDataset not valid for this type"),
         }
     }
 }

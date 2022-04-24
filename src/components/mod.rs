@@ -1,4 +1,6 @@
 use crossbeam_channel::{Sender, Receiver};
+use self::dataset::holder::DatasetHolder;
+
 use super::events::SiemLog;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 use std::boxed::Box;
@@ -48,7 +50,7 @@ pub trait SiemComponent : Send {
     fn duplicate(&self) -> Box<dyn SiemComponent>;
     
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets : Vec<SiemDataset>);
+    fn set_datasets(&mut self, datasets : DatasetHolder);
 }
 
 pub trait SiemDatasetManager : Send {
@@ -68,8 +70,5 @@ pub trait SiemDatasetManager : Send {
     fn register_dataset(&mut self, dataset : SiemDatasetType);
 
     /// Get the list of datasets to initialize components
-    fn get_datasets(&self) -> Arc<Mutex<BTreeMap<SiemDatasetType,SiemDataset>>>;
-
-    /// Sets the map of components that need dataset updates
-    fn set_dataset_channels(&mut self, channels : Arc<Mutex<BTreeMap<SiemDatasetType,Vec<Sender<SiemMessage>>>>>);
+    fn get_datasets(&self) -> DatasetHolder;
 }
