@@ -4,8 +4,7 @@ use self::dataset::holder::DatasetHolder;
 use super::events::SiemLog;
 use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
 use std::boxed::Box;
-use dataset::{SiemDataset, SiemDatasetType};
-use std::collections::{BTreeMap};
+use dataset::{SiemDatasetType};
 use std::sync::{Arc, Mutex};
 
 pub mod common;
@@ -71,6 +70,7 @@ pub trait SiemDatasetManager : Send {
     /// The kernel registers the datasets of the components
     fn register_datasets(&mut self, datasets : Vec<SiemDatasetType>);
 
-    /// Get the list of datasets to initialize components
-    fn get_datasets(&self) -> DatasetHolder;
+    /// Get the list of datasets to initialize components. 
+    /// This must be the live version of the datasets shared only between the DatasetManager and the Kernel
+    fn get_datasets(&self) -> Arc<Mutex<DatasetHolder>>;
 }

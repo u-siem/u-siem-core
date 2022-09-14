@@ -1,13 +1,13 @@
 [package]
 name = "u-siem"
-version = "0.0.111"
+version = "0.0.112"
 authors = ["Samuel Garcés <samuel.garces@protonmail.com>"]
 license = "MIT"
 description = "A framework for building custom SIEMs"
 repository = "https://github.com/u-siem/u-siem-core"
 keywords = ["SIEM", "security", "logs"]
 categories = ["parsing"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "usiem"

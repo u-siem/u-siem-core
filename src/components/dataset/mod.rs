@@ -364,8 +364,6 @@ impl<'a> TryFrom<&'a SiemDataset> for &'a TextMapListSynDataset {
 
 
 
-
-
 impl TryFrom<(SiemDatasetType, IpNetSynDataset)> for SiemDataset {
     type Error = &'static str;
 
