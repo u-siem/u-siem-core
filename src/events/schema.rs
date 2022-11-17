@@ -1,6 +1,9 @@
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path ="base_schema.rs"]
+pub mod base_schema;
+
 /// Data schema that allows indexation of logs with field filtering
 #[derive(Serialize, Debug, Clone)]
 pub struct FieldSchema {

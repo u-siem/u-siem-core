@@ -130,6 +130,8 @@ pub struct SiemAlert {
     pub date: i64,
     /// List of tags to be added to the alert
     pub tags: Vec<String>,
+    /// List of MitreAtack Techniques
+    pub techniques : Vec<MitreTechniques>,
     /// Name of the rule that generated the alert
     pub rule: String,
     /// The log that triggered this alert
@@ -162,6 +164,7 @@ mod tests {
                 severity: AlertSeverity::CRITICAL,
                 date: chrono::Utc::now().timestamp_millis(),
                 tags: vec![String::from("Critical")],
+                techniques : vec![],
                 rule: String::from("ruleset::example::rule1"),
                 log: log.clone(),
                 aggr_limit: 0,
@@ -200,6 +203,7 @@ mod tests {
                                                 title: String::from("Stateful example"),
                                                 description,
                                                 severity: AlertSeverity::CRITICAL,
+                                                techniques : vec![],
                                                 date: chrono::Utc::now().timestamp_millis(),
                                                 tags: vec![String::from("Critical")],
                                                 rule: String::from("ruleset::example::rule1"),
@@ -227,6 +231,7 @@ mod tests {
                             Some(SiemAlert {
                                 title: String::from("Alert example"),
                                 description,
+                                techniques : vec![],
                                 severity: AlertSeverity::CRITICAL,
                                 date: chrono::Utc::now().timestamp_millis(),
                                 tags: vec![String::from("Critical")],
@@ -347,6 +352,7 @@ mod tests {
                             Some(SiemAlert {
                                 title: String::from("Stateful example"),
                                 description,
+                                techniques : vec![],
                                 severity: AlertSeverity::CRITICAL,
                                 date: chrono::Utc::now().timestamp_millis(),
                                 tags: vec![String::from("Critical")],
