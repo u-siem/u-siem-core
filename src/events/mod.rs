@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 pub mod auth;
@@ -23,7 +23,7 @@ use intrusion::IntrusionEvent;
 use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum SiemEvent {
     /// Firewall events: connections between IPs, blocked connections...
@@ -90,7 +90,7 @@ pub enum SiemEvent {
 /// this log, the client if we are working in a multi-client environments aka SOC,
 /// some fields to facilitate correlation with SIGMA rules, timestamps and tags to
 /// better describe the content inside.
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SiemLog {
     /// IP or Hostname of the server that sent the log.
     origin: Cow<'static, str>,
@@ -121,18 +121,25 @@ pub struct SiemLog {
 }
 
 impl<'a> SiemLog {
-    pub fn new<S,M>(message: M, received: i64, origin: S) -> SiemLog where S: Into<Cow<'static, str>>, M: Into<String>  {
+    pub fn new<S, M>(message: M, received: i64, origin: S) -> SiemLog
+    where
+        S: Into<Cow<'static, str>>,
+        M: Into<String>,
+    {
         let cw = origin.into();
         let ms = message.into();
         let mut fields = BTreeMap::new();
-        fields.insert(Cow::Borrowed("message"), SiemField::Text(Cow::Owned(ms.clone())));
+        fields.insert(
+            Cow::Borrowed("message"),
+            SiemField::Text(Cow::Owned(ms.clone())),
+        );
         fields.insert(Cow::Borrowed("origin"), SiemField::Text(cw.clone()));
         fields.insert(Cow::Borrowed("event_received"), SiemField::I64(received));
         fields.insert(Cow::Borrowed("event_created"), SiemField::I64(received));
         SiemLog {
-            message : ms,
+            message: ms,
             event_received: received,
-            origin : cw,
+            origin: cw,
             tenant: Cow::default(),
             product: Cow::default(),
             service: Cow::default(),
@@ -154,42 +161,62 @@ impl<'a> SiemLog {
     pub fn tenant(&'a self) -> &'a str {
         &self.tenant
     }
-    pub fn set_tenant<S>(&mut self, tenant: S) where S: Into<Cow<'static, str>> {
+    pub fn set_tenant<S>(&mut self, tenant: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         let tenant = tenant.into();
-        self.fields.insert(Cow::Borrowed("tenant"), SiemField::Text(tenant.clone()));
+        self.fields
+            .insert(Cow::Borrowed("tenant"), SiemField::Text(tenant.clone()));
         self.tenant = tenant;
     }
     pub fn product(&'a self) -> &'a str {
         &self.product
     }
-    pub fn set_product<S>(&mut self, product: S) where S: Into<Cow<'static, str>> {
+    pub fn set_product<S>(&mut self, product: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         let product = product.into();
-        self.fields.insert(Cow::Borrowed("product"), SiemField::Text(product.clone()));
+        self.fields
+            .insert(Cow::Borrowed("product"), SiemField::Text(product.clone()));
         self.product = product;
     }
     pub fn service(&'a self) -> &'a str {
         &self.service
     }
-    
-    pub fn set_service<S>(&mut self, service: S) where S: Into<Cow<'static, str>> {
+
+    pub fn set_service<S>(&mut self, service: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         let service = service.into();
-        self.fields.insert(Cow::Borrowed("service"), SiemField::Text(service.clone()));
+        self.fields
+            .insert(Cow::Borrowed("service"), SiemField::Text(service.clone()));
         self.service = service;
     }
     pub fn category(&'a self) -> &'a str {
         &self.category
     }
-    pub fn set_category<S>(&mut self, category: S) where S: Into<Cow<'static, str>> {
+    pub fn set_category<S>(&mut self, category: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         let category = category.into();
-        self.fields.insert(Cow::Borrowed("category"), SiemField::Text(category.clone()));
+        self.fields
+            .insert(Cow::Borrowed("category"), SiemField::Text(category.clone()));
         self.category = category;
     }
     pub fn vendor(&'a self) -> &'a str {
         &self.vendor
     }
-    pub fn set_vendor<S>(&mut self, vendor: S) where S: Into<Cow<'static, str>> {
+    pub fn set_vendor<S>(&mut self, vendor: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         let vendor = vendor.into();
-        self.fields.insert(Cow::Borrowed("vendor"), SiemField::Text(vendor.clone()));
+        self.fields
+            .insert(Cow::Borrowed("vendor"), SiemField::Text(vendor.clone()));
         self.vendor = vendor;
     }
     pub fn event_received(&'a self) -> i64 {
@@ -200,14 +227,24 @@ impl<'a> SiemLog {
     }
     pub fn set_event_created(&mut self, date: i64) {
         self.event_created = date;
-        self.fields.insert(Cow::Borrowed("event_created"), SiemField::I64(date));
+        self.fields
+            .insert(Cow::Borrowed("event_created"), SiemField::I64(date));
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
     }
     pub fn add_tag(&mut self, tag: &str) {
         self.tags.insert(Cow::Owned(tag.to_lowercase()));
-        self.fields.insert(Cow::Borrowed("tags"), SiemField::Text(Cow::Owned(self.tags.iter().map(|x| x.to_uppercase()).collect::<Vec<String>>().join(","))));
+        self.fields.insert(
+            Cow::Borrowed("tags"),
+            SiemField::Text(Cow::Owned(
+                self.tags
+                    .iter()
+                    .map(|x| x.to_uppercase())
+                    .collect::<Vec<String>>()
+                    .join(","),
+            )),
+        );
     }
     pub fn tags(&'a self) -> &'a BTreeSet<Cow<'static, str>> {
         &self.tags

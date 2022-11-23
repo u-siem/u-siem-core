@@ -2,7 +2,7 @@ use super::dataset::{SiemDataset, SiemDatasetType};
 use super::mitre::{MitreTactics, MitreTechniques};
 use super::task::SiemTask;
 use super::SiemLog;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::future::Future;
 use std::sync::Arc;
@@ -12,16 +12,16 @@ pub type SiemRuleMatchSync =
     fn(rule: &SiemRule, log: &SiemLog) -> Option<(Option<SiemAlert>, Option<SiemTask>)>;
 
 /// Adds the *timestamp* to the *key_name* key and returns the number of elements stored after removing the elements older than *remove_older*
-/// 
+///
 /// If implemented using redis:
 /// eval "
-/// 
+///
 /// redis.call("zadd", KEYS[1], 0, ARGV[1])
-/// 
-/// 
+///
+///
 /// redis.call("expire", KEYS[1], 0, ((ARGV[1] - ARGV[2])/1000))
-/// 
-/// 
+///
+///
 /// redis.call("zremrangebylex", KEYS[1], 0, ARGV[2])
 ///
 /// return redis.call("zcount", KEYS[1] -inf, +inf)"
@@ -33,7 +33,7 @@ pub type SharedKeyStore = fn(
 
 pub type SiemRuleMatchAsync =
     fn(
-        log : Arc<SiemLog>,
+        log: Arc<SiemLog>,
         key_store: SharedKeyStore,
         datasets: Arc<BTreeMap<SiemDatasetType, SiemDataset>>,
     ) -> Box<dyn Future<Output = Option<(Option<SiemAlert>, Option<SiemTask>)>> + Unpin>;
@@ -110,7 +110,7 @@ impl SiemRuleAsync {
     }
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum AlertSeverity {
     INFORMATIONAL,
     LOW,
@@ -120,7 +120,7 @@ pub enum AlertSeverity {
 }
 
 /// Basic Alert format
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SiemAlert {
     pub title: String,
     pub description: String,
@@ -131,7 +131,7 @@ pub struct SiemAlert {
     /// List of tags to be added to the alert
     pub tags: Vec<String>,
     /// List of MitreAtack Techniques
-    pub techniques : Vec<MitreTechniques>,
+    pub techniques: Vec<MitreTechniques>,
     /// Name of the rule that generated the alert
     pub rule: String,
     /// The log that triggered this alert
@@ -164,7 +164,7 @@ mod tests {
                 severity: AlertSeverity::CRITICAL,
                 date: chrono::Utc::now().timestamp_millis(),
                 tags: vec![String::from("Critical")],
-                techniques : vec![],
+                techniques: vec![],
                 rule: String::from("ruleset::example::rule1"),
                 log: log.clone(),
                 aggr_limit: 0,
@@ -203,7 +203,7 @@ mod tests {
                                                 title: String::from("Stateful example"),
                                                 description,
                                                 severity: AlertSeverity::CRITICAL,
-                                                techniques : vec![],
+                                                techniques: vec![],
                                                 date: chrono::Utc::now().timestamp_millis(),
                                                 tags: vec![String::from("Critical")],
                                                 rule: String::from("ruleset::example::rule1"),
@@ -231,7 +231,7 @@ mod tests {
                             Some(SiemAlert {
                                 title: String::from("Alert example"),
                                 description,
-                                techniques : vec![],
+                                techniques: vec![],
                                 severity: AlertSeverity::CRITICAL,
                                 date: chrono::Utc::now().timestamp_millis(),
                                 tags: vec![String::from("Critical")],
@@ -352,7 +352,7 @@ mod tests {
                             Some(SiemAlert {
                                 title: String::from("Stateful example"),
                                 description,
-                                techniques : vec![],
+                                techniques: vec![],
                                 severity: AlertSeverity::CRITICAL,
                                 date: chrono::Utc::now().timestamp_millis(),
                                 tags: vec![String::from("Critical")],
@@ -372,7 +372,7 @@ mod tests {
 
     #[async_std::test]
     async fn test_async_rule() {
-        let async_rule : SiemRuleMatchAsync = example_async_rule;
+        let async_rule: SiemRuleMatchAsync = example_async_rule;
         let mut log = SiemLog::new(String::from("This is a log example"), 0, "localhost");
         log.set_tenant(Cow::Borrowed("Contoso"));
         log.set_event(SiemEvent::Auth(AuthEvent {
@@ -384,15 +384,17 @@ mod tests {
                 user_name: Cow::Borrowed("cancamusa"),
             }),
         }));
-        let res =
-        async_rule(Arc::new(log.clone()), key_store_example, Arc::new(BTreeMap::new()))
-                .await;
+        let res = async_rule(
+            Arc::new(log.clone()),
+            key_store_example,
+            Arc::new(BTreeMap::new()),
+        )
+        .await;
         if let Some(_) = res {
             panic!("Must not match now");
         }
         log.set_event_created(5);
-        let res1 =
-        async_rule(Arc::new(log), key_store_example, Arc::new(BTreeMap::new())).await;
+        let res1 = async_rule(Arc::new(log), key_store_example, Arc::new(BTreeMap::new())).await;
         if let Some(res) = res1 {
             if let Some(alert) = res.0 {
                 assert_eq!(

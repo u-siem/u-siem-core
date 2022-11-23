@@ -1,10 +1,10 @@
-use std::borrow::Cow;
-use serde::ser::{Serializer};
 use super::super::utilities::ip_utils::{ipv4_from_str, ipv4_to_str, ipv6_from_str, ipv6_to_str};
 use serde::Serialize;
+use serde::{ser::Serializer, Deserialize};
+use std::borrow::Cow;
 use std::fmt::Display;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum SiemField {
     /// A basic String field
@@ -14,15 +14,15 @@ pub enum SiemField {
     //Domain like contoso.com
     Domain(String),
     User(String),
-    ///This is a special field. Uniquely identifies an asset like a system, a 
-    /// computer or a mobile phone. Reason: the network is dynamic, the IP address 
+    ///This is a special field. Uniquely identifies an asset like a system, a
+    /// computer or a mobile phone. Reason: the network is dynamic, the IP address
     /// is not fixed certain devices and the hostname of a system can be changed.
-    /// 
-    /// This field should be used with a dataset to recover information about an asset 
+    ///
+    /// This field should be used with a dataset to recover information about an asset
     /// during the enchance phase:
     /// Getting the IP address, the users logged in the system or another information.
-    /// 
-    /// Can be multiple AssetsID associated with the same event because multiple virtual 
+    ///
+    /// Can be multiple AssetsID associated with the same event because multiple virtual
     /// machines can be running in the same asset.
     AssetID(String),
     /// unsigned number with 32 bits
@@ -34,19 +34,22 @@ pub enum SiemField {
     /// decimal number with 64 bits
     F64(f64),
     ///A date in a decimal number format with 64 bits
-    Date(i64)
+    Date(i64),
 }
 impl SiemField {
-    pub fn from_str<S>(val : S) -> SiemField where S: Into<Cow<'static, str>> {
+    pub fn from_str<S>(val: S) -> SiemField
+    where
+        S: Into<Cow<'static, str>>,
+    {
         SiemField::Text(val.into())
     }
 }
 
 /// Genetares a User field content. Format: "user_domain|user_name".
 /// We use the "|" character as to not to confuse with other formats like
-/// the email "@" or windows domain "\\","/" 
-pub fn generate_user_id(user_name : &str, user_domain : &str) -> String {
-    format!("{}|{}",user_domain,user_name)
+/// the email "@" or windows domain "\\","/"
+pub fn generate_user_id(user_name: &str, user_domain: &str) -> String {
+    format!("{}|{}", user_domain, user_name)
 }
 
 impl Display for SiemField {
@@ -78,9 +81,7 @@ impl PartialEq for SiemField {
                 _ => false,
             },
             SiemField::Text(txt) => match other {
-                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => {
-                    &v[..] == *txt
-                },
+                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => &v[..] == *txt,
                 SiemField::IP(ip) => *txt == ip.to_string(),
                 _ => *txt == other.to_string(),
             },
@@ -92,20 +93,18 @@ impl PartialEq for SiemField {
                 SiemField::IP(ip2) => ip == ip2,
                 _ => false,
             },
-            _ => {
-                match other {
-                    SiemField::Domain(_) | SiemField::User(_) | SiemField::AssetID(_) => false,
-                    SiemField::Text(txt) => other.to_string() == *txt,
-                    SiemField::IP(_) => false,
-                    _ => self.to_string() == other.to_string()
-                }
-            }
+            _ => match other {
+                SiemField::Domain(_) | SiemField::User(_) | SiemField::AssetID(_) => false,
+                SiemField::Text(txt) => other.to_string() == *txt,
+                SiemField::IP(_) => false,
+                _ => self.to_string() == other.to_string(),
+            },
         }
         //self.to_string() == other.to_string()
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub enum SiemIp {
     V4(u32),
     V6(u128),
@@ -113,10 +112,10 @@ pub enum SiemIp {
 impl PartialEq for SiemIp {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (SiemIp::V4(v1),SiemIp::V4(v2)) => v1 == v2,
-            (SiemIp::V6(v1),SiemIp::V6(v2)) => v1 == v2,
+            (SiemIp::V4(v1), SiemIp::V4(v2)) => v1 == v2,
+            (SiemIp::V6(v1), SiemIp::V6(v2)) => v1 == v2,
             //TODO: IPv4 in IPV6
-            _ => false
+            _ => false,
         }
     }
 }
@@ -134,13 +133,13 @@ impl SiemIp {
             },
         }
     }
-    pub fn from_ip_str(val : &str) -> Result<SiemIp,Cow<'static, str>>{
+    pub fn from_ip_str(val: &str) -> Result<SiemIp, Cow<'static, str>> {
         match ipv4_from_str(&val) {
             Ok(val) => Ok(SiemIp::V4(val)),
             Err(_) => match ipv6_from_str(&val) {
                 Ok(val) => Ok(SiemIp::V6(val)),
                 Err(_) => Err(Cow::Borrowed("Invalid IP value")),
-            }
+            },
         }
     }
 }
@@ -150,6 +149,14 @@ impl Serialize for SiemIp {
         S: Serializer,
     {
         serializer.serialize_str(&(&self.to_string())[..])
+    }
+}
+
+impl From<[u32; 4]> for SiemIp {
+    fn from(v: [u32; 4]) -> Self {
+        Self::V4(
+            ((v[0] & 0xff) << 24) + ((v[1] & 0xff) << 16) + ((v[2] & 0xff) << 8) + (v[3] & 0xff),
+        )
     }
 }
 
@@ -203,5 +210,11 @@ mod tests {
     #[test]
     fn test_serialize_ip_field() {
         assert_eq!(SiemIp::V4(111).to_string(), "0.0.0.111");
+    }
+
+    #[test]
+    fn from_u32_vec() {
+        let ip: SiemIp = [192, 168, 1, 1].into();
+        assert_eq!(ip.to_string(), "192.168.1.1");
     }
 }

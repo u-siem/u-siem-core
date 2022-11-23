@@ -1,10 +1,9 @@
-use super::field::SiemIp;
-use serde::Serialize;
-use std::borrow::Cow;
 use super::common::{HttpMethod, WebProtocol};
+use super::field::SiemIp;
+use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct WebProxyEvent {
     pub source_ip: SiemIp,
@@ -60,10 +59,9 @@ impl WebProxyEvent {
     pub fn rule_category(&self) -> &Option<WebProxyRuleCategory> {
         &self.rule_category
     }
-    
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum WebProxyOutcome {
     /// Connection was blocked
     BLOCK,
@@ -81,7 +79,7 @@ impl std::fmt::Display for WebProxyOutcome {
 }
 
 /// Based on Bluecoat categories http://sitereview.bluecoat.com/#/category-descriptions
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum WebProxyRuleCategory {
     Abortion,
     MatureContent,

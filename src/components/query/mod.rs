@@ -2,10 +2,10 @@ pub struct QueryLexer {
     input: Vec<char>,
     pub position: usize,
     pub read_position: usize,
-    pub ch: char
+    pub ch: char,
 }
 
-fn is_function(name : &str) -> bool {
+fn is_function(name: &str) -> bool {
     match name {
         "to_number" => true,
         "to_string" => true,
@@ -17,7 +17,7 @@ fn is_function(name : &str) -> bool {
         "trim" => true,
         "to_integer" => true,
         "to_float" => true,
-        _ => false
+        _ => false,
     }
 }
 
@@ -29,11 +29,11 @@ fn is_digit(ch: char) -> bool {
     '0' <= ch && ch <= '9'
 }
 
-fn count_asterix(input : &Vec<char>) -> usize {
+fn count_asterix(input: &Vec<char>) -> usize {
     let mut counter = 0;
     let mut last_char = '\0';
     for char in input {
-        if *char == '*'  && last_char != '\\' {
+        if *char == '*' && last_char != '\\' {
             counter += 1;
         }
         last_char = *char;
@@ -48,8 +48,7 @@ fn transform_escape_char(ch: char) -> Result<char, ()> {
         'r' => Ok('\r'),
         '0' => Ok('\0'),
         '*' => Err(()),
-        _ => Ok(ch)
-
+        _ => Ok(ch),
     }
 }
 
@@ -59,7 +58,7 @@ impl QueryLexer {
             input: input,
             position: 0,
             read_position: 0,
-            ch: '0'
+            ch: '0',
         }
     }
 
@@ -78,7 +77,7 @@ impl QueryLexer {
             let ch = self.ch;
             if ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' {
                 self.read_char();
-            }else{
+            } else {
                 return;
             }
         }
@@ -101,7 +100,7 @@ impl QueryLexer {
                         to_ret.push('\\');
                     }
                     is_escape = !is_escape;
-                }else{
+                } else {
                     if is_escape {
                         match transform_escape_char(l.ch) {
                             Ok(ch) => to_ret.push(ch),
@@ -109,7 +108,7 @@ impl QueryLexer {
                                 to_ret.push(l.ch);
                             }
                         };
-                    }else{
+                    } else {
                         to_ret.push(l.ch);
                     }
                     is_escape = false;
@@ -128,7 +127,7 @@ impl QueryLexer {
                         to_ret.push('\\');
                     }
                     is_escape = !is_escape;
-                }else{
+                } else {
                     if is_escape {
                         match transform_escape_char(l.ch) {
                             Ok(ch) => to_ret.push(ch),
@@ -138,7 +137,7 @@ impl QueryLexer {
                                 to_ret.push(l.ch);
                             }
                         };
-                    }else{
+                    } else {
                         to_ret.push(l.ch);
                     }
                     is_escape = false;
@@ -161,57 +160,57 @@ impl QueryLexer {
         match self.ch {
             '=' => {
                 tok = Token::ASSIGN;
-            },
+            }
             '|' => {
                 tok = Token::PIPE;
-            },
+            }
             '+' => {
                 tok = Token::PLUS(self.ch);
-            },
+            }
             '-' => {
                 tok = Token::MINUS(self.ch);
-            },
+            }
             '!' => {
                 tok = Token::BANG(self.ch);
-            },
+            }
             '/' => {
                 tok = Token::SLASH(self.ch);
-            },
+            }
             '*' => {
                 tok = Token::ASTERISK(self.ch);
-            },
+            }
             '<' => {
                 tok = Token::LT(self.ch);
-            },
+            }
             '>' => {
                 tok = Token::GT(self.ch);
-            },
+            }
             ';' => {
                 tok = Token::SEMICOLON(self.ch);
-            },
+            }
             '(' => {
                 tok = Token::LPAREN(self.ch);
-            },
+            }
             ')' => {
                 tok = Token::RPAREN(self.ch);
-            },
+            }
             ',' => {
                 tok = Token::COMMA(self.ch);
-            },
+            }
             '{' => {
                 tok = Token::LBRACE(self.ch);
-            },
+            }
             '}' => {
                 tok = Token::RBRACE(self.ch);
-            },
+            }
             '0' => {
                 tok = Token::EOF;
-            },
+            }
             '\'' => {
                 self.read_char();
                 let data = read_literal_string(self);
                 tok = Token::String(data.iter().collect())
-            },
+            }
             '"' => {
                 self.read_char();
                 let data = read_string(self);
@@ -220,24 +219,24 @@ impl QueryLexer {
                     //Test if can be a start_with, contains, ends_with or like
                     if n_asterix > 2 {
                         tok = Token::Like(data.iter().collect())
-                    }else{
+                    } else {
                         let starts_astx = data[0] == '*';
                         let ends_astx = data[data.len() - 1] == '*';
                         if starts_astx && ends_astx {
                             tok = Token::Contains(data.iter().filter(|c| *c != &'*').collect())
-                        }else if starts_astx {
+                        } else if starts_astx {
                             tok = Token::StartsWith(data.iter().filter(|c| *c != &'*').collect())
-                        }else if ends_astx {
+                        } else if ends_astx {
                             tok = Token::EndsWith(data.iter().filter(|c| *c != &'*').collect())
-                        }else{
+                        } else {
                             if n_asterix == 0 {
                                 tok = Token::String(data.iter().collect())
-                            }else{
+                            } else {
                                 tok = Token::Like(data.iter().collect())
                             }
                         }
                     }
-                }else{
+                } else {
                     tok = Token::String(data.iter().collect())
                 }
             }
@@ -247,7 +246,7 @@ impl QueryLexer {
                     match get_keyword_token(&ident) {
                         Ok(keywork_token) => {
                             return keywork_token;
-                        },
+                        }
                         Err(_err) => {
                             return Token::FIELD(ident.into_iter().collect());
                         }
@@ -255,9 +254,8 @@ impl QueryLexer {
                 } else if is_digit(self.ch) {
                     let ident: Vec<char> = read_number(self);
                     return Token::INT(ident.into_iter().collect());
-                } 
-                else {
-                    return Token::ILLEGAL
+                } else {
+                    return Token::ILLEGAL;
                 }
             }
         }
@@ -266,7 +264,7 @@ impl QueryLexer {
     }
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     ILLEGAL,
     EOF,
@@ -302,7 +300,7 @@ pub enum Token {
     StartsWith(String),
     EndsWith(String),
     Like(String),
-    Contains(String)
+    Contains(String),
 }
 
 pub fn get_keyword_token(ident: &Vec<char>) -> Result<Token, String> {
@@ -317,8 +315,8 @@ pub fn get_keyword_token(ident: &Vec<char>) -> Result<Token, String> {
         "fields" => Ok(Token::FIELDS),
         "as" => Ok(Token::AS),
         _ => {
-            if is_function(&identifier){
-                return Ok(Token::FUNCTION(identifier))
+            if is_function(&identifier) {
+                return Ok(Token::FUNCTION(identifier));
             }
             Err(String::from("Not a keyword"))
         }

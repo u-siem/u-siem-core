@@ -1,8 +1,8 @@
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use serde::Serialize;
 use std::vec::Vec;
 
 #[derive(Serialize, Debug)]
@@ -11,37 +11,40 @@ pub enum UpdateTextMapList {
     Remove(Cow<'static, str>),
     Replace(TextMapListDataset),
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct TextMapListSynDataset {
     dataset: Arc<TextMapListDataset>,
     comm: Sender<UpdateTextMapList>,
 }
 impl TextMapListSynDataset {
-    pub fn new(dataset: Arc<TextMapListDataset>, comm: Sender<UpdateTextMapList>) -> TextMapListSynDataset {
+    pub fn new(
+        dataset: Arc<TextMapListDataset>,
+        comm: Sender<UpdateTextMapList>,
+    ) -> TextMapListSynDataset {
         return TextMapListSynDataset { dataset, comm };
     }
-    pub fn insert(&self, key : Cow<'static, str>, data: Vec<Cow<'static, str>>) {
+    pub fn insert(&self, key: Cow<'static, str>, data: Vec<Cow<'static, str>>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Add((key, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove(&self, key : Cow<'static, str>) {
+    pub fn remove(&self, key: Cow<'static, str>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Remove(key)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : TextMapListDataset) {
+    pub fn update(&self, data: TextMapListDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Replace(data)) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn get(&self, key : &str) -> Option<&Vec<Cow<'static, str>>> {
+    pub fn get(&self, key: &str) -> Option<&Vec<Cow<'static, str>>> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
@@ -54,13 +57,13 @@ pub struct TextMapListDataset {
 impl TextMapListDataset {
     pub fn new() -> TextMapListDataset {
         return TextMapListDataset {
-            data: BTreeMap::new()
+            data: BTreeMap::new(),
         };
     }
-    pub fn insert(&mut self, key : Cow<'static, str>, data: Vec<Cow<'static, str>>) {
+    pub fn insert(&mut self, key: Cow<'static, str>, data: Vec<Cow<'static, str>>) {
         self.data.insert(key, data);
     }
-    pub fn get(&self, key : &str) -> Option<&Vec<Cow<'static, str>>> {
+    pub fn get(&self, key: &str) -> Option<&Vec<Cow<'static, str>>> {
         self.data.get(key)
     }
     pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Vec<Cow<'static, str>>> {
@@ -71,7 +74,7 @@ impl TextMapListDataset {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test] 
+    #[test]
     fn test_dataset_creation() {
         let mut dataset = TextMapListDataset::new();
         dataset.insert(
@@ -80,7 +83,7 @@ mod tests {
         );
         assert_eq!(
             dataset.get("192.168.1.1"),
-            Some(&(vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")]))
+            Some(&(vec![Cow::Borrowed("Local IP "), Cow::Borrowed("Remote IP")]))
         );
     }
 }

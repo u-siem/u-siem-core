@@ -1,9 +1,9 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use serde::Serialize;
 
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
 #[derive(Serialize, Debug)]
@@ -18,7 +18,7 @@ pub struct GeoIpInfo {
     pub city: Cow<'static, str>,
     pub latitude: f32,
     pub longitude: f32,
-    pub isp: Cow<'static, str>,// More important than country in my opinion because Geolocalization is very imprecise.
+    pub isp: Cow<'static, str>, // More important than country in my opinion because Geolocalization is very imprecise.
 }
 #[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
@@ -129,7 +129,12 @@ impl GeoIpDataset {
             }
         }
     }
-    pub fn internal_ref(&self) -> (&BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,&BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>) {
+    pub fn internal_ref(
+        &self,
+    ) -> (
+        &BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,
+        &BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>,
+    ) {
         (&self.data4, &self.data6)
     }
 }
@@ -138,21 +143,20 @@ mod tests {
     use super::*;
     #[test]
     fn test_dataset_creation() {
-        let info = GeoIpInfo{
-            city : Cow::Borrowed("LocalCity"),
-            country : Cow::Borrowed("LocalCountry"),
-            isp : Cow::Borrowed("ISP"),
-            latitude : 0.1,
-            longitude : 0.2,
+        let info = GeoIpInfo {
+            city: Cow::Borrowed("LocalCity"),
+            country: Cow::Borrowed("LocalCountry"),
+            isp: Cow::Borrowed("ISP"),
+            latitude: 0.1,
+            longitude: 0.2,
         };
         let mut dataset = GeoIpDataset::new();
-        dataset.insert(
-            SiemIp::from_ip_str("192.168.1.1").unwrap(),
-            24,
-            info,
-        );
+        dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap(), 24, info);
         assert_eq!(
-            &dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()).unwrap().city[..],
+            &dataset
+                .get(&SiemIp::from_ip_str("192.168.1.1").unwrap())
+                .unwrap()
+                .city[..],
             &(&Cow::Borrowed("LocalCity"))[..]
         );
     }

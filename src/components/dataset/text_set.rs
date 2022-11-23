@@ -1,8 +1,8 @@
 use crossbeam_channel::Sender;
+use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::BTreeSet;
 use std::sync::Arc;
-use std::borrow::Cow;
-use serde::{Serialize};
 #[derive(Serialize, Debug)]
 pub enum UpdateTextSet {
     Add(Cow<'static, str>),
@@ -18,21 +18,27 @@ impl TextSetSynDataset {
     pub fn new(dataset: Arc<TextSetDataset>, comm: Sender<UpdateTextSet>) -> TextSetSynDataset {
         return TextSetSynDataset { dataset, comm };
     }
-    pub fn insert<S>(&self, val: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&self, val: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Add(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn remove<S>(&self, val: S) where S: Into<Cow<'static, str>> {
+    pub fn remove<S>(&self, val: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Remove(val.into())) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : TextSetDataset) {
+    pub fn update(&self, data: TextSetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextSet::Replace(data)) {
             Ok(_) => {}
@@ -46,16 +52,19 @@ impl TextSetSynDataset {
 }
 #[derive(Serialize, Debug)]
 pub struct TextSetDataset {
-    data: BTreeSet<Cow<'static, str>>
+    data: BTreeSet<Cow<'static, str>>,
 }
 
 impl TextSetDataset {
     pub fn new() -> TextSetDataset {
         return TextSetDataset {
-            data: BTreeSet::new()
+            data: BTreeSet::new(),
         };
     }
-    pub fn insert<S>(&mut self, val: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&mut self, val: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         self.data.insert(val.into());
     }
     pub fn contains(&self, val: &Cow<'static, str>) -> bool {
@@ -72,12 +81,7 @@ mod tests {
     #[test]
     fn test_dataset_creation() {
         let mut dataset = TextSetDataset::new();
-        dataset.insert(
-            Cow::Borrowed("192.168.1.1")
-        );
-        assert_eq!(
-            dataset.contains(&Cow::Borrowed("192.168.1.1")),
-            true
-        );
+        dataset.insert(Cow::Borrowed("192.168.1.1"));
+        assert_eq!(dataset.contains(&Cow::Borrowed("192.168.1.1")), true);
     }
 }

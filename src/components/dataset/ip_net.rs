@@ -1,9 +1,9 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateNetIp {
@@ -34,7 +34,7 @@ impl IpNetSynDataset {
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : IpNetDataset) {
+    pub fn update(&self, data: IpNetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Replace(data)) {
             Ok(_) => {}
@@ -59,7 +59,10 @@ impl IpNetDataset {
             data6: BTreeMap::new(),
         };
     }
-    pub fn insert<S>(&mut self, ip: SiemIp, net: u8, data: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&mut self, ip: SiemIp, net: u8, data: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         match ip {
             SiemIp::V4(ip) => {
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
@@ -133,7 +136,12 @@ impl IpNetDataset {
             }
         }
     }
-    pub fn internal_ref(&self) -> (&BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,&BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>) {
+    pub fn internal_ref(
+        &self,
+    ) -> (
+        &BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,
+        &BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>,
+    ) {
         (&self.data4, &self.data6)
     }
 }

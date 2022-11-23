@@ -1,13 +1,20 @@
-use serde::Serialize;
-use std::borrow::Cow;
+use serde::de::{MapAccess, Visitor};
+use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;
+use std::marker::PhantomData;
+use std::{borrow::Cow, fmt::Debug};
 
-use crate::events::field::{SiemField};
-
-use super::{common::{UserRole, DatasetDefinition}, command_types::{ParserDefinition, TaskDefinition, RuleDefinition, FilterEmail, FilterDomain, FilterIp, IsolateEndpoint, IsolateIp, UseCaseDefinition, LoginUser, LoggedOnUser}};
+use super::{
+    command_types::{
+        FilterDomain, FilterEmail, FilterIp, IsolateEndpoint, IsolateIp, LoggedOnUser, LoginUser,
+        ParserDefinition, RuleDefinition, TaskDefinition, UseCaseDefinition,
+    },
+    common::{DatasetDefinition, UserRole},
+};
+use crate::events::field::SiemField;
 
 /// Define commands to be used by the users or other components.
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemFunctionType {
@@ -35,8 +42,7 @@ pub enum SiemFunctionType {
     ),
 }
 
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CommandDefinition {
     class: SiemFunctionType,
     name: Cow<'static, str>,
@@ -72,24 +78,23 @@ impl CommandDefinition {
     }
 }
 
-
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct SiemCommandHeader {
     /// User that created the command
     pub user: String,
     /// Component ID that created the command or the response
     pub comp_id: u64,
     /// Internal command ID: serves as an internal mapping betwen components as to replay to a specific component
-    /// 
+    ///
     /// COMMAND => (COMPONENT) CMP_ID ->(KERNEL)-> CMP_ID<=>CMP_KRNL_ID ->(OTHER COMPONENT) -> CMP_KRNL_ID
-    /// 
-    /// 
+    ///
+    ///
     /// RESPONSE => (OTHER COMPONENT) RSP_ID=CMP_KRNL_ID ->(KERNEL)-> RSP_ID=CMP_KRNL_ID<=>CMP_ID -> (COMPONENT) -> CMP_ID
     pub comm_id: u64,
 }
 
 /// Execute a command with parameters
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemCommandCall {
@@ -130,14 +135,13 @@ pub enum SiemCommandCall {
     ),
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Pagination {
-    pub offset : u32,
-    pub limit : u32
+    pub offset: u32,
+    pub limit: u32,
 }
 
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[non_exhaustive]
 pub enum CommandError {
     BadParameters(Cow<'static, str>),
@@ -146,58 +150,213 @@ pub enum CommandError {
 }
 
 /// The response of a command execution
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemCommandResponse {
-    START_COMPONENT(Result<String, CommandError>),
-    STOP_COMPONENT(Result<String, CommandError>),
+    START_COMPONENT(CommandResult<String>),
+    STOP_COMPONENT(CommandResult<String>),
     /// Query created with an ID
-    LOG_QUERY(QueryInfo,Result<Vec<BTreeMap<String,SiemField>>, CommandError>),
-    ISOLATE_IP(Result<String, CommandError>),
-    ISOLATE_ENDPOINT(Result<String, CommandError>),
+    LOG_QUERY(QueryInfo, CommandResult<Vec<BTreeMap<String, SiemField>>>),
+    ISOLATE_IP(CommandResult<String>),
+    ISOLATE_ENDPOINT(CommandResult<String>),
     /// (IP, Comment)
-    FILTER_IP(Result<String, CommandError>),
+    FILTER_IP(CommandResult<String>),
     /// (Domain, Comment)
-    FILTER_DOMAIN(Result<String, CommandError>),
+    FILTER_DOMAIN(CommandResult<String>),
     /// (Email, Comment)
-    FILTER_EMAIL_SENDER(Result<String, CommandError>),
+    FILTER_EMAIL_SENDER(CommandResult<String>),
     /// List of UseCases: (Name,Description)
-    LIST_USE_CASES(Result<Vec<UseCaseDefinition>, CommandError>),
-    GET_USE_CASE(Result<UseCaseDefinition, CommandError>),
-    LIST_RULES(Result<Vec<RuleDefinition>, CommandError>),
-    GET_RULE(Result<RuleDefinition, CommandError>),
-    LIST_DATASETS(Result<Vec<DatasetDefinition>, CommandError>),
-    LIST_TASKS(Result<Vec<TaskDefinition>, CommandError>),
-    LIST_PARSERS(Result<Vec<ParserDefinition>, CommandError>),
-    LOGIN_USER(Result<LoggedOnUser, CommandError>),
+    LIST_USE_CASES(CommandResult<Vec<UseCaseDefinition>>),
+    GET_USE_CASE(CommandResult<UseCaseDefinition>),
+    LIST_RULES(CommandResult<Vec<RuleDefinition>>),
+    GET_RULE(CommandResult<RuleDefinition>),
+    LIST_DATASETS(CommandResult<Vec<DatasetDefinition>>),
+    LIST_TASKS(CommandResult<Vec<TaskDefinition>>),
+    LIST_PARSERS(CommandResult<Vec<ParserDefinition>>),
+    LOGIN_USER(CommandResult<LoggedOnUser>),
     OTHER(
         Cow<'static, str>,
-        Result<BTreeMap<Cow<'static, str>, Cow<'static, str>>, CommandError>,
+        CommandResult<BTreeMap<Cow<'static, str>, Cow<'static, str>>>,
     ),
     //TODO: Authentication command, to allow login using third party systems: LDAP...
 }
 
 #[derive(Serialize, Debug, Clone)]
+pub enum CommandResult<T>
+where
+    T: Serialize + DeserializeOwned + std::fmt::Debug + Clone,
+{
+    #[serde(rename = "ok")]
+    Ok(T),
+    #[serde(rename = "err")]
+    Err(CommandError),
+}
+
+impl<'de, T: Serialize + Clone + Debug + ?Sized + DeserializeOwned> Deserialize<'de>
+    for CommandResult<T>
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_map(CommandResultVisitor::new())
+    }
+}
+
+struct CommandResultVisitor<T> {
+    marker: PhantomData<fn() -> T>,
+}
+
+impl<T> CommandResultVisitor<T> {
+    fn new() -> Self {
+        CommandResultVisitor {
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<'de, T> Visitor<'de> for CommandResultVisitor<T>
+where
+    T: DeserializeOwned + Debug + Serialize + Clone,
+{
+    // The type that our Visitor is going to produce.
+    type Value = CommandResult<T>;
+
+    // Deserialize MyMap from an abstract "map" provided by the
+    // Deserializer. The MapAccess input is a callback provided by
+    // the Deserializer to let us see each entry in the map.
+    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+    where
+        M: MapAccess<'de>,
+    {
+        // While there are entries remaining in the input, add them
+        // into our map.
+        if let Some(key) = access.next_key::<&str>()? {
+            if key == "ok" {
+                let val: T = access.next_value()?;
+                Ok(CommandResult::Ok(val))
+            } else if key == "err" {
+                let val: CommandError = access.next_value()?;
+                Ok(CommandResult::Err(val))
+            } else {
+                Err(serde::de::Error::missing_field("No ok/err field available"))
+            }
+        } else {
+            Err(serde::de::Error::missing_field("No ok/err field available"))
+        }
+    }
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(formatter, "A valid command result")
+    }
+}
+// */
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct QueryInfo {
     /// The user that created the query pettition
-    pub user : String,
+    pub user: String,
     /// Use storage native query language: SQL, Elastic
-    pub is_native : bool,
+    pub is_native: bool,
     /// If there are alredy a query resolved, make a query agaist it
-    pub query_id : Option<String>,
+    pub query_id: Option<String>,
     /// Starting time for event_created: Unix datetime from 1970
-    pub from : i64,
+    pub from: i64,
     /// Ending time for event_created: Unix datetime from 1970
-    pub to : i64,
+    pub to: i64,
     /// Number of rows returned
-    pub limit : usize,
+    pub limit: usize,
     /// Offseting the query
-    pub offset : usize,
+    pub offset: usize,
     /// Time to live of the query results
-    pub ttl : i64,
+    pub ttl: i64,
     /// If empty and query_id has something, then return the stored query
-    pub query : String,
+    pub query: String,
     /// List of fields to be returned, empty for all
-    pub fields : Vec<String>
+    pub fields: Vec<String>,
+}
+
+#[cfg(test)]
+mod de_ser {
+    use std::borrow::Cow;
+
+    use crate::prelude::DatasetDefinition;
+
+    use super::SiemCommandResponse;
+
+    #[test]
+    fn should_serialize_and_deserialize_command_response() {
+        let res =
+            SiemCommandResponse::FILTER_IP(super::CommandResult::Ok(format!("Ip was filtered")));
+        let str = serde_json::to_string(&res).unwrap();
+        let res2: SiemCommandResponse = serde_json::from_str(&str).unwrap();
+
+        match (res, res2) {
+            (SiemCommandResponse::FILTER_IP(ip1), SiemCommandResponse::FILTER_IP(ip2)) => {
+                match (ip1, ip2) {
+                    (super::CommandResult::Ok(v1), super::CommandResult::Ok(v2)) => {
+                        assert_eq!(v1, v2)
+                    }
+                    (super::CommandResult::Err(v1), super::CommandResult::Err(v2)) => {
+                        match (v1, v2) {
+                            (
+                                super::CommandError::BadParameters(v1),
+                                super::CommandError::BadParameters(v2),
+                            ) => assert_eq!(v1, v2),
+                            (
+                                super::CommandError::SyntaxError(v1),
+                                super::CommandError::SyntaxError(v2),
+                            ) => assert_eq!(v1, v2),
+                            (
+                                super::CommandError::NotFound(v1),
+                                super::CommandError::NotFound(v2),
+                            ) => assert_eq!(v1, v2),
+                            _ => panic!("Error must be the same"),
+                        }
+                    }
+                    _ => panic!("Both responses must be the same"),
+                }
+            }
+            _ => panic!("Must not happen"),
+        }
+
+        let res = SiemCommandResponse::LIST_DATASETS(super::CommandResult::Ok(vec![
+            DatasetDefinition::new(
+                crate::prelude::SiemDatasetType::CustomIpMap(Cow::Borrowed("")),
+                Cow::Borrowed("Description"),
+                crate::prelude::UserRole::Administrator,
+            ),
+        ]));
+        let str = serde_json::to_string(&res).unwrap();
+        let res2: SiemCommandResponse = serde_json::from_str(&str).unwrap();
+
+        match (res, res2) {
+            (SiemCommandResponse::LIST_DATASETS(ip1), SiemCommandResponse::LIST_DATASETS(ip2)) => {
+                match (ip1, ip2) {
+                    (super::CommandResult::Ok(v1), super::CommandResult::Ok(v2)) => {
+                        assert_eq!(v1, v2)
+                    }
+                    (super::CommandResult::Err(v1), super::CommandResult::Err(v2)) => {
+                        match (v1, v2) {
+                            (
+                                super::CommandError::BadParameters(v1),
+                                super::CommandError::BadParameters(v2),
+                            ) => assert_eq!(v1, v2),
+                            (
+                                super::CommandError::SyntaxError(v1),
+                                super::CommandError::SyntaxError(v2),
+                            ) => assert_eq!(v1, v2),
+                            (
+                                super::CommandError::NotFound(v1),
+                                super::CommandError::NotFound(v2),
+                            ) => assert_eq!(v1, v2),
+                            _ => panic!("Error must be the same"),
+                        }
+                    }
+                    _ => panic!("Both responses must be the same"),
+                }
+            }
+            _ => panic!("Must not happen"),
+        }
+    }
 }

@@ -1,8 +1,8 @@
 use super::field::SiemIp;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct DnsEvent {
     /// Client that queried
@@ -10,12 +10,12 @@ pub struct DnsEvent {
     /// Server that answered the question
     pub destination_ip: SiemIp,
     /// Answer or question
-    pub op_code : DnsEventType,
+    pub op_code: DnsEventType,
     /// dns.question.type or dns.answer.type
     pub record_type: DnsRecordType,
     /// dns.question.name or dns.answer.name
     pub record_name: Cow<'static, str>,
-    pub data : Option<Cow<'static, str>>
+    pub data: Option<Cow<'static, str>>,
 }
 
 impl DnsEvent {
@@ -39,10 +39,10 @@ impl DnsEvent {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum DnsEventType {
     ANSWER,
-    QUERY
+    QUERY,
 }
 
 impl std::fmt::Display for DnsEventType {
@@ -53,7 +53,7 @@ impl std::fmt::Display for DnsEventType {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum DnsRecordType {
     A,
     AAAA,
@@ -64,7 +64,7 @@ pub enum DnsRecordType {
     CERT,
     SRV,
     TXT,
-    SOA
+    SOA,
 }
 
 impl std::fmt::Display for DnsRecordType {
@@ -76,7 +76,7 @@ impl std::fmt::Display for DnsRecordType {
 }
 
 impl DnsRecordType {
-    pub fn as_cow(&self) -> Cow<'static,str> {
+    pub fn as_cow(&self) -> Cow<'static, str> {
         match self {
             DnsRecordType::A => Cow::Borrowed("A"),
             DnsRecordType::AAAA => Cow::Borrowed("AAAA"),

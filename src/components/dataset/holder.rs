@@ -1,5 +1,5 @@
 use super::{SiemDataset, SiemDatasetType};
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 
 /// The dataset holder allows access to the latest version of a dataset almost instantly without the need to check if there is an update of a dataset using a channel as was done previously. Although you have to resort to two calls to unsafe since pointers are used
 #[derive(Clone, Default)]
@@ -23,12 +23,12 @@ impl DatasetHolder {
     pub fn get(&self, key: &SiemDatasetType) -> Option<&SiemDataset> {
         self.datasets.get(key)
     }
-    pub fn subset(&self, list : Vec<SiemDatasetType>) -> Self {
+    pub fn subset(&self, list: Vec<SiemDatasetType>) -> Self {
         let mut datasets = BTreeMap::new();
         for typ in list {
-            let dataset  = match self.datasets.get(&typ) {
+            let dataset = match self.datasets.get(&typ) {
                 Some(d) => d,
-                None => continue
+                None => continue,
             };
             datasets.insert(typ, dataset.clone());
         }

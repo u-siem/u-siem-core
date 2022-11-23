@@ -1,7 +1,7 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct AuthEvent {
     /// Login type: local, remote, upgrade (change user)
@@ -24,7 +24,7 @@ impl AuthEvent {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum AuthLoginType {
     Local(LocalLogin),
     Remote(RemoteLogin),
@@ -33,7 +33,7 @@ pub enum AuthLoginType {
     Delegation(DelegationLogin),
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum LoginOutcome {
     /// Login success
     SUCCESS,
@@ -46,7 +46,7 @@ pub enum LoginOutcome {
 }
 
 /// A user is login in locally, in front of the computer (or almost).
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct LocalLogin {
     /// User that logged in
     pub user_name: Cow<'static, str>,
@@ -67,7 +67,7 @@ impl LocalLogin {
 }
 
 /// A user uses a Credential Vault like CyberArk to use an account
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct DelegationLogin {
     /// Original user name
     pub source_user: Cow<'static, str>,
@@ -98,7 +98,7 @@ impl DelegationLogin {
 }
 
 /// Someone tries to login in the system from another computer.
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct RemoteLogin {
     /// User that logged in
     pub user_name: Cow<'static, str>,
@@ -122,7 +122,7 @@ impl RemoteLogin {
 }
 
 /// A user changes into another account, like a "su" command in linux
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct UpgradeLogin {
     /// Original user name
     pub source_user: Cow<'static, str>,
@@ -146,7 +146,7 @@ impl UpgradeLogin {
 }
 
 /// This does not imply a user login in the system, only validation of credentials. Like LoginType=3 in Windows.
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct ValidationLogin {
     /// User doing the login
     pub user_name: Cow<'static, str>,
@@ -155,16 +155,13 @@ pub struct ValidationLogin {
 }
 
 impl ValidationLogin {
-    pub fn new<S>(
-        user_name: S,
-        source_address: S
-    ) -> Self
+    pub fn new<S>(user_name: S, source_address: S) -> Self
     where
         S: Into<Cow<'static, str>>,
     {
         Self {
             user_name: user_name.into(),
-            source_address: source_address.into()
+            source_address: source_address.into(),
         }
     }
 }

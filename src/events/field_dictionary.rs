@@ -31,7 +31,6 @@ pub static OUT_INTERFACE: &'static str = "observer.egress.interface";
 pub static OBSERVER_IP: &'static str = "observer.ip";
 pub static OBSERVER_NAME: &'static str = "observer.name";
 
-
 pub static URL_FULL: &'static str = "url.full";
 pub static URL_DOMAIN: &'static str = "url.domain";
 pub static URL_PATH: &'static str = "url.path";
@@ -55,7 +54,6 @@ pub static DNS_QUESTION_CLASS: &'static str = "dns.question.class";
 pub static DNS_QUESTION_NAME: &'static str = "dns.question.name";
 pub static DNS_QUESTION_TYPE: &'static str = "dns.question.type";
 pub static DNS_RESOLVED_IP: &'static str = "dns.resolved_ip";
-
 
 pub static DHCP_RECORD_TYPE: &'static str = "dhcp.type";
 

@@ -1,8 +1,8 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::collections::BTreeSet;
 use std::sync::Arc;
-use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpSet {
@@ -34,7 +34,7 @@ impl IpSetSynDataset {
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : IpSetDataset) {
+    pub fn update(&self, data: IpSetDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpSet::Replace(data)) {
             Ok(_) => {}
@@ -71,18 +71,13 @@ impl IpSetDataset {
     }
     pub fn contains(&self, ip: &SiemIp) -> bool {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.contains(ip)
-            }
-            SiemIp::V6(ip) => {
-                self.data6.contains(ip)
-            }
+            SiemIp::V4(ip) => self.data4.contains(ip),
+            SiemIp::V6(ip) => self.data6.contains(ip),
         }
     }
-    pub fn internal_ref(&self) -> (&BTreeSet<u32>,&BTreeSet<u128>) {
+    pub fn internal_ref(&self) -> (&BTreeSet<u32>, &BTreeSet<u128>) {
         (&self.data4, &self.data6)
     }
-
 }
 
 #[cfg(test)]
@@ -91,9 +86,7 @@ mod tests {
     #[test]
     fn test_dataset_creation() {
         let mut dataset = IpSetDataset::new();
-        dataset.insert(
-            SiemIp::from_ip_str("192.168.1.1").unwrap()
-        );
+        dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap());
         assert_eq!(
             dataset.contains(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
             true

@@ -1,9 +1,9 @@
 use super::field::SiemIp;
 use super::protocol::NetworkProtocol;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct IntrusionEvent {
     /// Ip that started the connection
@@ -40,16 +40,16 @@ impl IntrusionEvent {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum IntrusionOutcome {
-    /// The attack has not been prevented and may affect systems 
+    /// The attack has not been prevented and may affect systems
     DETECTED,
     /// The attack was prevented
     BLOCKED,
-    /// The attack was not prevented but it does not affect assets 
+    /// The attack was not prevented but it does not affect assets
     MONITOR,
     /// The attack has not been prevented and has affected assets
-    IMPACTED
+    IMPACTED,
 }
 impl std::fmt::Display for IntrusionOutcome {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -59,7 +59,7 @@ impl std::fmt::Display for IntrusionOutcome {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum IntrusionCategory {
@@ -75,7 +75,7 @@ pub enum IntrusionCategory {
     DOS,
     /// Scan or Surveillance
     SURVEILLANCE,
-    /// Trojan horse 
+    /// Trojan horse
     TROJAN,
     /// Simple virus
     VIRUS,
@@ -111,7 +111,7 @@ pub enum IntrusionCategory {
     MISCONFIGURATION,
     /// Active Directory attack: kerberoasting, DC Sync, Golden Ticket, Pass the Hash, Pass the ticket...
     AD_ATTACK,
-    /// 
+    ///
     UNKNOWN,
     /// Information Leakage involves the exposure of information that would facilitate attacks on the application or other infrastructure, such as insight into the application design, deployment, or organizational details.
     INFORMATION_LEAKAGE,
@@ -124,7 +124,6 @@ pub enum IntrusionCategory {
     /// IP, COUNTRY, DOMAIN in a suspicious or block list
     REPUTATION,
     //TODO: Add more categories
-
 }
 impl std::fmt::Display for IntrusionCategory {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

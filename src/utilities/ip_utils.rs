@@ -19,7 +19,7 @@ pub fn ipv4_from_str(ipv4: &str) -> Result<u32, &'static str> {
         }
     }
     if desplazamiento < 0 {
-        return Err("More than 4 dots")
+        return Err("More than 4 dots");
     }
     let parsed = chars.parse::<u32>();
     let parsed = match parsed {
@@ -55,7 +55,7 @@ pub fn ipv4_to_u32_bytes(ipv4: &[u8]) -> Result<u32, &'static str> {
         if *character == 46 {
             number += match chars.parse::<u32>() {
                 Ok(val) => val,
-                Err(_) => {return Err("Cannot parse as u32")}
+                Err(_) => return Err("Cannot parse as u32"),
             } << desplazamiento;
             chars = String::new();
             desplazamiento -= 8;
@@ -65,7 +65,7 @@ pub fn ipv4_to_u32_bytes(ipv4: &[u8]) -> Result<u32, &'static str> {
     }
     number += match chars.parse::<u32>() {
         Ok(val) => val,
-        Err(_) => {return Err("Cannot parse as u32")}
+        Err(_) => return Err("Cannot parse as u32"),
     } << desplazamiento;
     return Ok(number);
 }
@@ -323,21 +323,18 @@ pub fn is_local_ip(ip: u32) -> bool {
 pub fn port_to_u16(port: &str) -> Result<u16, &'static str> {
     return match port.parse::<u16>() {
         Ok(port) => Ok(port),
-        Err(_) => Err("Cannot parse port as u16")
+        Err(_) => Err("Cannot parse port as u16"),
     };
 }
 
 pub fn is_ipv4_port(text: &str) -> bool {
     match text.rfind(":") {
-        Some(pos) => {
-            match (ipv4_from_str(&text[..pos]),port_to_u16(&text[(pos + 1)..])) {
-                (Ok(_),Ok(_)) => true,
-                _ => false,
-            }
+        Some(pos) => match (ipv4_from_str(&text[..pos]), port_to_u16(&text[(pos + 1)..])) {
+            (Ok(_), Ok(_)) => true,
+            _ => false,
         },
-        None => false
+        None => false,
     }
-    
 }
 pub fn is_ipv4(text: &str) -> bool {
     match ipv4_from_str(text) {

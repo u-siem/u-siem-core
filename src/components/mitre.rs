@@ -1,36 +1,35 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
+pub const TACTIC_RECONNAISSANCE_ENTERPRISE: MitreTactics = MitreTactics::TA0043;
+pub const TACTIC_RESOURCE_DEVELOPMENT: MitreTactics = MitreTactics::TA0042;
+pub const TACTIC_INITIAL_ACCESS_ENTERPRISE: MitreTactics = MitreTactics::TA0001;
+pub const TACTIC_EXECUTION_ENTERPRISE: MitreTactics = MitreTactics::TA0002;
+pub const TACTIC_PERSISTENCE_ENTERPRISE: MitreTactics = MitreTactics::TA0003;
+pub const TACTIC_PRIVILEGE_ESCALATION_ENTERPRISE: MitreTactics = MitreTactics::TA0004;
+pub const TACTIC_DEFENSE_EVASION_ENTERPRISE: MitreTactics = MitreTactics::TA0005;
+pub const TACTIC_CREDENTIAL_ACCESS_ENTERPRISE: MitreTactics = MitreTactics::TA0006;
+pub const TACTIC_DISCOVERY_ENTERPRISE: MitreTactics = MitreTactics::TA0007;
+pub const TACTIC_LATERAL_MOVEMENT_ENTERPRISE: MitreTactics = MitreTactics::TA0008;
+pub const TACTIC_COLLECTION_ENTERPRISE: MitreTactics = MitreTactics::TA0009;
+pub const TACTIC_COMMAND_AND_CONTROL_ENTERPRISE: MitreTactics = MitreTactics::TA0011;
+pub const TACTIC_EXFILTRATION_ENTERPRISE: MitreTactics = MitreTactics::TA0010;
+pub const TACTIC_IMPACT_ENTERPRISE: MitreTactics = MitreTactics::TA0040;
+pub const TACTIC_INITIAL_ACCESS_MOBILE: MitreTactics = MitreTactics::TA0027;
+pub const TACTIC_EXECUTION_MOBILE: MitreTactics = MitreTactics::TA0041;
+pub const TACTIC_PERSISTENCE_MOBILE: MitreTactics = MitreTactics::TA0028;
+pub const TACTIC_PRIVILEGE_ESCALATION_MOBILE: MitreTactics = MitreTactics::TA0029;
+pub const TACTIC_DEFENSE_EVASION_MOBILE: MitreTactics = MitreTactics::TA0030;
+pub const TACTIC_CREDENTIAL_ACCESS_MOBILE: MitreTactics = MitreTactics::TA0031;
+pub const TACTIC_DISCOVERY_MOBILE: MitreTactics = MitreTactics::TA0032;
+pub const TACTIC_LATERAL_MOVEMENT_MOBILE: MitreTactics = MitreTactics::TA0033;
+pub const TACTIC_COLLECTION_MOBILE: MitreTactics = MitreTactics::TA0035;
+pub const TACTIC_COMMAND_AND_CONTROL_MOBILE: MitreTactics = MitreTactics::TA0037;
+pub const TACTIC_EXFILTRATION_MOBILE: MitreTactics = MitreTactics::TA0036;
+pub const TACTIC_IMPACT_MOBILE: MitreTactics = MitreTactics::TA0034;
+pub const TACTIC_NETWORK_EFFECTS_MOBILE: MitreTactics = MitreTactics::TA0038;
+pub const TACTIC_REMOTE_SERVICE_EFFECTS_MOBILE: MitreTactics = MitreTactics::TA0039;
 
-pub const TACTIC_RECONNAISSANCE_ENTERPRISE :  MitreTactics = MitreTactics::TA0043;
-pub const TACTIC_RESOURCE_DEVELOPMENT :  MitreTactics = MitreTactics::TA0042;
-pub const TACTIC_INITIAL_ACCESS_ENTERPRISE :  MitreTactics = MitreTactics::TA0001;
-pub const TACTIC_EXECUTION_ENTERPRISE :  MitreTactics = MitreTactics::TA0002;
-pub const TACTIC_PERSISTENCE_ENTERPRISE :  MitreTactics = MitreTactics::TA0003;
-pub const TACTIC_PRIVILEGE_ESCALATION_ENTERPRISE :  MitreTactics = MitreTactics::TA0004;
-pub const TACTIC_DEFENSE_EVASION_ENTERPRISE :  MitreTactics = MitreTactics::TA0005;
-pub const TACTIC_CREDENTIAL_ACCESS_ENTERPRISE :  MitreTactics = MitreTactics::TA0006;
-pub const TACTIC_DISCOVERY_ENTERPRISE :  MitreTactics = MitreTactics::TA0007;
-pub const TACTIC_LATERAL_MOVEMENT_ENTERPRISE :  MitreTactics = MitreTactics::TA0008;
-pub const TACTIC_COLLECTION_ENTERPRISE :  MitreTactics = MitreTactics::TA0009;
-pub const TACTIC_COMMAND_AND_CONTROL_ENTERPRISE :  MitreTactics = MitreTactics::TA0011;
-pub const TACTIC_EXFILTRATION_ENTERPRISE :  MitreTactics = MitreTactics::TA0010;
-pub const TACTIC_IMPACT_ENTERPRISE :  MitreTactics = MitreTactics::TA0040;
-pub const TACTIC_INITIAL_ACCESS_MOBILE :  MitreTactics = MitreTactics::TA0027;
-pub const TACTIC_EXECUTION_MOBILE :  MitreTactics = MitreTactics::TA0041;
-pub const TACTIC_PERSISTENCE_MOBILE :  MitreTactics = MitreTactics::TA0028;
-pub const TACTIC_PRIVILEGE_ESCALATION_MOBILE :  MitreTactics = MitreTactics::TA0029;
-pub const TACTIC_DEFENSE_EVASION_MOBILE :  MitreTactics = MitreTactics::TA0030;
-pub const TACTIC_CREDENTIAL_ACCESS_MOBILE :  MitreTactics = MitreTactics::TA0031;
-pub const TACTIC_DISCOVERY_MOBILE :  MitreTactics = MitreTactics::TA0032;
-pub const TACTIC_LATERAL_MOVEMENT_MOBILE :  MitreTactics = MitreTactics::TA0033;
-pub const TACTIC_COLLECTION_MOBILE :  MitreTactics = MitreTactics::TA0035;
-pub const TACTIC_COMMAND_AND_CONTROL_MOBILE :  MitreTactics = MitreTactics::TA0037;
-pub const TACTIC_EXFILTRATION_MOBILE :  MitreTactics = MitreTactics::TA0036;
-pub const TACTIC_IMPACT_MOBILE :  MitreTactics = MitreTactics::TA0034;
-pub const TACTIC_NETWORK_EFFECTS_MOBILE :  MitreTactics = MitreTactics::TA0038;
-pub const TACTIC_REMOTE_SERVICE_EFFECTS_MOBILE :  MitreTactics = MitreTactics::TA0039;
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum MitreTactics {
     /// Reconnaissance: The adversary is trying to gather information they can use to plan future operations.
     /// https://attack.mitre.org/tactics/TA0043
@@ -118,560 +117,713 @@ pub enum MitreTactics {
     TA0039,
 }
 
-pub const TECHNIQUE_DATA_OBFUSCATION : MitreTechniques = MitreTechniques::T1001;
-pub const TECHNIQUE_DATA_OBFUSCATION_JUNK_DATA : MitreTechniques = MitreTechniques::T1001_001;
-pub const TECHNIQUE_DATA_OBFUSCATION_STEGANOGRAPHY : MitreTechniques = MitreTechniques::T1001_002;
-pub const TECHNIQUE_DATA_OBFUSCATION_PROTOCOL_IMPERSONATION : MitreTechniques = MitreTechniques::T1001_003;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING : MitreTechniques = MitreTechniques::T1003;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_LSASS_MEMORY : MitreTechniques = MitreTechniques::T1003_001;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_SECURITY_ACCOUNT_MANAGER : MitreTechniques = MitreTechniques::T1003_002;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_NTDS : MitreTechniques = MitreTechniques::T1003_003;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_LSA_SECRETS : MitreTechniques = MitreTechniques::T1003_004;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_CACHED_DOMAIN_CREDENTIALS : MitreTechniques = MitreTechniques::T1003_005;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_DCSYNC : MitreTechniques = MitreTechniques::T1003_006;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_PROC_FILESYSTEM : MitreTechniques = MitreTechniques::T1003_007;
-pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_PASSWD_AND_SHADOW : MitreTechniques = MitreTechniques::T1003_008;
-pub const TECHNIQUE_DATA_FROM_LOCAL_SYSTEM : MitreTechniques = MitreTechniques::T1005;
-pub const TECHNIQUE_DIRECT_VOLUME_ACCESS : MitreTechniques = MitreTechniques::T1006;
-pub const TECHNIQUE_SYSTEM_SERVICE_DISCOVERY : MitreTechniques = MitreTechniques::T1007;
-pub const TECHNIQUE_FALLBACK_CHANNELS : MitreTechniques = MitreTechniques::T1008;
-pub const TECHNIQUE_APPLICATION_WINDOW_DISCOVERY : MitreTechniques = MitreTechniques::T1010;
-pub const TECHNIQUE_EXFILTRATION_OVER_OTHER_NETWORK_MEDIUM : MitreTechniques = MitreTechniques::T1011;
-pub const TECHNIQUE_EXFILTRATION_OVER_BLUETOOTH : MitreTechniques = MitreTechniques::T1011_001;
-pub const TECHNIQUE_QUERY_REGISTRY : MitreTechniques = MitreTechniques::T1012;
-pub const TECHNIQUE_ROOTKIT : MitreTechniques = MitreTechniques::T1014;
-pub const TECHNIQUE_SYSTEM_NETWORK_CONFIGURATION_DISCOVERY : MitreTechniques = MitreTechniques::T1016;
-pub const TECHNIQUE_INTERNET_CONNECTION_DISCOVERY : MitreTechniques = MitreTechniques::T1016_001;
-pub const TECHNIQUE_REMOTE_SYSTEM_DISCOVERY : MitreTechniques = MitreTechniques::T1018;
-pub const TECHNIQUE_AUTOMATED_EXFILTRATION : MitreTechniques = MitreTechniques::T1020;
-pub const TECHNIQUE_TRAFFIC_DUPLICATION : MitreTechniques = MitreTechniques::T1020_001;
-pub const TECHNIQUE_REMOTE_SERVICES : MitreTechniques = MitreTechniques::T1021;
-pub const TECHNIQUE_REMOTE_DESKTOP_PROTOCOL : MitreTechniques = MitreTechniques::T1021_001;
-pub const TECHNIQUE_SMB_WINDOWS_ADMIN_SHARES : MitreTechniques = MitreTechniques::T1021_002;
-pub const TECHNIQUE_DISTRIBUTED_COMPONENT_OBJECT_MODEL : MitreTechniques = MitreTechniques::T1021_003;
-pub const TECHNIQUE_SSH : MitreTechniques = MitreTechniques::T1021_004;
-pub const TECHNIQUE_VNC : MitreTechniques = MitreTechniques::T1021_005;
-pub const TECHNIQUE_WINDOWS_REMOTE_MANAGEMENT : MitreTechniques = MitreTechniques::T1021_006;
-pub const TECHNIQUE_DATA_FROM_REMOVABLE_MEDIA : MitreTechniques = MitreTechniques::T1025;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION : MitreTechniques = MitreTechniques::T1027;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_BINARY_PADDING : MitreTechniques = MitreTechniques::T1027_001;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_SOFTWARE_PACKING : MitreTechniques = MitreTechniques::T1027_002;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_STEGANOGRAPHY : MitreTechniques = MitreTechniques::T1027_003;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_COMPILE_AFTER_DELIVERY : MitreTechniques = MitreTechniques::T1027_004;
-pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_INDICATOR_REMOVAL_FROM_TOOLS : MitreTechniques = MitreTechniques::T1027_005;
-pub const TECHNIQUE_SCHEDULED_TRANSFER : MitreTechniques = MitreTechniques::T1029;
-pub const TECHNIQUE_DATA_TRANSFER_SIZE_LIMITS : MitreTechniques = MitreTechniques::T1030;
-pub const TECHNIQUE_SYSTEM_OWNER_USER_DISCOVERY : MitreTechniques = MitreTechniques::T1033;
-pub const TECHNIQUE_MASQUERADING : MitreTechniques = MitreTechniques::T1036;
-pub const TECHNIQUE_MASQUERADING_INVALID_CODE_SIGNATURE : MitreTechniques = MitreTechniques::T1036_001;
-pub const TECHNIQUE_MASQUERADING_RIGHT_TO_LEFT_OVERRIDE : MitreTechniques = MitreTechniques::T1036_002;
-pub const TECHNIQUE_MASQUERADING_RENAME_SYSTEM_UTILITIES : MitreTechniques = MitreTechniques::T1036_003;
-pub const TECHNIQUE_MASQUERADING_MASQUERADE_TASK_OR_SERVICE : MitreTechniques = MitreTechniques::T1036_004;
-pub const TECHNIQUE_MASQUERADING_MATCH_LEGITIMATE_NAME_OR_LOCATION : MitreTechniques = MitreTechniques::T1036_005;
-pub const TECHNIQUE_MASQUERADING_SPACE_AFTER_FILENAME : MitreTechniques = MitreTechniques::T1036_006;
-pub const TECHNIQUE_BOOT_OR_LOGON_INITIALIZATION_SCRIPTS : MitreTechniques = MitreTechniques::T1037;
-pub const TECHNIQUE_LOGON_SCRIPT_WINDOWS : MitreTechniques = MitreTechniques::T1037_001;
-pub const TECHNIQUE_LOGON_SCRIPT_MAC : MitreTechniques = MitreTechniques::T1037_002;
-pub const TECHNIQUE_NETWORK_LOGON_SCRIPT : MitreTechniques = MitreTechniques::T1037_003;
-pub const TECHNIQUE_RC_SCRIPTS : MitreTechniques = MitreTechniques::T1037_004;
-pub const TECHNIQUE_STARTUP_ITEMS : MitreTechniques = MitreTechniques::T1037_005;
-pub const TECHNIQUE_DATA_FROM_NETWORK_SHARED_DRIVE : MitreTechniques = MitreTechniques::T1039;
-pub const TECHNIQUE_NETWORK_SNIFFING : MitreTechniques = MitreTechniques::T1040;
-pub const TECHNIQUE_EXFILTRATION_OVER_C2_CHANNEL : MitreTechniques = MitreTechniques::T1041;
-pub const TECHNIQUE_NETWORK_SERVICE_SCANNING : MitreTechniques = MitreTechniques::T1046;
-pub const TECHNIQUE_WINDOWS_MANAGEMENT_INSTRUMENTATION : MitreTechniques = MitreTechniques::T1047;
-pub const TECHNIQUE_EXFILTRATION_OVER_ALTERNATIVE_PROTOCOL : MitreTechniques = MitreTechniques::T1048;
-pub const TECHNIQUE_EXFILTRATION_OVER_SYMMETRIC_ENCRYPTED_NON_C2_PROTOCOL : MitreTechniques = MitreTechniques::T1048_001;
-pub const TECHNIQUE_EXFILTRATION_OVER_ASYMMETRIC_ENCRYPTED_NON_C2_PROTOCOL : MitreTechniques = MitreTechniques::T1048_002;
-pub const TECHNIQUE_EXFILTRATION_OVER_UNENCRYPTED_OBFUSCATED_NON_C2_PROTOCOL : MitreTechniques = MitreTechniques::T1048_003;
-pub const TECHNIQUE_SYSTEM_NETWORK_CONNECTIONS_DISCOVERY : MitreTechniques = MitreTechniques::T1049;
-pub const TECHNIQUE_EXFILTRATION_OVER_PHYSICAL_MEDIUM : MitreTechniques = MitreTechniques::T1052;
-pub const TECHNIQUE_EXFILTRATION_OVER_USB : MitreTechniques = MitreTechniques::T1052_001;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB : MitreTechniques = MitreTechniques::T1053;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_AT_LINUX : MitreTechniques = MitreTechniques::T1053_001;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_AT_WINDOWS : MitreTechniques = MitreTechniques::T1053_002;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_CRON : MitreTechniques = MitreTechniques::T1053_003;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_LAUNCHD : MitreTechniques = MitreTechniques::T1053_004;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_SCHEDULED_TASK : MitreTechniques = MitreTechniques::T1053_005;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_SYSTEMD_TIMERS : MitreTechniques = MitreTechniques::T1053_006;
-pub const TECHNIQUE_SCHEDULED_TASK_JOB_CONTAINER_ORCHESTRATION_JOB : MitreTechniques = MitreTechniques::T1053_007;
-pub const TECHNIQUE_PROCESS_INJECTION : MitreTechniques = MitreTechniques::T1055;
-pub const TECHNIQUE_PROCESS_INJECTION_DYNAMIC_LINK_LIBRARY_INJECTION : MitreTechniques = MitreTechniques::T1055_001;
-pub const TECHNIQUE_PROCESS_INJECTION_PORTABLE_EXECUTABLE_INJECTION : MitreTechniques = MitreTechniques::T1055_002;
-pub const TECHNIQUE_PROCESS_INJECTION_THREAD_EXECUTION_HIJACKING : MitreTechniques = MitreTechniques::T1055_003;
-pub const TECHNIQUE_PROCESS_INJECTION_ASYNCHRONOUS_PROCEDURE_CALL : MitreTechniques = MitreTechniques::T1055_004;
-pub const TECHNIQUE_PROCESS_INJECTION_THREAD_LOCAL_STORAGE : MitreTechniques = MitreTechniques::T1055_005;
-pub const TECHNIQUE_PROCESS_INJECTION_PTRACE_SYSTEM_CALLS : MitreTechniques = MitreTechniques::T1055_008;
-pub const TECHNIQUE_PROCESS_INJECTION_PROC_MEMORY : MitreTechniques = MitreTechniques::T1055_009;
-pub const TECHNIQUE_PROCESS_INJECTION_EXTRA_WINDOW_MEMORY_INJECTION : MitreTechniques = MitreTechniques::T1055_011;
-pub const TECHNIQUE_PROCESS_INJECTION_PROCESS_HOLLOWING : MitreTechniques = MitreTechniques::T1055_012;
-pub const TECHNIQUE_PROCESS_INJECTION_PROCESS_DOPPELGÄNGING : MitreTechniques = MitreTechniques::T1055_013;
-pub const TECHNIQUE_PROCESS_INJECTION_VDSO_HIJACKING : MitreTechniques = MitreTechniques::T1055_014;
-pub const TECHNIQUE_INPUT_CAPTURE : MitreTechniques = MitreTechniques::T1056;
-pub const TECHNIQUE_KEYLOGGING : MitreTechniques = MitreTechniques::T1056_001;
-pub const TECHNIQUE_GUI_INPUT_CAPTURE : MitreTechniques = MitreTechniques::T1056_002;
-pub const TECHNIQUE_WEB_PORTAL_CAPTURE : MitreTechniques = MitreTechniques::T1056_003;
-pub const TECHNIQUE_CREDENTIAL_API_HOOKING : MitreTechniques = MitreTechniques::T1056_004;
-pub const TECHNIQUE_PROCESS_DISCOVERY : MitreTechniques = MitreTechniques::T1057;
-pub const TECHNIQUE_COMMAND_AND_SCRIPTING_INTERPRETER : MitreTechniques = MitreTechniques::T1059;
-pub const TECHNIQUE_POWERSHELL : MitreTechniques = MitreTechniques::T1059_001;
-pub const TECHNIQUE_APPLESCRIPT : MitreTechniques = MitreTechniques::T1059_002;
-pub const TECHNIQUE_WINDOWS_COMMAND_SHELL : MitreTechniques = MitreTechniques::T1059_003;
-pub const TECHNIQUE_UNIX_SHELL : MitreTechniques = MitreTechniques::T1059_004;
-pub const TECHNIQUE_VISUAL_BASIC : MitreTechniques = MitreTechniques::T1059_005;
-pub const TECHNIQUE_PYTHON : MitreTechniques = MitreTechniques::T1059_006;
-pub const TECHNIQUE_JAVASCRIPT : MitreTechniques = MitreTechniques::T1059_007;
-pub const TECHNIQUE_NETWORK_DEVICE_CLI : MitreTechniques = MitreTechniques::T1059_008;
-pub const TECHNIQUE_EXPLOITATION_FOR_PRIVILEGE_ESCALATION : MitreTechniques = MitreTechniques::T1068;
-pub const TECHNIQUE_PERMISSION_GROUPS_DISCOVERY : MitreTechniques = MitreTechniques::T1069;
-pub const TECHNIQUE_LOCAL_GROUPS : MitreTechniques = MitreTechniques::T1069_001;
-pub const TECHNIQUE_DOMAIN_GROUPS : MitreTechniques = MitreTechniques::T1069_002;
-pub const TECHNIQUE_CLOUD_GROUPS : MitreTechniques = MitreTechniques::T1069_003;
-pub const TECHNIQUE_INDICATOR_REMOVAL_ON_HOST : MitreTechniques = MitreTechniques::T1070;
-pub const TECHNIQUE_CLEAR_WINDOWS_EVENT_LOGS : MitreTechniques = MitreTechniques::T1070_001;
-pub const TECHNIQUE_CLEAR_LINUX_OR_MAC_SYSTEM_LOGS : MitreTechniques = MitreTechniques::T1070_002;
-pub const TECHNIQUE_CLEAR_COMMAND_HISTORY : MitreTechniques = MitreTechniques::T1070_003;
-pub const TECHNIQUE_FILE_DELETION : MitreTechniques = MitreTechniques::T1070_004;
-pub const TECHNIQUE_NETWORK_SHARE_CONNECTION_REMOVAL : MitreTechniques = MitreTechniques::T1070_005;
-pub const TECHNIQUE_TIMESTOMP : MitreTechniques = MitreTechniques::T1070_006;
-pub const TECHNIQUE_APPLICATION_LAYER_PROTOCOL : MitreTechniques = MitreTechniques::T1071;
-pub const TECHNIQUE_WEB_PROTOCOLS : MitreTechniques = MitreTechniques::T1071_001;
-pub const TECHNIQUE_FILE_TRANSFER_PROTOCOLS : MitreTechniques = MitreTechniques::T1071_002;
-pub const TECHNIQUE_MAIL_PROTOCOLS : MitreTechniques = MitreTechniques::T1071_003;
-pub const TECHNIQUE_DNS : MitreTechniques = MitreTechniques::T1071_004;
-pub const TECHNIQUE_SOFTWARE_DEPLOYMENT_TOOLS : MitreTechniques = MitreTechniques::T1072;
-pub const TECHNIQUE_DATA_STAGED : MitreTechniques = MitreTechniques::T1074;
-pub const TECHNIQUE_LOCAL_DATA_STAGING : MitreTechniques = MitreTechniques::T1074_001;
-pub const TECHNIQUE_REMOTE_DATA_STAGING : MitreTechniques = MitreTechniques::T1074_002;
-pub const TECHNIQUE_VALID_ACCOUNTS : MitreTechniques = MitreTechniques::T1078;
-pub const TECHNIQUE_DEFAULT_ACCOUNTS : MitreTechniques = MitreTechniques::T1078_001;
-pub const TECHNIQUE_DOMAIN_ACCOUNTS : MitreTechniques = MitreTechniques::T1078_002;
-pub const TECHNIQUE_LOCAL_ACCOUNTS : MitreTechniques = MitreTechniques::T1078_003;
-pub const TECHNIQUE_CLOUD_ACCOUNTS : MitreTechniques = MitreTechniques::T1078_004;
-pub const TECHNIQUE_TAINT_SHARED_CONTENT : MitreTechniques = MitreTechniques::T1080;
-pub const TECHNIQUE_SYSTEM_INFORMATION_DISCOVERY : MitreTechniques = MitreTechniques::T1082;
-pub const TECHNIQUE_FILE_AND_DIRECTORY_DISCOVERY : MitreTechniques = MitreTechniques::T1083;
-pub const TECHNIQUE_ACCOUNT_DISCOVERY : MitreTechniques = MitreTechniques::T1087;
-pub const TECHNIQUE_LOCAL_ACCOUNT : MitreTechniques = MitreTechniques::T1087_001;
-pub const TECHNIQUE_DOMAIN_ACCOUNT : MitreTechniques = MitreTechniques::T1087_002;
-pub const TECHNIQUE_EMAIL_ACCOUNT : MitreTechniques = MitreTechniques::T1087_003;
-pub const TECHNIQUE_CLOUD_ACCOUNT : MitreTechniques = MitreTechniques::T1087_004;
-pub const TECHNIQUE_PROXY : MitreTechniques = MitreTechniques::T1090;
-pub const TECHNIQUE_INTERNAL_PROXY : MitreTechniques = MitreTechniques::T1090_001;
-pub const TECHNIQUE_EXTERNAL_PROXY : MitreTechniques = MitreTechniques::T1090_002;
-pub const TECHNIQUE_MULTI_HOP_PROXY : MitreTechniques = MitreTechniques::T1090_003;
-pub const TECHNIQUE_DOMAIN_FRONTING : MitreTechniques = MitreTechniques::T1090_004;
-pub const TECHNIQUE_REPLICATION_THROUGH_REMOVABLE_MEDIA : MitreTechniques = MitreTechniques::T1091;
-pub const TECHNIQUE_COMMUNICATION_THROUGH_REMOVABLE_MEDIA : MitreTechniques = MitreTechniques::T1092;
-pub const TECHNIQUE_NON_APPLICATION_LAYER_PROTOCOL : MitreTechniques = MitreTechniques::T1095;
-pub const TECHNIQUE_ACCOUNT_MANIPULATION : MitreTechniques = MitreTechniques::T1098;
-pub const TECHNIQUE_ADDITIONAL_CLOUD_CREDENTIALS : MitreTechniques = MitreTechniques::T1098_001;
-pub const TECHNIQUE_EXCHANGE_EMAIL_DELEGATE_PERMISSIONS : MitreTechniques = MitreTechniques::T1098_002;
-pub const TECHNIQUE_ADD_OFFICE_365_GLOBAL_ADMINISTRATOR_ROLE : MitreTechniques = MitreTechniques::T1098_003;
-pub const TECHNIQUE_SSH_AUTHORIZED_KEYS : MitreTechniques = MitreTechniques::T1098_004;
-pub const TECHNIQUE_WEB_SERVICE : MitreTechniques = MitreTechniques::T1102;
-pub const TECHNIQUE_DEAD_DROP_RESOLVER : MitreTechniques = MitreTechniques::T1102_001;
-pub const TECHNIQUE_BIDIRECTIONAL_COMMUNICATION : MitreTechniques = MitreTechniques::T1102_002;
-pub const TECHNIQUE_ONE_WAY_COMMUNICATION : MitreTechniques = MitreTechniques::T1102_003;
-pub const TECHNIQUE_MULTI_STAGE_CHANNELS : MitreTechniques = MitreTechniques::T1104;
-pub const TECHNIQUE_INGRESS_TOOL_TRANSFER : MitreTechniques = MitreTechniques::T1105;
-pub const TECHNIQUE_NATIVE_API : MitreTechniques = MitreTechniques::T1106;
-pub const TECHNIQUE_BRUTE_FORCE : MitreTechniques = MitreTechniques::T1110;
-pub const TECHNIQUE_PASSWORD_GUESSING : MitreTechniques = MitreTechniques::T1110_001;
-pub const TECHNIQUE_PASSWORD_CRACKING : MitreTechniques = MitreTechniques::T1110_002;
-pub const TECHNIQUE_PASSWORD_SPRAYING : MitreTechniques = MitreTechniques::T1110_003;
-pub const TECHNIQUE_CREDENTIAL_STUFFING : MitreTechniques = MitreTechniques::T1110_004;
-pub const TECHNIQUE_TWO_FACTOR_AUTHENTICATION_INTERCEPTION : MitreTechniques = MitreTechniques::T1111;
-pub const TECHNIQUE_MODIFY_REGISTRY : MitreTechniques = MitreTechniques::T1112;
-pub const TECHNIQUE_SCREEN_CAPTURE : MitreTechniques = MitreTechniques::T1113;
-pub const TECHNIQUE_EMAIL_COLLECTION : MitreTechniques = MitreTechniques::T1114;
-pub const TECHNIQUE_LOCAL_EMAIL_COLLECTION : MitreTechniques = MitreTechniques::T1114_001;
-pub const TECHNIQUE_REMOTE_EMAIL_COLLECTION : MitreTechniques = MitreTechniques::T1114_002;
-pub const TECHNIQUE_EMAIL_FORWARDING_RULE : MitreTechniques = MitreTechniques::T1114_003;
-pub const TECHNIQUE_CLIPBOARD_DATA : MitreTechniques = MitreTechniques::T1115;
-pub const TECHNIQUE_AUTOMATED_COLLECTION : MitreTechniques = MitreTechniques::T1119;
-pub const TECHNIQUE_PERIPHERAL_DEVICE_DISCOVERY : MitreTechniques = MitreTechniques::T1120;
-pub const TECHNIQUE_AUDIO_CAPTURE : MitreTechniques = MitreTechniques::T1123;
-pub const TECHNIQUE_SYSTEM_TIME_DISCOVERY : MitreTechniques = MitreTechniques::T1124;
-pub const TECHNIQUE_VIDEO_CAPTURE : MitreTechniques = MitreTechniques::T1125;
-pub const TECHNIQUE_TRUSTED_DEVELOPER_UTILITIES_PROXY_EXECUTION : MitreTechniques = MitreTechniques::T1127;
-pub const TECHNIQUE_MSBUILD : MitreTechniques = MitreTechniques::T1127_001;
-pub const TECHNIQUE_SHARED_MODULES : MitreTechniques = MitreTechniques::T1129;
-pub const TECHNIQUE_DATA_ENCODING : MitreTechniques = MitreTechniques::T1132;
-pub const TECHNIQUE_STANDARD_ENCODING : MitreTechniques = MitreTechniques::T1132_001;
-pub const TECHNIQUE_NON_STANDARD_ENCODING : MitreTechniques = MitreTechniques::T1132_002;
-pub const TECHNIQUE_EXTERNAL_REMOTE_SERVICES : MitreTechniques = MitreTechniques::T1133;
-pub const TECHNIQUE_ACCESS_TOKEN_MANIPULATION : MitreTechniques = MitreTechniques::T1134;
-pub const TECHNIQUE_TOKEN_IMPERSONATION_THEFT : MitreTechniques = MitreTechniques::T1134_001;
-pub const TECHNIQUE_CREATE_PROCESS_WITH_TOKEN : MitreTechniques = MitreTechniques::T1134_002;
-pub const TECHNIQUE_MAKE_AND_IMPERSONATE_TOKEN : MitreTechniques = MitreTechniques::T1134_003;
-pub const TECHNIQUE_PARENT_PID_SPOOFING : MitreTechniques = MitreTechniques::T1134_004;
-pub const TECHNIQUE_SID_HISTORY_INJECTION : MitreTechniques = MitreTechniques::T1134_005;
-pub const TECHNIQUE_NETWORK_SHARE_DISCOVERY : MitreTechniques = MitreTechniques::T1135;
-pub const TECHNIQUE_CREATE_ACCOUNT : MitreTechniques = MitreTechniques::T1136;
-pub const TECHNIQUE_CREATE_ACCOUNT_LOCAL_ACCOUNT : MitreTechniques = MitreTechniques::T1136_001;
-pub const TECHNIQUE_CREATE_ACCOUNT_DOMAIN_ACCOUNT : MitreTechniques = MitreTechniques::T1136_002;
-pub const TECHNIQUE_CREATE_ACCOUNT_CLOUD_ACCOUNT : MitreTechniques = MitreTechniques::T1136_003;
-pub const TECHNIQUE_OFFICE_APPLICATION_STARTUP : MitreTechniques = MitreTechniques::T1137;
-pub const TECHNIQUE_OFFICE_TEMPLATE_MACROS : MitreTechniques = MitreTechniques::T1137_001;
-pub const TECHNIQUE_OFFICE_TEST : MitreTechniques = MitreTechniques::T1137_002;
-pub const TECHNIQUE_OUTLOOK_FORMS : MitreTechniques = MitreTechniques::T1137_003;
-pub const TECHNIQUE_OUTLOOK_HOME_PAGE : MitreTechniques = MitreTechniques::T1137_004;
-pub const TECHNIQUE_OUTLOOK_RULES : MitreTechniques = MitreTechniques::T1137_005;
-pub const TECHNIQUE_ADD_INS : MitreTechniques = MitreTechniques::T1137_006;
-pub const TECHNIQUE_DEOBFUSCATE_DECODE_FILES_OR_INFORMATION : MitreTechniques = MitreTechniques::T1140;
-pub const TECHNIQUE_BROWSER_EXTENSIONS : MitreTechniques = MitreTechniques::T1176;
-pub const TECHNIQUE_MAN_IN_THE_BROWSER : MitreTechniques = MitreTechniques::T1185;
-pub const TECHNIQUE_FORCED_AUTHENTICATION : MitreTechniques = MitreTechniques::T1187;
-pub const TECHNIQUE_DRIVE_BY_COMPROMISE : MitreTechniques = MitreTechniques::T1189;
-pub const TECHNIQUE_EXPLOIT_PUBLIC_FACING_APPLICATION : MitreTechniques = MitreTechniques::T1190;
-pub const TECHNIQUE_SUPPLY_CHAIN_COMPROMISE : MitreTechniques = MitreTechniques::T1195;
-pub const TECHNIQUE_COMPROMISE_SOFTWARE_DEPENDENCIES_AND_DEVELOPMENT_TOOLS : MitreTechniques = MitreTechniques::T1195_001;
-pub const TECHNIQUE_COMPROMISE_SOFTWARE_SUPPLY_CHAIN : MitreTechniques = MitreTechniques::T1195_002;
-pub const TECHNIQUE_COMPROMISE_HARDWARE_SUPPLY_CHAIN : MitreTechniques = MitreTechniques::T1195_003;
-pub const TECHNIQUE_BITS_JOBS : MitreTechniques = MitreTechniques::T1197;
-pub const TECHNIQUE_TRUSTED_RELATIONSHIP : MitreTechniques = MitreTechniques::T1199;
-pub const TECHNIQUE_HARDWARE_ADDITIONS : MitreTechniques = MitreTechniques::T1200;
-pub const TECHNIQUE_PASSWORD_POLICY_DISCOVERY : MitreTechniques = MitreTechniques::T1201;
-pub const TECHNIQUE_INDIRECT_COMMAND_EXECUTION : MitreTechniques = MitreTechniques::T1202;
-pub const TECHNIQUE_EXPLOITATION_FOR_CLIENT_EXECUTION : MitreTechniques = MitreTechniques::T1203;
-pub const TECHNIQUE_USER_EXECUTION : MitreTechniques = MitreTechniques::T1204;
-pub const TECHNIQUE_MALICIOUS_LINK : MitreTechniques = MitreTechniques::T1204_001;
-pub const TECHNIQUE_MALICIOUS_FILE : MitreTechniques = MitreTechniques::T1204_002;
-pub const TECHNIQUE_MALICIOUS_IMAGE : MitreTechniques = MitreTechniques::T1204_003;
-pub const TECHNIQUE_TRAFFIC_SIGNALING : MitreTechniques = MitreTechniques::T1205;
-pub const TECHNIQUE_PORT_KNOCKING : MitreTechniques = MitreTechniques::T1205_001;
-pub const TECHNIQUE_ROGUE_DOMAIN_CONTROLLER : MitreTechniques = MitreTechniques::T1207;
-pub const TECHNIQUE_EXPLOITATION_OF_REMOTE_SERVICES : MitreTechniques = MitreTechniques::T1210;
-pub const TECHNIQUE_EXPLOITATION_FOR_DEFENSE_EVASION : MitreTechniques = MitreTechniques::T1211;
-pub const TECHNIQUE_EXPLOITATION_FOR_CREDENTIAL_ACCESS : MitreTechniques = MitreTechniques::T1212;
-pub const TECHNIQUE_DATA_FROM_INFORMATION_REPOSITORIES : MitreTechniques = MitreTechniques::T1213;
-pub const TECHNIQUE_CONFLUENCE : MitreTechniques = MitreTechniques::T1213_001;
-pub const TECHNIQUE_SHAREPOINT : MitreTechniques = MitreTechniques::T1213_002;
-pub const TECHNIQUE_SIGNED_SCRIPT_PROXY_EXECUTION : MitreTechniques = MitreTechniques::T1216;
-pub const TECHNIQUE_PUBPRN : MitreTechniques = MitreTechniques::T1216_001;
-pub const TECHNIQUE_BROWSER_BOOKMARK_DISCOVERY : MitreTechniques = MitreTechniques::T1217;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION : MitreTechniques = MitreTechniques::T1218;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_COMPILED_HTML_FILE : MitreTechniques = MitreTechniques::T1218_001;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_CONTROL_PANEL : MitreTechniques = MitreTechniques::T1218_002;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_CMSTP : MitreTechniques = MitreTechniques::T1218_003;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_INSTALLUTIL : MitreTechniques = MitreTechniques::T1218_004;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_MSHTA : MitreTechniques = MitreTechniques::T1218_005;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_MSIEXEC : MitreTechniques = MitreTechniques::T1218_007;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_ODBCCONF : MitreTechniques = MitreTechniques::T1218_008;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_REGSVCS_REGASM : MitreTechniques = MitreTechniques::T1218_009;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_REGSVR32 : MitreTechniques = MitreTechniques::T1218_010;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_RUNDLL32 : MitreTechniques = MitreTechniques::T1218_011;
-pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_VERCLSID : MitreTechniques = MitreTechniques::T1218_012;
-pub const TECHNIQUE_REMOTE_ACCESS_SOFTWARE : MitreTechniques = MitreTechniques::T1219;
-pub const TECHNIQUE_XSL_SCRIPT_PROCESSING : MitreTechniques = MitreTechniques::T1220;
-pub const TECHNIQUE_TEMPLATE_INJECTION : MitreTechniques = MitreTechniques::T1221;
-pub const TECHNIQUE_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION : MitreTechniques = MitreTechniques::T1222;
-pub const TECHNIQUE_WINDOWS_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION : MitreTechniques = MitreTechniques::T1222_001;
-pub const TECHNIQUE_LINUX_AND_MAC_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION : MitreTechniques = MitreTechniques::T1222_002;
-pub const TECHNIQUE_EXECUTION_GUARDRAILS : MitreTechniques = MitreTechniques::T1480;
-pub const TECHNIQUE_ENVIRONMENTAL_KEYING : MitreTechniques = MitreTechniques::T1480_001;
-pub const TECHNIQUE_DOMAIN_TRUST_DISCOVERY : MitreTechniques = MitreTechniques::T1482;
-pub const TECHNIQUE_DOMAIN_POLICY_MODIFICATION : MitreTechniques = MitreTechniques::T1484;
-pub const TECHNIQUE_GROUP_POLICY_MODIFICATION : MitreTechniques = MitreTechniques::T1484_001;
-pub const TECHNIQUE_DOMAIN_TRUST_MODIFICATION : MitreTechniques = MitreTechniques::T1484_002;
-pub const TECHNIQUE_DATA_DESTRUCTION : MitreTechniques = MitreTechniques::T1485;
-pub const TECHNIQUE_DATA_ENCRYPTED_FOR_IMPACT : MitreTechniques = MitreTechniques::T1486;
-pub const TECHNIQUE_SERVICE_STOP : MitreTechniques = MitreTechniques::T1489;
-pub const TECHNIQUE_INHIBIT_SYSTEM_RECOVERY : MitreTechniques = MitreTechniques::T1490;
-pub const TECHNIQUE_DEFACEMENT : MitreTechniques = MitreTechniques::T1491;
-pub const TECHNIQUE_INTERNAL_DEFACEMENT : MitreTechniques = MitreTechniques::T1491_001;
-pub const TECHNIQUE_EXTERNAL_DEFACEMENT : MitreTechniques = MitreTechniques::T1491_002;
-pub const TECHNIQUE_FIRMWARE_CORRUPTION : MitreTechniques = MitreTechniques::T1495;
-pub const TECHNIQUE_RESOURCE_HIJACKING : MitreTechniques = MitreTechniques::T1496;
-pub const TECHNIQUE_VIRTUALIZATION_SANDBOX_EVASION : MitreTechniques = MitreTechniques::T1497;
-pub const TECHNIQUE_SYSTEM_CHECKS : MitreTechniques = MitreTechniques::T1497_001;
-pub const TECHNIQUE_USER_ACTIVITY_BASED_CHECKS : MitreTechniques = MitreTechniques::T1497_002;
-pub const TECHNIQUE_TIME_BASED_EVASION : MitreTechniques = MitreTechniques::T1497_003;
-pub const TECHNIQUE_NETWORK_DENIAL_OF_SERVICE : MitreTechniques = MitreTechniques::T1498;
-pub const TECHNIQUE_DIRECT_NETWORK_FLOOD : MitreTechniques = MitreTechniques::T1498_001;
-pub const TECHNIQUE_REFLECTION_AMPLIFICATION : MitreTechniques = MitreTechniques::T1498_002;
-pub const TECHNIQUE_ENDPOINT_DENIAL_OF_SERVICE : MitreTechniques = MitreTechniques::T1499;
-pub const TECHNIQUE_OS_EXHAUSTION_FLOOD : MitreTechniques = MitreTechniques::T1499_001;
-pub const TECHNIQUE_SERVICE_EXHAUSTION_FLOOD : MitreTechniques = MitreTechniques::T1499_002;
-pub const TECHNIQUE_APPLICATION_EXHAUSTION_FLOOD : MitreTechniques = MitreTechniques::T1499_003;
-pub const TECHNIQUE_APPLICATION_OR_SYSTEM_EXPLOITATION : MitreTechniques = MitreTechniques::T1499_004;
-pub const TECHNIQUE_SERVER_SOFTWARE_COMPONENT : MitreTechniques = MitreTechniques::T1505;
-pub const TECHNIQUE_SQL_STORED_PROCEDURES : MitreTechniques = MitreTechniques::T1505_001;
-pub const TECHNIQUE_TRANSPORT_AGENT : MitreTechniques = MitreTechniques::T1505_002;
-pub const TECHNIQUE_WEB_SHELL : MitreTechniques = MitreTechniques::T1505_003;
-pub const TECHNIQUE_SOFTWARE_DISCOVERY : MitreTechniques = MitreTechniques::T1518;
-pub const TECHNIQUE_SECURITY_SOFTWARE_DISCOVERY : MitreTechniques = MitreTechniques::T1518_001;
-pub const TECHNIQUE_IMPLANT_INTERNAL_IMAGE : MitreTechniques = MitreTechniques::T1525;
-pub const TECHNIQUE_CLOUD_SERVICE_DISCOVERY : MitreTechniques = MitreTechniques::T1526;
-pub const TECHNIQUE_STEAL_APPLICATION_ACCESS_TOKEN : MitreTechniques = MitreTechniques::T1528;
-pub const TECHNIQUE_SYSTEM_SHUTDOWN_REBOOT : MitreTechniques = MitreTechniques::T1529;
-pub const TECHNIQUE_DATA_FROM_CLOUD_STORAGE_OBJECT : MitreTechniques = MitreTechniques::T1530;
-pub const TECHNIQUE_ACCOUNT_ACCESS_REMOVAL : MitreTechniques = MitreTechniques::T1531;
-pub const TECHNIQUE_INTERNAL_SPEARPHISHING : MitreTechniques = MitreTechniques::T1534;
-pub const TECHNIQUE_UNUSED_UNSUPPORTED_CLOUD_REGIONS : MitreTechniques = MitreTechniques::T1535;
-pub const TECHNIQUE_TRANSFER_DATA_TO_CLOUD_ACCOUNT : MitreTechniques = MitreTechniques::T1537;
-pub const TECHNIQUE_CLOUD_SERVICE_DASHBOARD : MitreTechniques = MitreTechniques::T1538;
-pub const TECHNIQUE_STEAL_WEB_SESSION_COOKIE : MitreTechniques = MitreTechniques::T1539;
-pub const TECHNIQUE_PRE_OS_BOOT : MitreTechniques = MitreTechniques::T1542;
-pub const TECHNIQUE_SYSTEM_FIRMWARE : MitreTechniques = MitreTechniques::T1542_001;
-pub const TECHNIQUE_COMPONENT_FIRMWARE : MitreTechniques = MitreTechniques::T1542_002;
-pub const TECHNIQUE_BOOTKIT : MitreTechniques = MitreTechniques::T1542_003;
-pub const TECHNIQUE_ROMMONKIT : MitreTechniques = MitreTechniques::T1542_004;
-pub const TECHNIQUE_TFTP_BOOT : MitreTechniques = MitreTechniques::T1542_005;
-pub const TECHNIQUE_CREATE_OR_MODIFY_SYSTEM_PROCESS : MitreTechniques = MitreTechniques::T1543;
-pub const TECHNIQUE_LAUNCH_AGENT : MitreTechniques = MitreTechniques::T1543_001;
-pub const TECHNIQUE_SYSTEMD_SERVICE : MitreTechniques = MitreTechniques::T1543_002;
-pub const TECHNIQUE_WINDOWS_SERVICE : MitreTechniques = MitreTechniques::T1543_003;
-pub const TECHNIQUE_LAUNCH_DAEMON : MitreTechniques = MitreTechniques::T1543_004;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION : MitreTechniques = MitreTechniques::T1546;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_CHANGE_DEFAULT_FILE_ASSOCIATION : MitreTechniques = MitreTechniques::T1546_001;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_SCREENSAVER : MitreTechniques = MitreTechniques::T1546_002;
+pub const TECHNIQUE_DATA_OBFUSCATION: MitreTechniques = MitreTechniques::T1001;
+pub const TECHNIQUE_DATA_OBFUSCATION_JUNK_DATA: MitreTechniques = MitreTechniques::T1001_001;
+pub const TECHNIQUE_DATA_OBFUSCATION_STEGANOGRAPHY: MitreTechniques = MitreTechniques::T1001_002;
+pub const TECHNIQUE_DATA_OBFUSCATION_PROTOCOL_IMPERSONATION: MitreTechniques =
+    MitreTechniques::T1001_003;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING: MitreTechniques = MitreTechniques::T1003;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_LSASS_MEMORY: MitreTechniques =
+    MitreTechniques::T1003_001;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_SECURITY_ACCOUNT_MANAGER: MitreTechniques =
+    MitreTechniques::T1003_002;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_NTDS: MitreTechniques = MitreTechniques::T1003_003;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_LSA_SECRETS: MitreTechniques = MitreTechniques::T1003_004;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_CACHED_DOMAIN_CREDENTIALS: MitreTechniques =
+    MitreTechniques::T1003_005;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_DCSYNC: MitreTechniques = MitreTechniques::T1003_006;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_PROC_FILESYSTEM: MitreTechniques =
+    MitreTechniques::T1003_007;
+pub const TECHNIQUE_OS_CREDENTIAL_DUMPING_PASSWD_AND_SHADOW: MitreTechniques =
+    MitreTechniques::T1003_008;
+pub const TECHNIQUE_DATA_FROM_LOCAL_SYSTEM: MitreTechniques = MitreTechniques::T1005;
+pub const TECHNIQUE_DIRECT_VOLUME_ACCESS: MitreTechniques = MitreTechniques::T1006;
+pub const TECHNIQUE_SYSTEM_SERVICE_DISCOVERY: MitreTechniques = MitreTechniques::T1007;
+pub const TECHNIQUE_FALLBACK_CHANNELS: MitreTechniques = MitreTechniques::T1008;
+pub const TECHNIQUE_APPLICATION_WINDOW_DISCOVERY: MitreTechniques = MitreTechniques::T1010;
+pub const TECHNIQUE_EXFILTRATION_OVER_OTHER_NETWORK_MEDIUM: MitreTechniques =
+    MitreTechniques::T1011;
+pub const TECHNIQUE_EXFILTRATION_OVER_BLUETOOTH: MitreTechniques = MitreTechniques::T1011_001;
+pub const TECHNIQUE_QUERY_REGISTRY: MitreTechniques = MitreTechniques::T1012;
+pub const TECHNIQUE_ROOTKIT: MitreTechniques = MitreTechniques::T1014;
+pub const TECHNIQUE_SYSTEM_NETWORK_CONFIGURATION_DISCOVERY: MitreTechniques =
+    MitreTechniques::T1016;
+pub const TECHNIQUE_INTERNET_CONNECTION_DISCOVERY: MitreTechniques = MitreTechniques::T1016_001;
+pub const TECHNIQUE_REMOTE_SYSTEM_DISCOVERY: MitreTechniques = MitreTechniques::T1018;
+pub const TECHNIQUE_AUTOMATED_EXFILTRATION: MitreTechniques = MitreTechniques::T1020;
+pub const TECHNIQUE_TRAFFIC_DUPLICATION: MitreTechniques = MitreTechniques::T1020_001;
+pub const TECHNIQUE_REMOTE_SERVICES: MitreTechniques = MitreTechniques::T1021;
+pub const TECHNIQUE_REMOTE_DESKTOP_PROTOCOL: MitreTechniques = MitreTechniques::T1021_001;
+pub const TECHNIQUE_SMB_WINDOWS_ADMIN_SHARES: MitreTechniques = MitreTechniques::T1021_002;
+pub const TECHNIQUE_DISTRIBUTED_COMPONENT_OBJECT_MODEL: MitreTechniques =
+    MitreTechniques::T1021_003;
+pub const TECHNIQUE_SSH: MitreTechniques = MitreTechniques::T1021_004;
+pub const TECHNIQUE_VNC: MitreTechniques = MitreTechniques::T1021_005;
+pub const TECHNIQUE_WINDOWS_REMOTE_MANAGEMENT: MitreTechniques = MitreTechniques::T1021_006;
+pub const TECHNIQUE_DATA_FROM_REMOVABLE_MEDIA: MitreTechniques = MitreTechniques::T1025;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION: MitreTechniques = MitreTechniques::T1027;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_BINARY_PADDING: MitreTechniques =
+    MitreTechniques::T1027_001;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_SOFTWARE_PACKING: MitreTechniques =
+    MitreTechniques::T1027_002;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_STEGANOGRAPHY: MitreTechniques =
+    MitreTechniques::T1027_003;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_COMPILE_AFTER_DELIVERY: MitreTechniques =
+    MitreTechniques::T1027_004;
+pub const TECHNIQUE_OBFUSCATED_FILES_OR_INFORMATION_INDICATOR_REMOVAL_FROM_TOOLS: MitreTechniques =
+    MitreTechniques::T1027_005;
+pub const TECHNIQUE_SCHEDULED_TRANSFER: MitreTechniques = MitreTechniques::T1029;
+pub const TECHNIQUE_DATA_TRANSFER_SIZE_LIMITS: MitreTechniques = MitreTechniques::T1030;
+pub const TECHNIQUE_SYSTEM_OWNER_USER_DISCOVERY: MitreTechniques = MitreTechniques::T1033;
+pub const TECHNIQUE_MASQUERADING: MitreTechniques = MitreTechniques::T1036;
+pub const TECHNIQUE_MASQUERADING_INVALID_CODE_SIGNATURE: MitreTechniques =
+    MitreTechniques::T1036_001;
+pub const TECHNIQUE_MASQUERADING_RIGHT_TO_LEFT_OVERRIDE: MitreTechniques =
+    MitreTechniques::T1036_002;
+pub const TECHNIQUE_MASQUERADING_RENAME_SYSTEM_UTILITIES: MitreTechniques =
+    MitreTechniques::T1036_003;
+pub const TECHNIQUE_MASQUERADING_MASQUERADE_TASK_OR_SERVICE: MitreTechniques =
+    MitreTechniques::T1036_004;
+pub const TECHNIQUE_MASQUERADING_MATCH_LEGITIMATE_NAME_OR_LOCATION: MitreTechniques =
+    MitreTechniques::T1036_005;
+pub const TECHNIQUE_MASQUERADING_SPACE_AFTER_FILENAME: MitreTechniques = MitreTechniques::T1036_006;
+pub const TECHNIQUE_BOOT_OR_LOGON_INITIALIZATION_SCRIPTS: MitreTechniques = MitreTechniques::T1037;
+pub const TECHNIQUE_LOGON_SCRIPT_WINDOWS: MitreTechniques = MitreTechniques::T1037_001;
+pub const TECHNIQUE_LOGON_SCRIPT_MAC: MitreTechniques = MitreTechniques::T1037_002;
+pub const TECHNIQUE_NETWORK_LOGON_SCRIPT: MitreTechniques = MitreTechniques::T1037_003;
+pub const TECHNIQUE_RC_SCRIPTS: MitreTechniques = MitreTechniques::T1037_004;
+pub const TECHNIQUE_STARTUP_ITEMS: MitreTechniques = MitreTechniques::T1037_005;
+pub const TECHNIQUE_DATA_FROM_NETWORK_SHARED_DRIVE: MitreTechniques = MitreTechniques::T1039;
+pub const TECHNIQUE_NETWORK_SNIFFING: MitreTechniques = MitreTechniques::T1040;
+pub const TECHNIQUE_EXFILTRATION_OVER_C2_CHANNEL: MitreTechniques = MitreTechniques::T1041;
+pub const TECHNIQUE_NETWORK_SERVICE_SCANNING: MitreTechniques = MitreTechniques::T1046;
+pub const TECHNIQUE_WINDOWS_MANAGEMENT_INSTRUMENTATION: MitreTechniques = MitreTechniques::T1047;
+pub const TECHNIQUE_EXFILTRATION_OVER_ALTERNATIVE_PROTOCOL: MitreTechniques =
+    MitreTechniques::T1048;
+pub const TECHNIQUE_EXFILTRATION_OVER_SYMMETRIC_ENCRYPTED_NON_C2_PROTOCOL: MitreTechniques =
+    MitreTechniques::T1048_001;
+pub const TECHNIQUE_EXFILTRATION_OVER_ASYMMETRIC_ENCRYPTED_NON_C2_PROTOCOL: MitreTechniques =
+    MitreTechniques::T1048_002;
+pub const TECHNIQUE_EXFILTRATION_OVER_UNENCRYPTED_OBFUSCATED_NON_C2_PROTOCOL: MitreTechniques =
+    MitreTechniques::T1048_003;
+pub const TECHNIQUE_SYSTEM_NETWORK_CONNECTIONS_DISCOVERY: MitreTechniques = MitreTechniques::T1049;
+pub const TECHNIQUE_EXFILTRATION_OVER_PHYSICAL_MEDIUM: MitreTechniques = MitreTechniques::T1052;
+pub const TECHNIQUE_EXFILTRATION_OVER_USB: MitreTechniques = MitreTechniques::T1052_001;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB: MitreTechniques = MitreTechniques::T1053;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_AT_LINUX: MitreTechniques = MitreTechniques::T1053_001;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_AT_WINDOWS: MitreTechniques = MitreTechniques::T1053_002;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_CRON: MitreTechniques = MitreTechniques::T1053_003;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_LAUNCHD: MitreTechniques = MitreTechniques::T1053_004;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_SCHEDULED_TASK: MitreTechniques = MitreTechniques::T1053_005;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_SYSTEMD_TIMERS: MitreTechniques = MitreTechniques::T1053_006;
+pub const TECHNIQUE_SCHEDULED_TASK_JOB_CONTAINER_ORCHESTRATION_JOB: MitreTechniques =
+    MitreTechniques::T1053_007;
+pub const TECHNIQUE_PROCESS_INJECTION: MitreTechniques = MitreTechniques::T1055;
+pub const TECHNIQUE_PROCESS_INJECTION_DYNAMIC_LINK_LIBRARY_INJECTION: MitreTechniques =
+    MitreTechniques::T1055_001;
+pub const TECHNIQUE_PROCESS_INJECTION_PORTABLE_EXECUTABLE_INJECTION: MitreTechniques =
+    MitreTechniques::T1055_002;
+pub const TECHNIQUE_PROCESS_INJECTION_THREAD_EXECUTION_HIJACKING: MitreTechniques =
+    MitreTechniques::T1055_003;
+pub const TECHNIQUE_PROCESS_INJECTION_ASYNCHRONOUS_PROCEDURE_CALL: MitreTechniques =
+    MitreTechniques::T1055_004;
+pub const TECHNIQUE_PROCESS_INJECTION_THREAD_LOCAL_STORAGE: MitreTechniques =
+    MitreTechniques::T1055_005;
+pub const TECHNIQUE_PROCESS_INJECTION_PTRACE_SYSTEM_CALLS: MitreTechniques =
+    MitreTechniques::T1055_008;
+pub const TECHNIQUE_PROCESS_INJECTION_PROC_MEMORY: MitreTechniques = MitreTechniques::T1055_009;
+pub const TECHNIQUE_PROCESS_INJECTION_EXTRA_WINDOW_MEMORY_INJECTION: MitreTechniques =
+    MitreTechniques::T1055_011;
+pub const TECHNIQUE_PROCESS_INJECTION_PROCESS_HOLLOWING: MitreTechniques =
+    MitreTechniques::T1055_012;
+pub const TECHNIQUE_PROCESS_INJECTION_PROCESS_DOPPELGÄNGING: MitreTechniques =
+    MitreTechniques::T1055_013;
+pub const TECHNIQUE_PROCESS_INJECTION_VDSO_HIJACKING: MitreTechniques = MitreTechniques::T1055_014;
+pub const TECHNIQUE_INPUT_CAPTURE: MitreTechniques = MitreTechniques::T1056;
+pub const TECHNIQUE_KEYLOGGING: MitreTechniques = MitreTechniques::T1056_001;
+pub const TECHNIQUE_GUI_INPUT_CAPTURE: MitreTechniques = MitreTechniques::T1056_002;
+pub const TECHNIQUE_WEB_PORTAL_CAPTURE: MitreTechniques = MitreTechniques::T1056_003;
+pub const TECHNIQUE_CREDENTIAL_API_HOOKING: MitreTechniques = MitreTechniques::T1056_004;
+pub const TECHNIQUE_PROCESS_DISCOVERY: MitreTechniques = MitreTechniques::T1057;
+pub const TECHNIQUE_COMMAND_AND_SCRIPTING_INTERPRETER: MitreTechniques = MitreTechniques::T1059;
+pub const TECHNIQUE_POWERSHELL: MitreTechniques = MitreTechniques::T1059_001;
+pub const TECHNIQUE_APPLESCRIPT: MitreTechniques = MitreTechniques::T1059_002;
+pub const TECHNIQUE_WINDOWS_COMMAND_SHELL: MitreTechniques = MitreTechniques::T1059_003;
+pub const TECHNIQUE_UNIX_SHELL: MitreTechniques = MitreTechniques::T1059_004;
+pub const TECHNIQUE_VISUAL_BASIC: MitreTechniques = MitreTechniques::T1059_005;
+pub const TECHNIQUE_PYTHON: MitreTechniques = MitreTechniques::T1059_006;
+pub const TECHNIQUE_JAVASCRIPT: MitreTechniques = MitreTechniques::T1059_007;
+pub const TECHNIQUE_NETWORK_DEVICE_CLI: MitreTechniques = MitreTechniques::T1059_008;
+pub const TECHNIQUE_EXPLOITATION_FOR_PRIVILEGE_ESCALATION: MitreTechniques = MitreTechniques::T1068;
+pub const TECHNIQUE_PERMISSION_GROUPS_DISCOVERY: MitreTechniques = MitreTechniques::T1069;
+pub const TECHNIQUE_LOCAL_GROUPS: MitreTechniques = MitreTechniques::T1069_001;
+pub const TECHNIQUE_DOMAIN_GROUPS: MitreTechniques = MitreTechniques::T1069_002;
+pub const TECHNIQUE_CLOUD_GROUPS: MitreTechniques = MitreTechniques::T1069_003;
+pub const TECHNIQUE_INDICATOR_REMOVAL_ON_HOST: MitreTechniques = MitreTechniques::T1070;
+pub const TECHNIQUE_CLEAR_WINDOWS_EVENT_LOGS: MitreTechniques = MitreTechniques::T1070_001;
+pub const TECHNIQUE_CLEAR_LINUX_OR_MAC_SYSTEM_LOGS: MitreTechniques = MitreTechniques::T1070_002;
+pub const TECHNIQUE_CLEAR_COMMAND_HISTORY: MitreTechniques = MitreTechniques::T1070_003;
+pub const TECHNIQUE_FILE_DELETION: MitreTechniques = MitreTechniques::T1070_004;
+pub const TECHNIQUE_NETWORK_SHARE_CONNECTION_REMOVAL: MitreTechniques = MitreTechniques::T1070_005;
+pub const TECHNIQUE_TIMESTOMP: MitreTechniques = MitreTechniques::T1070_006;
+pub const TECHNIQUE_APPLICATION_LAYER_PROTOCOL: MitreTechniques = MitreTechniques::T1071;
+pub const TECHNIQUE_WEB_PROTOCOLS: MitreTechniques = MitreTechniques::T1071_001;
+pub const TECHNIQUE_FILE_TRANSFER_PROTOCOLS: MitreTechniques = MitreTechniques::T1071_002;
+pub const TECHNIQUE_MAIL_PROTOCOLS: MitreTechniques = MitreTechniques::T1071_003;
+pub const TECHNIQUE_DNS: MitreTechniques = MitreTechniques::T1071_004;
+pub const TECHNIQUE_SOFTWARE_DEPLOYMENT_TOOLS: MitreTechniques = MitreTechniques::T1072;
+pub const TECHNIQUE_DATA_STAGED: MitreTechniques = MitreTechniques::T1074;
+pub const TECHNIQUE_LOCAL_DATA_STAGING: MitreTechniques = MitreTechniques::T1074_001;
+pub const TECHNIQUE_REMOTE_DATA_STAGING: MitreTechniques = MitreTechniques::T1074_002;
+pub const TECHNIQUE_VALID_ACCOUNTS: MitreTechniques = MitreTechniques::T1078;
+pub const TECHNIQUE_DEFAULT_ACCOUNTS: MitreTechniques = MitreTechniques::T1078_001;
+pub const TECHNIQUE_DOMAIN_ACCOUNTS: MitreTechniques = MitreTechniques::T1078_002;
+pub const TECHNIQUE_LOCAL_ACCOUNTS: MitreTechniques = MitreTechniques::T1078_003;
+pub const TECHNIQUE_CLOUD_ACCOUNTS: MitreTechniques = MitreTechniques::T1078_004;
+pub const TECHNIQUE_TAINT_SHARED_CONTENT: MitreTechniques = MitreTechniques::T1080;
+pub const TECHNIQUE_SYSTEM_INFORMATION_DISCOVERY: MitreTechniques = MitreTechniques::T1082;
+pub const TECHNIQUE_FILE_AND_DIRECTORY_DISCOVERY: MitreTechniques = MitreTechniques::T1083;
+pub const TECHNIQUE_ACCOUNT_DISCOVERY: MitreTechniques = MitreTechniques::T1087;
+pub const TECHNIQUE_LOCAL_ACCOUNT: MitreTechniques = MitreTechniques::T1087_001;
+pub const TECHNIQUE_DOMAIN_ACCOUNT: MitreTechniques = MitreTechniques::T1087_002;
+pub const TECHNIQUE_EMAIL_ACCOUNT: MitreTechniques = MitreTechniques::T1087_003;
+pub const TECHNIQUE_CLOUD_ACCOUNT: MitreTechniques = MitreTechniques::T1087_004;
+pub const TECHNIQUE_PROXY: MitreTechniques = MitreTechniques::T1090;
+pub const TECHNIQUE_INTERNAL_PROXY: MitreTechniques = MitreTechniques::T1090_001;
+pub const TECHNIQUE_EXTERNAL_PROXY: MitreTechniques = MitreTechniques::T1090_002;
+pub const TECHNIQUE_MULTI_HOP_PROXY: MitreTechniques = MitreTechniques::T1090_003;
+pub const TECHNIQUE_DOMAIN_FRONTING: MitreTechniques = MitreTechniques::T1090_004;
+pub const TECHNIQUE_REPLICATION_THROUGH_REMOVABLE_MEDIA: MitreTechniques = MitreTechniques::T1091;
+pub const TECHNIQUE_COMMUNICATION_THROUGH_REMOVABLE_MEDIA: MitreTechniques = MitreTechniques::T1092;
+pub const TECHNIQUE_NON_APPLICATION_LAYER_PROTOCOL: MitreTechniques = MitreTechniques::T1095;
+pub const TECHNIQUE_ACCOUNT_MANIPULATION: MitreTechniques = MitreTechniques::T1098;
+pub const TECHNIQUE_ADDITIONAL_CLOUD_CREDENTIALS: MitreTechniques = MitreTechniques::T1098_001;
+pub const TECHNIQUE_EXCHANGE_EMAIL_DELEGATE_PERMISSIONS: MitreTechniques =
+    MitreTechniques::T1098_002;
+pub const TECHNIQUE_ADD_OFFICE_365_GLOBAL_ADMINISTRATOR_ROLE: MitreTechniques =
+    MitreTechniques::T1098_003;
+pub const TECHNIQUE_SSH_AUTHORIZED_KEYS: MitreTechniques = MitreTechniques::T1098_004;
+pub const TECHNIQUE_WEB_SERVICE: MitreTechniques = MitreTechniques::T1102;
+pub const TECHNIQUE_DEAD_DROP_RESOLVER: MitreTechniques = MitreTechniques::T1102_001;
+pub const TECHNIQUE_BIDIRECTIONAL_COMMUNICATION: MitreTechniques = MitreTechniques::T1102_002;
+pub const TECHNIQUE_ONE_WAY_COMMUNICATION: MitreTechniques = MitreTechniques::T1102_003;
+pub const TECHNIQUE_MULTI_STAGE_CHANNELS: MitreTechniques = MitreTechniques::T1104;
+pub const TECHNIQUE_INGRESS_TOOL_TRANSFER: MitreTechniques = MitreTechniques::T1105;
+pub const TECHNIQUE_NATIVE_API: MitreTechniques = MitreTechniques::T1106;
+pub const TECHNIQUE_BRUTE_FORCE: MitreTechniques = MitreTechniques::T1110;
+pub const TECHNIQUE_PASSWORD_GUESSING: MitreTechniques = MitreTechniques::T1110_001;
+pub const TECHNIQUE_PASSWORD_CRACKING: MitreTechniques = MitreTechniques::T1110_002;
+pub const TECHNIQUE_PASSWORD_SPRAYING: MitreTechniques = MitreTechniques::T1110_003;
+pub const TECHNIQUE_CREDENTIAL_STUFFING: MitreTechniques = MitreTechniques::T1110_004;
+pub const TECHNIQUE_TWO_FACTOR_AUTHENTICATION_INTERCEPTION: MitreTechniques =
+    MitreTechniques::T1111;
+pub const TECHNIQUE_MODIFY_REGISTRY: MitreTechniques = MitreTechniques::T1112;
+pub const TECHNIQUE_SCREEN_CAPTURE: MitreTechniques = MitreTechniques::T1113;
+pub const TECHNIQUE_EMAIL_COLLECTION: MitreTechniques = MitreTechniques::T1114;
+pub const TECHNIQUE_LOCAL_EMAIL_COLLECTION: MitreTechniques = MitreTechniques::T1114_001;
+pub const TECHNIQUE_REMOTE_EMAIL_COLLECTION: MitreTechniques = MitreTechniques::T1114_002;
+pub const TECHNIQUE_EMAIL_FORWARDING_RULE: MitreTechniques = MitreTechniques::T1114_003;
+pub const TECHNIQUE_CLIPBOARD_DATA: MitreTechniques = MitreTechniques::T1115;
+pub const TECHNIQUE_AUTOMATED_COLLECTION: MitreTechniques = MitreTechniques::T1119;
+pub const TECHNIQUE_PERIPHERAL_DEVICE_DISCOVERY: MitreTechniques = MitreTechniques::T1120;
+pub const TECHNIQUE_AUDIO_CAPTURE: MitreTechniques = MitreTechniques::T1123;
+pub const TECHNIQUE_SYSTEM_TIME_DISCOVERY: MitreTechniques = MitreTechniques::T1124;
+pub const TECHNIQUE_VIDEO_CAPTURE: MitreTechniques = MitreTechniques::T1125;
+pub const TECHNIQUE_TRUSTED_DEVELOPER_UTILITIES_PROXY_EXECUTION: MitreTechniques =
+    MitreTechniques::T1127;
+pub const TECHNIQUE_MSBUILD: MitreTechniques = MitreTechniques::T1127_001;
+pub const TECHNIQUE_SHARED_MODULES: MitreTechniques = MitreTechniques::T1129;
+pub const TECHNIQUE_DATA_ENCODING: MitreTechniques = MitreTechniques::T1132;
+pub const TECHNIQUE_STANDARD_ENCODING: MitreTechniques = MitreTechniques::T1132_001;
+pub const TECHNIQUE_NON_STANDARD_ENCODING: MitreTechniques = MitreTechniques::T1132_002;
+pub const TECHNIQUE_EXTERNAL_REMOTE_SERVICES: MitreTechniques = MitreTechniques::T1133;
+pub const TECHNIQUE_ACCESS_TOKEN_MANIPULATION: MitreTechniques = MitreTechniques::T1134;
+pub const TECHNIQUE_TOKEN_IMPERSONATION_THEFT: MitreTechniques = MitreTechniques::T1134_001;
+pub const TECHNIQUE_CREATE_PROCESS_WITH_TOKEN: MitreTechniques = MitreTechniques::T1134_002;
+pub const TECHNIQUE_MAKE_AND_IMPERSONATE_TOKEN: MitreTechniques = MitreTechniques::T1134_003;
+pub const TECHNIQUE_PARENT_PID_SPOOFING: MitreTechniques = MitreTechniques::T1134_004;
+pub const TECHNIQUE_SID_HISTORY_INJECTION: MitreTechniques = MitreTechniques::T1134_005;
+pub const TECHNIQUE_NETWORK_SHARE_DISCOVERY: MitreTechniques = MitreTechniques::T1135;
+pub const TECHNIQUE_CREATE_ACCOUNT: MitreTechniques = MitreTechniques::T1136;
+pub const TECHNIQUE_CREATE_ACCOUNT_LOCAL_ACCOUNT: MitreTechniques = MitreTechniques::T1136_001;
+pub const TECHNIQUE_CREATE_ACCOUNT_DOMAIN_ACCOUNT: MitreTechniques = MitreTechniques::T1136_002;
+pub const TECHNIQUE_CREATE_ACCOUNT_CLOUD_ACCOUNT: MitreTechniques = MitreTechniques::T1136_003;
+pub const TECHNIQUE_OFFICE_APPLICATION_STARTUP: MitreTechniques = MitreTechniques::T1137;
+pub const TECHNIQUE_OFFICE_TEMPLATE_MACROS: MitreTechniques = MitreTechniques::T1137_001;
+pub const TECHNIQUE_OFFICE_TEST: MitreTechniques = MitreTechniques::T1137_002;
+pub const TECHNIQUE_OUTLOOK_FORMS: MitreTechniques = MitreTechniques::T1137_003;
+pub const TECHNIQUE_OUTLOOK_HOME_PAGE: MitreTechniques = MitreTechniques::T1137_004;
+pub const TECHNIQUE_OUTLOOK_RULES: MitreTechniques = MitreTechniques::T1137_005;
+pub const TECHNIQUE_ADD_INS: MitreTechniques = MitreTechniques::T1137_006;
+pub const TECHNIQUE_DEOBFUSCATE_DECODE_FILES_OR_INFORMATION: MitreTechniques =
+    MitreTechniques::T1140;
+pub const TECHNIQUE_BROWSER_EXTENSIONS: MitreTechniques = MitreTechniques::T1176;
+pub const TECHNIQUE_MAN_IN_THE_BROWSER: MitreTechniques = MitreTechniques::T1185;
+pub const TECHNIQUE_FORCED_AUTHENTICATION: MitreTechniques = MitreTechniques::T1187;
+pub const TECHNIQUE_DRIVE_BY_COMPROMISE: MitreTechniques = MitreTechniques::T1189;
+pub const TECHNIQUE_EXPLOIT_PUBLIC_FACING_APPLICATION: MitreTechniques = MitreTechniques::T1190;
+pub const TECHNIQUE_SUPPLY_CHAIN_COMPROMISE: MitreTechniques = MitreTechniques::T1195;
+pub const TECHNIQUE_COMPROMISE_SOFTWARE_DEPENDENCIES_AND_DEVELOPMENT_TOOLS: MitreTechniques =
+    MitreTechniques::T1195_001;
+pub const TECHNIQUE_COMPROMISE_SOFTWARE_SUPPLY_CHAIN: MitreTechniques = MitreTechniques::T1195_002;
+pub const TECHNIQUE_COMPROMISE_HARDWARE_SUPPLY_CHAIN: MitreTechniques = MitreTechniques::T1195_003;
+pub const TECHNIQUE_BITS_JOBS: MitreTechniques = MitreTechniques::T1197;
+pub const TECHNIQUE_TRUSTED_RELATIONSHIP: MitreTechniques = MitreTechniques::T1199;
+pub const TECHNIQUE_HARDWARE_ADDITIONS: MitreTechniques = MitreTechniques::T1200;
+pub const TECHNIQUE_PASSWORD_POLICY_DISCOVERY: MitreTechniques = MitreTechniques::T1201;
+pub const TECHNIQUE_INDIRECT_COMMAND_EXECUTION: MitreTechniques = MitreTechniques::T1202;
+pub const TECHNIQUE_EXPLOITATION_FOR_CLIENT_EXECUTION: MitreTechniques = MitreTechniques::T1203;
+pub const TECHNIQUE_USER_EXECUTION: MitreTechniques = MitreTechniques::T1204;
+pub const TECHNIQUE_MALICIOUS_LINK: MitreTechniques = MitreTechniques::T1204_001;
+pub const TECHNIQUE_MALICIOUS_FILE: MitreTechniques = MitreTechniques::T1204_002;
+pub const TECHNIQUE_MALICIOUS_IMAGE: MitreTechniques = MitreTechniques::T1204_003;
+pub const TECHNIQUE_TRAFFIC_SIGNALING: MitreTechniques = MitreTechniques::T1205;
+pub const TECHNIQUE_PORT_KNOCKING: MitreTechniques = MitreTechniques::T1205_001;
+pub const TECHNIQUE_ROGUE_DOMAIN_CONTROLLER: MitreTechniques = MitreTechniques::T1207;
+pub const TECHNIQUE_EXPLOITATION_OF_REMOTE_SERVICES: MitreTechniques = MitreTechniques::T1210;
+pub const TECHNIQUE_EXPLOITATION_FOR_DEFENSE_EVASION: MitreTechniques = MitreTechniques::T1211;
+pub const TECHNIQUE_EXPLOITATION_FOR_CREDENTIAL_ACCESS: MitreTechniques = MitreTechniques::T1212;
+pub const TECHNIQUE_DATA_FROM_INFORMATION_REPOSITORIES: MitreTechniques = MitreTechniques::T1213;
+pub const TECHNIQUE_CONFLUENCE: MitreTechniques = MitreTechniques::T1213_001;
+pub const TECHNIQUE_SHAREPOINT: MitreTechniques = MitreTechniques::T1213_002;
+pub const TECHNIQUE_SIGNED_SCRIPT_PROXY_EXECUTION: MitreTechniques = MitreTechniques::T1216;
+pub const TECHNIQUE_PUBPRN: MitreTechniques = MitreTechniques::T1216_001;
+pub const TECHNIQUE_BROWSER_BOOKMARK_DISCOVERY: MitreTechniques = MitreTechniques::T1217;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION: MitreTechniques = MitreTechniques::T1218;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_COMPILED_HTML_FILE: MitreTechniques =
+    MitreTechniques::T1218_001;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_CONTROL_PANEL: MitreTechniques =
+    MitreTechniques::T1218_002;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_CMSTP: MitreTechniques =
+    MitreTechniques::T1218_003;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_INSTALLUTIL: MitreTechniques =
+    MitreTechniques::T1218_004;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_MSHTA: MitreTechniques =
+    MitreTechniques::T1218_005;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_MSIEXEC: MitreTechniques =
+    MitreTechniques::T1218_007;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_ODBCCONF: MitreTechniques =
+    MitreTechniques::T1218_008;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_REGSVCS_REGASM: MitreTechniques =
+    MitreTechniques::T1218_009;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_REGSVR32: MitreTechniques =
+    MitreTechniques::T1218_010;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_RUNDLL32: MitreTechniques =
+    MitreTechniques::T1218_011;
+pub const TECHNIQUE_SIGNED_BINARY_PROXY_EXECUTION_VERCLSID: MitreTechniques =
+    MitreTechniques::T1218_012;
+pub const TECHNIQUE_REMOTE_ACCESS_SOFTWARE: MitreTechniques = MitreTechniques::T1219;
+pub const TECHNIQUE_XSL_SCRIPT_PROCESSING: MitreTechniques = MitreTechniques::T1220;
+pub const TECHNIQUE_TEMPLATE_INJECTION: MitreTechniques = MitreTechniques::T1221;
+pub const TECHNIQUE_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION: MitreTechniques =
+    MitreTechniques::T1222;
+pub const TECHNIQUE_WINDOWS_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION: MitreTechniques =
+    MitreTechniques::T1222_001;
+pub const TECHNIQUE_LINUX_AND_MAC_FILE_AND_DIRECTORY_PERMISSIONS_MODIFICATION: MitreTechniques =
+    MitreTechniques::T1222_002;
+pub const TECHNIQUE_EXECUTION_GUARDRAILS: MitreTechniques = MitreTechniques::T1480;
+pub const TECHNIQUE_ENVIRONMENTAL_KEYING: MitreTechniques = MitreTechniques::T1480_001;
+pub const TECHNIQUE_DOMAIN_TRUST_DISCOVERY: MitreTechniques = MitreTechniques::T1482;
+pub const TECHNIQUE_DOMAIN_POLICY_MODIFICATION: MitreTechniques = MitreTechniques::T1484;
+pub const TECHNIQUE_GROUP_POLICY_MODIFICATION: MitreTechniques = MitreTechniques::T1484_001;
+pub const TECHNIQUE_DOMAIN_TRUST_MODIFICATION: MitreTechniques = MitreTechniques::T1484_002;
+pub const TECHNIQUE_DATA_DESTRUCTION: MitreTechniques = MitreTechniques::T1485;
+pub const TECHNIQUE_DATA_ENCRYPTED_FOR_IMPACT: MitreTechniques = MitreTechniques::T1486;
+pub const TECHNIQUE_SERVICE_STOP: MitreTechniques = MitreTechniques::T1489;
+pub const TECHNIQUE_INHIBIT_SYSTEM_RECOVERY: MitreTechniques = MitreTechniques::T1490;
+pub const TECHNIQUE_DEFACEMENT: MitreTechniques = MitreTechniques::T1491;
+pub const TECHNIQUE_INTERNAL_DEFACEMENT: MitreTechniques = MitreTechniques::T1491_001;
+pub const TECHNIQUE_EXTERNAL_DEFACEMENT: MitreTechniques = MitreTechniques::T1491_002;
+pub const TECHNIQUE_FIRMWARE_CORRUPTION: MitreTechniques = MitreTechniques::T1495;
+pub const TECHNIQUE_RESOURCE_HIJACKING: MitreTechniques = MitreTechniques::T1496;
+pub const TECHNIQUE_VIRTUALIZATION_SANDBOX_EVASION: MitreTechniques = MitreTechniques::T1497;
+pub const TECHNIQUE_SYSTEM_CHECKS: MitreTechniques = MitreTechniques::T1497_001;
+pub const TECHNIQUE_USER_ACTIVITY_BASED_CHECKS: MitreTechniques = MitreTechniques::T1497_002;
+pub const TECHNIQUE_TIME_BASED_EVASION: MitreTechniques = MitreTechniques::T1497_003;
+pub const TECHNIQUE_NETWORK_DENIAL_OF_SERVICE: MitreTechniques = MitreTechniques::T1498;
+pub const TECHNIQUE_DIRECT_NETWORK_FLOOD: MitreTechniques = MitreTechniques::T1498_001;
+pub const TECHNIQUE_REFLECTION_AMPLIFICATION: MitreTechniques = MitreTechniques::T1498_002;
+pub const TECHNIQUE_ENDPOINT_DENIAL_OF_SERVICE: MitreTechniques = MitreTechniques::T1499;
+pub const TECHNIQUE_OS_EXHAUSTION_FLOOD: MitreTechniques = MitreTechniques::T1499_001;
+pub const TECHNIQUE_SERVICE_EXHAUSTION_FLOOD: MitreTechniques = MitreTechniques::T1499_002;
+pub const TECHNIQUE_APPLICATION_EXHAUSTION_FLOOD: MitreTechniques = MitreTechniques::T1499_003;
+pub const TECHNIQUE_APPLICATION_OR_SYSTEM_EXPLOITATION: MitreTechniques =
+    MitreTechniques::T1499_004;
+pub const TECHNIQUE_SERVER_SOFTWARE_COMPONENT: MitreTechniques = MitreTechniques::T1505;
+pub const TECHNIQUE_SQL_STORED_PROCEDURES: MitreTechniques = MitreTechniques::T1505_001;
+pub const TECHNIQUE_TRANSPORT_AGENT: MitreTechniques = MitreTechniques::T1505_002;
+pub const TECHNIQUE_WEB_SHELL: MitreTechniques = MitreTechniques::T1505_003;
+pub const TECHNIQUE_SOFTWARE_DISCOVERY: MitreTechniques = MitreTechniques::T1518;
+pub const TECHNIQUE_SECURITY_SOFTWARE_DISCOVERY: MitreTechniques = MitreTechniques::T1518_001;
+pub const TECHNIQUE_IMPLANT_INTERNAL_IMAGE: MitreTechniques = MitreTechniques::T1525;
+pub const TECHNIQUE_CLOUD_SERVICE_DISCOVERY: MitreTechniques = MitreTechniques::T1526;
+pub const TECHNIQUE_STEAL_APPLICATION_ACCESS_TOKEN: MitreTechniques = MitreTechniques::T1528;
+pub const TECHNIQUE_SYSTEM_SHUTDOWN_REBOOT: MitreTechniques = MitreTechniques::T1529;
+pub const TECHNIQUE_DATA_FROM_CLOUD_STORAGE_OBJECT: MitreTechniques = MitreTechniques::T1530;
+pub const TECHNIQUE_ACCOUNT_ACCESS_REMOVAL: MitreTechniques = MitreTechniques::T1531;
+pub const TECHNIQUE_INTERNAL_SPEARPHISHING: MitreTechniques = MitreTechniques::T1534;
+pub const TECHNIQUE_UNUSED_UNSUPPORTED_CLOUD_REGIONS: MitreTechniques = MitreTechniques::T1535;
+pub const TECHNIQUE_TRANSFER_DATA_TO_CLOUD_ACCOUNT: MitreTechniques = MitreTechniques::T1537;
+pub const TECHNIQUE_CLOUD_SERVICE_DASHBOARD: MitreTechniques = MitreTechniques::T1538;
+pub const TECHNIQUE_STEAL_WEB_SESSION_COOKIE: MitreTechniques = MitreTechniques::T1539;
+pub const TECHNIQUE_PRE_OS_BOOT: MitreTechniques = MitreTechniques::T1542;
+pub const TECHNIQUE_SYSTEM_FIRMWARE: MitreTechniques = MitreTechniques::T1542_001;
+pub const TECHNIQUE_COMPONENT_FIRMWARE: MitreTechniques = MitreTechniques::T1542_002;
+pub const TECHNIQUE_BOOTKIT: MitreTechniques = MitreTechniques::T1542_003;
+pub const TECHNIQUE_ROMMONKIT: MitreTechniques = MitreTechniques::T1542_004;
+pub const TECHNIQUE_TFTP_BOOT: MitreTechniques = MitreTechniques::T1542_005;
+pub const TECHNIQUE_CREATE_OR_MODIFY_SYSTEM_PROCESS: MitreTechniques = MitreTechniques::T1543;
+pub const TECHNIQUE_LAUNCH_AGENT: MitreTechniques = MitreTechniques::T1543_001;
+pub const TECHNIQUE_SYSTEMD_SERVICE: MitreTechniques = MitreTechniques::T1543_002;
+pub const TECHNIQUE_WINDOWS_SERVICE: MitreTechniques = MitreTechniques::T1543_003;
+pub const TECHNIQUE_LAUNCH_DAEMON: MitreTechniques = MitreTechniques::T1543_004;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION: MitreTechniques = MitreTechniques::T1546;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_CHANGE_DEFAULT_FILE_ASSOCIATION: MitreTechniques =
+    MitreTechniques::T1546_001;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_SCREENSAVER: MitreTechniques =
+    MitreTechniques::T1546_002;
 pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_WINDOWS_MANAGEMENT_INSTRUMENTATION_EVENT_SUBSCRIPTION : MitreTechniques = MitreTechniques::T1546_003;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_UNIX_SHELL_CONFIGURATION_MODIFICATION : MitreTechniques = MitreTechniques::T1546_004;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_TRAP : MitreTechniques = MitreTechniques::T1546_005;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_LC_LOAD_DYLIB_ADDITION : MitreTechniques = MitreTechniques::T1546_006;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_NETSH_HELPER_DLL : MitreTechniques = MitreTechniques::T1546_007;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_ACCESSIBILITY_FEATURES : MitreTechniques = MitreTechniques::T1546_008;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPCERT_DLLS : MitreTechniques = MitreTechniques::T1546_009;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPINIT_DLLS : MitreTechniques = MitreTechniques::T1546_010;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPLICATION_SHIMMING : MitreTechniques = MitreTechniques::T1546_011;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_IMAGE_FILE_EXECUTION_OPTIONS_INJECTION : MitreTechniques = MitreTechniques::T1546_012;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_POWERSHELL_PROFILE : MitreTechniques = MitreTechniques::T1546_013;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_EMOND : MitreTechniques = MitreTechniques::T1546_014;
-pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_COMPONENT_OBJECT_MODEL_HIJACKING : MitreTechniques = MitreTechniques::T1546_015;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION : MitreTechniques = MitreTechniques::T1547;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_REGISTRY_RUN_KEYS_STARTUP_FOLDER : MitreTechniques = MitreTechniques::T1547_001;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_AUTHENTICATION_PACKAGE : MitreTechniques = MitreTechniques::T1547_002;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_TIME_PROVIDERS : MitreTechniques = MitreTechniques::T1547_003;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_WINLOGON_HELPER_DLL : MitreTechniques = MitreTechniques::T1547_004;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_SECURITY_SUPPORT_PROVIDER : MitreTechniques = MitreTechniques::T1547_005;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_KERNEL_MODULES_AND_EXTENSIONS : MitreTechniques = MitreTechniques::T1547_006;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_RE_OPENED_APPLICATIONS : MitreTechniques = MitreTechniques::T1547_007;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_LSASS_DRIVER : MitreTechniques = MitreTechniques::T1547_008;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_SHORTCUT_MODIFICATION : MitreTechniques = MitreTechniques::T1547_009;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PORT_MONITORS : MitreTechniques = MitreTechniques::T1547_010;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PLIST_MODIFICATION : MitreTechniques = MitreTechniques::T1547_011;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PRINT_PROCESSORS : MitreTechniques = MitreTechniques::T1547_012;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_XDG_AUTOSTART_ENTRIES : MitreTechniques = MitreTechniques::T1547_013;
-pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_ACTIVE_SETUP : MitreTechniques = MitreTechniques::T1547_014;
-pub const TECHNIQUE_ABUSE_ELEVATION_CONTROL_MECHANISM : MitreTechniques = MitreTechniques::T1548;
-pub const TECHNIQUE_SETUID_AND_SETGID : MitreTechniques = MitreTechniques::T1548_001;
-pub const TECHNIQUE_BYPASS_USER_ACCOUNT_CONTROL : MitreTechniques = MitreTechniques::T1548_002;
-pub const TECHNIQUE_SUDO_AND_SUDO_CACHING : MitreTechniques = MitreTechniques::T1548_003;
-pub const TECHNIQUE_ELEVATED_EXECUTION_WITH_PROMPT : MitreTechniques = MitreTechniques::T1548_004;
-pub const TECHNIQUE_USE_ALTERNATE_AUTHENTICATION_MATERIAL : MitreTechniques = MitreTechniques::T1550;
-pub const TECHNIQUE_APPLICATION_ACCESS_TOKEN : MitreTechniques = MitreTechniques::T1550_001;
-pub const TECHNIQUE_PASS_THE_HASH : MitreTechniques = MitreTechniques::T1550_002;
-pub const TECHNIQUE_PASS_THE_TICKET : MitreTechniques = MitreTechniques::T1550_003;
-pub const TECHNIQUE_WEB_SESSION_COOKIE : MitreTechniques = MitreTechniques::T1550_004;
-pub const TECHNIQUE_UNSECURED_CREDENTIALS : MitreTechniques = MitreTechniques::T1552;
-pub const TECHNIQUE_CREDENTIALS_IN_FILES : MitreTechniques = MitreTechniques::T1552_001;
-pub const TECHNIQUE_CREDENTIALS_IN_REGISTRY : MitreTechniques = MitreTechniques::T1552_002;
-pub const TECHNIQUE_BASH_HISTORY : MitreTechniques = MitreTechniques::T1552_003;
-pub const TECHNIQUE_PRIVATE_KEYS : MitreTechniques = MitreTechniques::T1552_004;
-pub const TECHNIQUE_CLOUD_INSTANCE_METADATA_API : MitreTechniques = MitreTechniques::T1552_005;
-pub const TECHNIQUE_GROUP_POLICY_PREFERENCES : MitreTechniques = MitreTechniques::T1552_006;
-pub const TECHNIQUE_CONTAINER_API : MitreTechniques = MitreTechniques::T1552_007;
-pub const TECHNIQUE_SUBVERT_TRUST_CONTROLS : MitreTechniques = MitreTechniques::T1553;
-pub const TECHNIQUE_GATEKEEPER_BYPASS : MitreTechniques = MitreTechniques::T1553_001;
-pub const TECHNIQUE_CODE_SIGNING : MitreTechniques = MitreTechniques::T1553_002;
-pub const TECHNIQUE_SIP_AND_TRUST_PROVIDER_HIJACKING : MitreTechniques = MitreTechniques::T1553_003;
-pub const TECHNIQUE_INSTALL_ROOT_CERTIFICATE : MitreTechniques = MitreTechniques::T1553_004;
-pub const TECHNIQUE_MARK_OF_THE_WEB_BYPASS : MitreTechniques = MitreTechniques::T1553_005;
-pub const TECHNIQUE_CODE_SIGNING_POLICY_MODIFICATION : MitreTechniques = MitreTechniques::T1553_006;
-pub const TECHNIQUE_COMPROMISE_CLIENT_SOFTWARE_BINARY : MitreTechniques = MitreTechniques::T1554;
-pub const TECHNIQUE_CREDENTIALS_FROM_PASSWORD_STORES : MitreTechniques = MitreTechniques::T1555;
-pub const TECHNIQUE_KEYCHAIN : MitreTechniques = MitreTechniques::T1555_001;
-pub const TECHNIQUE_SECURITYD_MEMORY : MitreTechniques = MitreTechniques::T1555_002;
-pub const TECHNIQUE_CREDENTIALS_FROM_WEB_BROWSERS : MitreTechniques = MitreTechniques::T1555_003;
-pub const TECHNIQUE_WINDOWS_CREDENTIAL_MANAGER : MitreTechniques = MitreTechniques::T1555_004;
-pub const TECHNIQUE_PASSWORD_MANAGERS : MitreTechniques = MitreTechniques::T1555_005;
-pub const TECHNIQUE_MODIFY_AUTHENTICATION_PROCESS : MitreTechniques = MitreTechniques::T1556;
-pub const TECHNIQUE_DOMAIN_CONTROLLER_AUTHENTICATION : MitreTechniques = MitreTechniques::T1556_001;
-pub const TECHNIQUE_PASSWORD_FILTER_DLL : MitreTechniques = MitreTechniques::T1556_002;
-pub const TECHNIQUE_PLUGGABLE_AUTHENTICATION_MODULES : MitreTechniques = MitreTechniques::T1556_003;
-pub const TECHNIQUE_NETWORK_DEVICE_AUTHENTICATION : MitreTechniques = MitreTechniques::T1556_004;
-pub const TECHNIQUE_MAN_IN_THE_MIDDLE : MitreTechniques = MitreTechniques::T1557;
-pub const TECHNIQUE_LLMNR_NBT_NS_POISONING_AND_SMB_RELAY : MitreTechniques = MitreTechniques::T1557_001;
-pub const TECHNIQUE_ARP_CACHE_POISONING : MitreTechniques = MitreTechniques::T1557_002;
-pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS : MitreTechniques = MitreTechniques::T1558;
-pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_GOLDEN_TICKET : MitreTechniques = MitreTechniques::T1558_001;
-pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_SILVER_TICKET : MitreTechniques = MitreTechniques::T1558_002;
-pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_KERBEROASTING : MitreTechniques = MitreTechniques::T1558_003;
-pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_AS_REP_ROASTING : MitreTechniques = MitreTechniques::T1558_004;
-pub const TECHNIQUE_INTER_PROCESS_COMMUNICATION : MitreTechniques = MitreTechniques::T1559;
-pub const TECHNIQUE_COMPONENT_OBJECT_MODEL : MitreTechniques = MitreTechniques::T1559_001;
-pub const TECHNIQUE_DYNAMIC_DATA_EXCHANGE : MitreTechniques = MitreTechniques::T1559_002;
-pub const TECHNIQUE_ARCHIVE_COLLECTED_DATA : MitreTechniques = MitreTechniques::T1560;
-pub const TECHNIQUE_ARCHIVE_VIA_UTILITY : MitreTechniques = MitreTechniques::T1560_001;
-pub const TECHNIQUE_ARCHIVE_VIA_LIBRARY : MitreTechniques = MitreTechniques::T1560_002;
-pub const TECHNIQUE_ARCHIVE_VIA_CUSTOM_METHOD : MitreTechniques = MitreTechniques::T1560_003;
-pub const TECHNIQUE_DISK_WIPE : MitreTechniques = MitreTechniques::T1561;
-pub const TECHNIQUE_DISK_CONTENT_WIPE : MitreTechniques = MitreTechniques::T1561_001;
-pub const TECHNIQUE_DISK_STRUCTURE_WIPE : MitreTechniques = MitreTechniques::T1561_002;
-pub const TECHNIQUE_IMPAIR_DEFENSES : MitreTechniques = MitreTechniques::T1562;
-pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_TOOLS : MitreTechniques = MitreTechniques::T1562_001;
-pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_WINDOWS_EVENT_LOGGING : MitreTechniques = MitreTechniques::T1562_002;
-pub const TECHNIQUE_IMPAIR_DEFENSES_IMPAIR_COMMAND_HISTORY_LOGGING : MitreTechniques = MitreTechniques::T1562_003;
-pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_SYSTEM_FIREWALL : MitreTechniques = MitreTechniques::T1562_004;
-pub const TECHNIQUE_IMPAIR_DEFENSES_INDICATOR_BLOCKING : MitreTechniques = MitreTechniques::T1562_006;
-pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_CLOUD_FIREWALL : MitreTechniques = MitreTechniques::T1562_007;
-pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_CLOUD_LOGS : MitreTechniques = MitreTechniques::T1562_008;
-pub const TECHNIQUE_REMOTE_SERVICE_SESSION_HIJACKING : MitreTechniques = MitreTechniques::T1563;
-pub const TECHNIQUE_SSH_HIJACKING : MitreTechniques = MitreTechniques::T1563_001;
-pub const TECHNIQUE_RDP_HIJACKING : MitreTechniques = MitreTechniques::T1563_002;
-pub const TECHNIQUE_HIDE_ARTIFACTS : MitreTechniques = MitreTechniques::T1564;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES : MitreTechniques = MitreTechniques::T1564_001;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_USERS : MitreTechniques = MitreTechniques::T1564_002;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_WINDOW : MitreTechniques = MitreTechniques::T1564_003;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_NTFS_FILE_ATRIBUTES : MitreTechniques = MitreTechniques::T1564_004;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_FILE_SYSTEM : MitreTechniques = MitreTechniques::T1564_005;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_RUN_VIRTUAL_INSTANCE : MitreTechniques = MitreTechniques::T1564_006;
-pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_VBA_STOMPING : MitreTechniques = MitreTechniques::T1564_007;
-pub const TECHNIQUE_DATA_MANIPULATION : MitreTechniques = MitreTechniques::T1565;
-pub const TECHNIQUE_STORED_DATA_MANIPULATION : MitreTechniques = MitreTechniques::T1565_001;
-pub const TECHNIQUE_TRANSMITED_DATA_MANIPULATION : MitreTechniques = MitreTechniques::T1565_002;
-pub const TECHNIQUE_RUNTIME_DATA_MANIPULATION : MitreTechniques = MitreTechniques::T1565_003;
-pub const TECHNIQUE_PHISHING : MitreTechniques = MitreTechniques::T1566;
-pub const TECHNIQUE_SPEARPHISHING_ATACHMENT : MitreTechniques = MitreTechniques::T1566_001;
-pub const TECHNIQUE_SPEARPHISHING_LINK : MitreTechniques = MitreTechniques::T1566_002;
-pub const TECHNIQUE_SPEARPHISHING_VIA_SERVICE : MitreTechniques = MitreTechniques::T1566_003;
-pub const TECHNIQUE_EXFILTRATION_OVER_WEB_SERVICE : MitreTechniques = MitreTechniques::T1567;
-pub const TECHNIQUE_EXFILTRATION_TO_CODE_REPOSITORY : MitreTechniques = MitreTechniques::T1567_001;
-pub const TECHNIQUE_EXFILTRATION_TO_CLOUD_STORAGE : MitreTechniques = MitreTechniques::T1567_002;
-pub const TECHNIQUE_DYNAMIC_RESOLUTION : MitreTechniques = MitreTechniques::T1568;
-pub const TECHNIQUE_FAST_FLUX_DNS : MitreTechniques = MitreTechniques::T1568_001;
-pub const TECHNIQUE_DOMAIN_GENERATION_ALGORITHMS : MitreTechniques = MitreTechniques::T1568_002;
-pub const TECHNIQUE_DNS_CALCULATION : MitreTechniques = MitreTechniques::T1568_003;
-pub const TECHNIQUE_SYSTEM_SERVICES : MitreTechniques = MitreTechniques::T1569;
-pub const TECHNIQUE_LAUNCHCTL : MitreTechniques = MitreTechniques::T1569_001;
-pub const TECHNIQUE_SERVICE_EXECUTION : MitreTechniques = MitreTechniques::T1569_002;
-pub const TECHNIQUE_LATERAL_TOOL_TRANSFER : MitreTechniques = MitreTechniques::T1570;
-pub const TECHNIQUE_NON_STANDARD_PORT : MitreTechniques = MitreTechniques::T1571;
-pub const TECHNIQUE_PROTOCOL_TUNNELING : MitreTechniques = MitreTechniques::T1572;
-pub const TECHNIQUE_ENCRYPTED_CHANNEL : MitreTechniques = MitreTechniques::T1573;
-pub const TECHNIQUE_SYMMETRIC_CRYPTOGRAPHY : MitreTechniques = MitreTechniques::T1573_001;
-pub const TECHNIQUE_ASYMMETRIC_CRYPTOGRAPHY : MitreTechniques = MitreTechniques::T1573_002;
-pub const TECHNIQUE_HIJACK_EXECUTION_FLOW : MitreTechniques = MitreTechniques::T1574;
-pub const TECHNIQUE_DLL_SEARCH_ORDER_HIJACKING : MitreTechniques = MitreTechniques::T1574_001;
-pub const TECHNIQUE_DLL_SIDE_LOADING : MitreTechniques = MitreTechniques::T1574_002;
-pub const TECHNIQUE_DYLIB_HIJACKING : MitreTechniques = MitreTechniques::T1574_004;
-pub const TECHNIQUE_EXECUTABLE_INSTALLER_FILE_PERMISSIONS_WEAKNESS : MitreTechniques = MitreTechniques::T1574_005;
-pub const TECHNIQUE_DYNAMIC_LINKER_HIJACKING : MitreTechniques = MitreTechniques::T1574_006;
-pub const TECHNIQUE_PATH_INTERCEPTION_BY_PATH_ENVIRONMENT_VARIABLE : MitreTechniques = MitreTechniques::T1574_007;
-pub const TECHNIQUE_PATH_INTERCEPTION_BY_SEARCH_ORDER_HIJACKING : MitreTechniques = MitreTechniques::T1574_008;
-pub const TECHNIQUE_PATH_INTERCEPTION_BY_UNQUOTED_PATH : MitreTechniques = MitreTechniques::T1574_009;
-pub const TECHNIQUE_SERVICES_FILE_PERMISSIONS_WEAKNESS : MitreTechniques = MitreTechniques::T1574_010;
-pub const TECHNIQUE_SERVICES_REGISTRY_PERMISSIONS_WEAKNESS : MitreTechniques = MitreTechniques::T1574_011;
-pub const TECHNIQUE_COR_PROFILER : MitreTechniques = MitreTechniques::T1574_012;
-pub const TECHNIQUE_MODIFY_CLOUD_COMPUTE_INFRASTRUCTURE : MitreTechniques = MitreTechniques::T1578;
-pub const TECHNIQUE_CREATE_SNAPSHOT : MitreTechniques = MitreTechniques::T1578_001;
-pub const TECHNIQUE_CREATE_CLOUD_INSTANCE : MitreTechniques = MitreTechniques::T1578_002;
-pub const TECHNIQUE_DELETE_CLOUD_INSTANCE : MitreTechniques = MitreTechniques::T1578_003;
-pub const TECHNIQUE_REVERT_CLOUD_INSTANCE : MitreTechniques = MitreTechniques::T1578_004;
-pub const TECHNIQUE_CLOUD_INFRASTRUCTURE_DISCOVERY : MitreTechniques = MitreTechniques::T1580;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE : MitreTechniques = MitreTechniques::T1583;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_DOMAINS : MitreTechniques = MitreTechniques::T1583_001;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_DNS_SERVER : MitreTechniques = MitreTechniques::T1583_002;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_VIRTUAL_PRIVATE_SERVER : MitreTechniques = MitreTechniques::T1583_003;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_SERVER : MitreTechniques = MitreTechniques::T1583_004;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_BOTNET : MitreTechniques = MitreTechniques::T1583_005;
-pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_WEB_SERVICES : MitreTechniques = MitreTechniques::T1583_006;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE : MitreTechniques = MitreTechniques::T1584;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_DOMAINS : MitreTechniques = MitreTechniques::T1584_001;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_DNS_SERVER : MitreTechniques = MitreTechniques::T1584_002;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_VIRTUAL_PRIVATE_SERVER : MitreTechniques = MitreTechniques::T1584_003;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_SERVER : MitreTechniques = MitreTechniques::T1584_004;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_BOTNET : MitreTechniques = MitreTechniques::T1584_005;
-pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_WEB_SERVICES : MitreTechniques = MitreTechniques::T1584_006;
-pub const TECHNIQUE_ESTABLISH_ACCOUNTS : MitreTechniques = MitreTechniques::T1585;
-pub const TECHNIQUE_ESTABLISH_ACCOUNTS_SOCIAL_MEDIA_ACCOUNTS : MitreTechniques = MitreTechniques::T1585_001;
-pub const TECHNIQUE_ESTABLISH_ACCOUNTS_EMAIL_ACCOUNTS : MitreTechniques = MitreTechniques::T1585_002;
-pub const TECHNIQUE_COMPROMISE_ACCOUNTS : MitreTechniques = MitreTechniques::T1586;
-pub const TECHNIQUE_COMPROMISE_ACCOUNTS_SOCIAL_MEDIA_ACCOUNTS : MitreTechniques = MitreTechniques::T1586_001;
-pub const TECHNIQUE_COMPROMISE_ACCOUNTS_EMAIL_ACCOUNTS : MitreTechniques = MitreTechniques::T1586_002;
-pub const TECHNIQUE_DEVELOP_CAPABILITIES : MitreTechniques = MitreTechniques::T1587;
-pub const TECHNIQUE_DEVELOP_CAPABILITIES_MALWARE : MitreTechniques = MitreTechniques::T1587_001;
-pub const TECHNIQUE_DEVELOP_CAPABILITIES_CODE_SIGNING_CERTIFICATES : MitreTechniques = MitreTechniques::T1587_002;
-pub const TECHNIQUE_DEVELOP_CAPABILITIES_DIGITAL_CERTIFICATES : MitreTechniques = MitreTechniques::T1587_003;
-pub const TECHNIQUE_DEVELOP_CAPABILITIES_EXPLOITS : MitreTechniques = MitreTechniques::T1587_004;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES : MitreTechniques = MitreTechniques::T1588;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_MALWARE : MitreTechniques = MitreTechniques::T1588_001;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_TOOL : MitreTechniques = MitreTechniques::T1588_002;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_CODE_SIGNING_CERTIFICATES : MitreTechniques = MitreTechniques::T1588_003;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_DIGITAL_CERTIFICATES : MitreTechniques = MitreTechniques::T1588_004;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_EXPLOITS : MitreTechniques = MitreTechniques::T1588_005;
-pub const TECHNIQUE_OBTAIN_CAPABILITIES_VULNERABILITIES : MitreTechniques = MitreTechniques::T1588_006;
-pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION : MitreTechniques = MitreTechniques::T1589;
-pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_CREDENTIALS : MitreTechniques = MitreTechniques::T1589_001;
-pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_EMAIL_ADDRESSES : MitreTechniques = MitreTechniques::T1589_002;
-pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_EMPLOYEE_NAMES : MitreTechniques = MitreTechniques::T1589_003;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION : MitreTechniques = MitreTechniques::T1590;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_DOMAIN_PROPERTIES : MitreTechniques = MitreTechniques::T1590_001;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_DNS : MitreTechniques = MitreTechniques::T1590_002;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_TRUST_DEPENDENCIES : MitreTechniques = MitreTechniques::T1590_003;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_TOPOLOGY : MitreTechniques = MitreTechniques::T1590_004;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_IP_ADDRESSES : MitreTechniques = MitreTechniques::T1590_005;
-pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_SECURITY_APPLIANCES : MitreTechniques = MitreTechniques::T1590_006;
-pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION : MitreTechniques = MitreTechniques::T1591;
-pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_DETERMINE_PHYSICAL_LOCATIONS : MitreTechniques = MitreTechniques::T1591_001;
-pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_BUSINESS_RELATIONSHIPS : MitreTechniques = MitreTechniques::T1591_002;
-pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_IDENTIFY_BUSINESS_TEMPO : MitreTechniques = MitreTechniques::T1591_003;
-pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_IDENTIFY_ROLES : MitreTechniques = MitreTechniques::T1591_004;
-pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION : MitreTechniques = MitreTechniques::T1592;
-pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_HARDWARE : MitreTechniques = MitreTechniques::T1592_001;
-pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_SOFTWARE : MitreTechniques = MitreTechniques::T1592_002;
-pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_FIRMWARE : MitreTechniques = MitreTechniques::T1592_003;
-pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_CLIENT_CONFIGURATIONS : MitreTechniques = MitreTechniques::T1592_004;
-pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS : MitreTechniques = MitreTechniques::T1593;
-pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS_SOCIAL_MEDIA : MitreTechniques = MitreTechniques::T1593_001;
-pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS_SEARCH_ENGINES : MitreTechniques = MitreTechniques::T1593_002;
-pub const TECHNIQUE_SEARCH_VICTIM_OWNED_WEBSITES : MitreTechniques = MitreTechniques::T1594;
-pub const TECHNIQUE_ACTIVE_SCANNING : MitreTechniques = MitreTechniques::T1595;
-pub const TECHNIQUE_ACTIVE_SCANNING_SCANNING_IP_BLOCKS : MitreTechniques = MitreTechniques::T1595_001;
-pub const TECHNIQUE_ACTIVE_SCANNING_VULNERABILITY_SCANNING : MitreTechniques = MitreTechniques::T1595_002;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES : MitreTechniques = MitreTechniques::T1596;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_DNS_PASSIVE_DNS : MitreTechniques = MitreTechniques::T1596_001;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_WHOIS : MitreTechniques = MitreTechniques::T1596_002;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_DIGITAL_CERTIFICATES : MitreTechniques = MitreTechniques::T1596_003;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_CDNS : MitreTechniques = MitreTechniques::T1596_004;
-pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_SCAN_DATABASES : MitreTechniques = MitreTechniques::T1596_005;
-pub const TECHNIQUE_SEARCH_CLOSED_SOURCES : MitreTechniques = MitreTechniques::T1597;
-pub const TECHNIQUE_SEARCH_CLOSED_SOURCES_THREAT_INTEL_VENDORS : MitreTechniques = MitreTechniques::T1597_001;
-pub const TECHNIQUE_SEARCH_CLOSED_SOURCES_PURCHASE_TECHNICAL_DATA : MitreTechniques = MitreTechniques::T1597_002;
-pub const TECHNIQUE_PHISHING_FOR_INFORMATION : MitreTechniques = MitreTechniques::T1598;
-pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_SERVICE : MitreTechniques = MitreTechniques::T1598_001;
-pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_ATACHMENT : MitreTechniques = MitreTechniques::T1598_002;
-pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_LINK : MitreTechniques = MitreTechniques::T1598_003;
-pub const TECHNIQUE_NETWORK_BOUNDARY_BRIDGING : MitreTechniques = MitreTechniques::T1599;
-pub const TECHNIQUE_NETWORK_BOUNDARY_BRIDGING_NETWORK_ADDRESS_TRANSLATION_TRAVERSAL : MitreTechniques = MitreTechniques::T1599_001;
-pub const TECHNIQUE_WEAKEN_ENCRYPTION : MitreTechniques = MitreTechniques::T1600;
-pub const TECHNIQUE_WEAKEN_ENCRYPTION_REDUCE_KEY_SPACE : MitreTechniques = MitreTechniques::T1600_001;
-pub const TECHNIQUE_WEAKEN_ENCRYPTION_DISABLE_CRYPTO_HARDWARE : MitreTechniques = MitreTechniques::T1600_002;
-pub const TECHNIQUE_MODIFY_SYSTEM_IMAGE : MitreTechniques = MitreTechniques::T1601;
-pub const TECHNIQUE_PATCH_SYSTEM_IMAGE : MitreTechniques = MitreTechniques::T1601_001;
-pub const TECHNIQUE_DOWNGRADE_SYSTEM_IMAGE : MitreTechniques = MitreTechniques::T1601_002;
-pub const TECHNIQUE_DATA_FROM_CONFIGURATION_REPOSITORY : MitreTechniques = MitreTechniques::T1602;
-pub const TECHNIQUE_SNMP_MIB_DUMP : MitreTechniques = MitreTechniques::T1602_001;
-pub const TECHNIQUE_NETWORK_DEVICE_CONFIGURATION_DUMP : MitreTechniques = MitreTechniques::T1602_002;
-pub const TECHNIQUE_FORGE_WEB_CREDENTIALS : MitreTechniques = MitreTechniques::T1606;
-pub const TECHNIQUE_WEB_COOKIES : MitreTechniques = MitreTechniques::T1606_001;
-pub const TECHNIQUE_SAML_TOKENS : MitreTechniques = MitreTechniques::T1606_002;
-pub const TECHNIQUE_STAGE_CAPABILITIES : MitreTechniques = MitreTechniques::T1608;
-pub const TECHNIQUE_STAGE_CAPABILITIES_UPLOAD_MALWARE : MitreTechniques = MitreTechniques::T1608_001;
-pub const TECHNIQUE_STAGE_CAPABILITIES_UPLOAD_TOOL : MitreTechniques = MitreTechniques::T1608_002;
-pub const TECHNIQUE_STAGE_CAPABILITIES_INSTALL_DIGITAL_CERTIFICATE : MitreTechniques = MitreTechniques::T1608_003;
-pub const TECHNIQUE_STAGE_CAPABILITIES_DRIVE_BY_TARGET : MitreTechniques = MitreTechniques::T1608_004;
-pub const TECHNIQUE_STAGE_CAPABILITIES_LINK_TARGET : MitreTechniques = MitreTechniques::T1608_005;
-pub const TECHNIQUE_CONTAINER_ADMINISTRATION_COMMAND : MitreTechniques = MitreTechniques::T1609;
-pub const TECHNIQUE_DEPLOY_CONTAINER : MitreTechniques = MitreTechniques::T1610;
-pub const TECHNIQUE_ESCAPE_TO_HOST : MitreTechniques = MitreTechniques::T1611;
-pub const TECHNIQUE_BUILD_IMAGE_ON_HOST : MitreTechniques = MitreTechniques::T1612;
-pub const TECHNIQUE_CONTAINER_AND_RESOURCE_DISCOVERY : MitreTechniques = MitreTechniques::T1613;
-pub const TECHNIQUE_SYSTEM_LOCATION_DISCOVERY : MitreTechniques = MitreTechniques::T1614;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_UNIX_SHELL_CONFIGURATION_MODIFICATION:
+    MitreTechniques = MitreTechniques::T1546_004;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_TRAP: MitreTechniques = MitreTechniques::T1546_005;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_LC_LOAD_DYLIB_ADDITION: MitreTechniques =
+    MitreTechniques::T1546_006;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_NETSH_HELPER_DLL: MitreTechniques =
+    MitreTechniques::T1546_007;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_ACCESSIBILITY_FEATURES: MitreTechniques =
+    MitreTechniques::T1546_008;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPCERT_DLLS: MitreTechniques =
+    MitreTechniques::T1546_009;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPINIT_DLLS: MitreTechniques =
+    MitreTechniques::T1546_010;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_APPLICATION_SHIMMING: MitreTechniques =
+    MitreTechniques::T1546_011;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_IMAGE_FILE_EXECUTION_OPTIONS_INJECTION:
+    MitreTechniques = MitreTechniques::T1546_012;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_POWERSHELL_PROFILE: MitreTechniques =
+    MitreTechniques::T1546_013;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_EMOND: MitreTechniques = MitreTechniques::T1546_014;
+pub const TECHNIQUE_EVENT_TRIGGERED_EXECUTION_COMPONENT_OBJECT_MODEL_HIJACKING: MitreTechniques =
+    MitreTechniques::T1546_015;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION: MitreTechniques = MitreTechniques::T1547;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_REGISTRY_RUN_KEYS_STARTUP_FOLDER:
+    MitreTechniques = MitreTechniques::T1547_001;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_AUTHENTICATION_PACKAGE: MitreTechniques =
+    MitreTechniques::T1547_002;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_TIME_PROVIDERS: MitreTechniques =
+    MitreTechniques::T1547_003;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_WINLOGON_HELPER_DLL: MitreTechniques =
+    MitreTechniques::T1547_004;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_SECURITY_SUPPORT_PROVIDER: MitreTechniques =
+    MitreTechniques::T1547_005;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_KERNEL_MODULES_AND_EXTENSIONS:
+    MitreTechniques = MitreTechniques::T1547_006;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_RE_OPENED_APPLICATIONS: MitreTechniques =
+    MitreTechniques::T1547_007;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_LSASS_DRIVER: MitreTechniques =
+    MitreTechniques::T1547_008;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_SHORTCUT_MODIFICATION: MitreTechniques =
+    MitreTechniques::T1547_009;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PORT_MONITORS: MitreTechniques =
+    MitreTechniques::T1547_010;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PLIST_MODIFICATION: MitreTechniques =
+    MitreTechniques::T1547_011;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_PRINT_PROCESSORS: MitreTechniques =
+    MitreTechniques::T1547_012;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_XDG_AUTOSTART_ENTRIES: MitreTechniques =
+    MitreTechniques::T1547_013;
+pub const TECHNIQUE_BOOT_OR_LOGON_AUTOSTART_EXECUTION_ACTIVE_SETUP: MitreTechniques =
+    MitreTechniques::T1547_014;
+pub const TECHNIQUE_ABUSE_ELEVATION_CONTROL_MECHANISM: MitreTechniques = MitreTechniques::T1548;
+pub const TECHNIQUE_SETUID_AND_SETGID: MitreTechniques = MitreTechniques::T1548_001;
+pub const TECHNIQUE_BYPASS_USER_ACCOUNT_CONTROL: MitreTechniques = MitreTechniques::T1548_002;
+pub const TECHNIQUE_SUDO_AND_SUDO_CACHING: MitreTechniques = MitreTechniques::T1548_003;
+pub const TECHNIQUE_ELEVATED_EXECUTION_WITH_PROMPT: MitreTechniques = MitreTechniques::T1548_004;
+pub const TECHNIQUE_USE_ALTERNATE_AUTHENTICATION_MATERIAL: MitreTechniques = MitreTechniques::T1550;
+pub const TECHNIQUE_APPLICATION_ACCESS_TOKEN: MitreTechniques = MitreTechniques::T1550_001;
+pub const TECHNIQUE_PASS_THE_HASH: MitreTechniques = MitreTechniques::T1550_002;
+pub const TECHNIQUE_PASS_THE_TICKET: MitreTechniques = MitreTechniques::T1550_003;
+pub const TECHNIQUE_WEB_SESSION_COOKIE: MitreTechniques = MitreTechniques::T1550_004;
+pub const TECHNIQUE_UNSECURED_CREDENTIALS: MitreTechniques = MitreTechniques::T1552;
+pub const TECHNIQUE_CREDENTIALS_IN_FILES: MitreTechniques = MitreTechniques::T1552_001;
+pub const TECHNIQUE_CREDENTIALS_IN_REGISTRY: MitreTechniques = MitreTechniques::T1552_002;
+pub const TECHNIQUE_BASH_HISTORY: MitreTechniques = MitreTechniques::T1552_003;
+pub const TECHNIQUE_PRIVATE_KEYS: MitreTechniques = MitreTechniques::T1552_004;
+pub const TECHNIQUE_CLOUD_INSTANCE_METADATA_API: MitreTechniques = MitreTechniques::T1552_005;
+pub const TECHNIQUE_GROUP_POLICY_PREFERENCES: MitreTechniques = MitreTechniques::T1552_006;
+pub const TECHNIQUE_CONTAINER_API: MitreTechniques = MitreTechniques::T1552_007;
+pub const TECHNIQUE_SUBVERT_TRUST_CONTROLS: MitreTechniques = MitreTechniques::T1553;
+pub const TECHNIQUE_GATEKEEPER_BYPASS: MitreTechniques = MitreTechniques::T1553_001;
+pub const TECHNIQUE_CODE_SIGNING: MitreTechniques = MitreTechniques::T1553_002;
+pub const TECHNIQUE_SIP_AND_TRUST_PROVIDER_HIJACKING: MitreTechniques = MitreTechniques::T1553_003;
+pub const TECHNIQUE_INSTALL_ROOT_CERTIFICATE: MitreTechniques = MitreTechniques::T1553_004;
+pub const TECHNIQUE_MARK_OF_THE_WEB_BYPASS: MitreTechniques = MitreTechniques::T1553_005;
+pub const TECHNIQUE_CODE_SIGNING_POLICY_MODIFICATION: MitreTechniques = MitreTechniques::T1553_006;
+pub const TECHNIQUE_COMPROMISE_CLIENT_SOFTWARE_BINARY: MitreTechniques = MitreTechniques::T1554;
+pub const TECHNIQUE_CREDENTIALS_FROM_PASSWORD_STORES: MitreTechniques = MitreTechniques::T1555;
+pub const TECHNIQUE_KEYCHAIN: MitreTechniques = MitreTechniques::T1555_001;
+pub const TECHNIQUE_SECURITYD_MEMORY: MitreTechniques = MitreTechniques::T1555_002;
+pub const TECHNIQUE_CREDENTIALS_FROM_WEB_BROWSERS: MitreTechniques = MitreTechniques::T1555_003;
+pub const TECHNIQUE_WINDOWS_CREDENTIAL_MANAGER: MitreTechniques = MitreTechniques::T1555_004;
+pub const TECHNIQUE_PASSWORD_MANAGERS: MitreTechniques = MitreTechniques::T1555_005;
+pub const TECHNIQUE_MODIFY_AUTHENTICATION_PROCESS: MitreTechniques = MitreTechniques::T1556;
+pub const TECHNIQUE_DOMAIN_CONTROLLER_AUTHENTICATION: MitreTechniques = MitreTechniques::T1556_001;
+pub const TECHNIQUE_PASSWORD_FILTER_DLL: MitreTechniques = MitreTechniques::T1556_002;
+pub const TECHNIQUE_PLUGGABLE_AUTHENTICATION_MODULES: MitreTechniques = MitreTechniques::T1556_003;
+pub const TECHNIQUE_NETWORK_DEVICE_AUTHENTICATION: MitreTechniques = MitreTechniques::T1556_004;
+pub const TECHNIQUE_MAN_IN_THE_MIDDLE: MitreTechniques = MitreTechniques::T1557;
+pub const TECHNIQUE_LLMNR_NBT_NS_POISONING_AND_SMB_RELAY: MitreTechniques =
+    MitreTechniques::T1557_001;
+pub const TECHNIQUE_ARP_CACHE_POISONING: MitreTechniques = MitreTechniques::T1557_002;
+pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS: MitreTechniques = MitreTechniques::T1558;
+pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_GOLDEN_TICKET: MitreTechniques =
+    MitreTechniques::T1558_001;
+pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_SILVER_TICKET: MitreTechniques =
+    MitreTechniques::T1558_002;
+pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_KERBEROASTING: MitreTechniques =
+    MitreTechniques::T1558_003;
+pub const TECHNIQUE_STEAL_OR_FORGE_KERBEROS_TICKETS_AS_REP_ROASTING: MitreTechniques =
+    MitreTechniques::T1558_004;
+pub const TECHNIQUE_INTER_PROCESS_COMMUNICATION: MitreTechniques = MitreTechniques::T1559;
+pub const TECHNIQUE_COMPONENT_OBJECT_MODEL: MitreTechniques = MitreTechniques::T1559_001;
+pub const TECHNIQUE_DYNAMIC_DATA_EXCHANGE: MitreTechniques = MitreTechniques::T1559_002;
+pub const TECHNIQUE_ARCHIVE_COLLECTED_DATA: MitreTechniques = MitreTechniques::T1560;
+pub const TECHNIQUE_ARCHIVE_VIA_UTILITY: MitreTechniques = MitreTechniques::T1560_001;
+pub const TECHNIQUE_ARCHIVE_VIA_LIBRARY: MitreTechniques = MitreTechniques::T1560_002;
+pub const TECHNIQUE_ARCHIVE_VIA_CUSTOM_METHOD: MitreTechniques = MitreTechniques::T1560_003;
+pub const TECHNIQUE_DISK_WIPE: MitreTechniques = MitreTechniques::T1561;
+pub const TECHNIQUE_DISK_CONTENT_WIPE: MitreTechniques = MitreTechniques::T1561_001;
+pub const TECHNIQUE_DISK_STRUCTURE_WIPE: MitreTechniques = MitreTechniques::T1561_002;
+pub const TECHNIQUE_IMPAIR_DEFENSES: MitreTechniques = MitreTechniques::T1562;
+pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_TOOLS: MitreTechniques =
+    MitreTechniques::T1562_001;
+pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_WINDOWS_EVENT_LOGGING: MitreTechniques =
+    MitreTechniques::T1562_002;
+pub const TECHNIQUE_IMPAIR_DEFENSES_IMPAIR_COMMAND_HISTORY_LOGGING: MitreTechniques =
+    MitreTechniques::T1562_003;
+pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_SYSTEM_FIREWALL: MitreTechniques =
+    MitreTechniques::T1562_004;
+pub const TECHNIQUE_IMPAIR_DEFENSES_INDICATOR_BLOCKING: MitreTechniques =
+    MitreTechniques::T1562_006;
+pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_OR_MODIFY_CLOUD_FIREWALL: MitreTechniques =
+    MitreTechniques::T1562_007;
+pub const TECHNIQUE_IMPAIR_DEFENSES_DISABLE_CLOUD_LOGS: MitreTechniques =
+    MitreTechniques::T1562_008;
+pub const TECHNIQUE_REMOTE_SERVICE_SESSION_HIJACKING: MitreTechniques = MitreTechniques::T1563;
+pub const TECHNIQUE_SSH_HIJACKING: MitreTechniques = MitreTechniques::T1563_001;
+pub const TECHNIQUE_RDP_HIJACKING: MitreTechniques = MitreTechniques::T1563_002;
+pub const TECHNIQUE_HIDE_ARTIFACTS: MitreTechniques = MitreTechniques::T1564;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES: MitreTechniques = MitreTechniques::T1564_001;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_USERS: MitreTechniques =
+    MitreTechniques::T1564_002;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_WINDOW: MitreTechniques =
+    MitreTechniques::T1564_003;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_NTFS_FILE_ATRIBUTES: MitreTechniques =
+    MitreTechniques::T1564_004;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_HIDDEN_FILE_SYSTEM: MitreTechniques =
+    MitreTechniques::T1564_005;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_RUN_VIRTUAL_INSTANCE: MitreTechniques =
+    MitreTechniques::T1564_006;
+pub const TECHNIQUE_HIDDEN_FILES_AND_DIRECTORIES_VBA_STOMPING: MitreTechniques =
+    MitreTechniques::T1564_007;
+pub const TECHNIQUE_DATA_MANIPULATION: MitreTechniques = MitreTechniques::T1565;
+pub const TECHNIQUE_STORED_DATA_MANIPULATION: MitreTechniques = MitreTechniques::T1565_001;
+pub const TECHNIQUE_TRANSMITED_DATA_MANIPULATION: MitreTechniques = MitreTechniques::T1565_002;
+pub const TECHNIQUE_RUNTIME_DATA_MANIPULATION: MitreTechniques = MitreTechniques::T1565_003;
+pub const TECHNIQUE_PHISHING: MitreTechniques = MitreTechniques::T1566;
+pub const TECHNIQUE_SPEARPHISHING_ATACHMENT: MitreTechniques = MitreTechniques::T1566_001;
+pub const TECHNIQUE_SPEARPHISHING_LINK: MitreTechniques = MitreTechniques::T1566_002;
+pub const TECHNIQUE_SPEARPHISHING_VIA_SERVICE: MitreTechniques = MitreTechniques::T1566_003;
+pub const TECHNIQUE_EXFILTRATION_OVER_WEB_SERVICE: MitreTechniques = MitreTechniques::T1567;
+pub const TECHNIQUE_EXFILTRATION_TO_CODE_REPOSITORY: MitreTechniques = MitreTechniques::T1567_001;
+pub const TECHNIQUE_EXFILTRATION_TO_CLOUD_STORAGE: MitreTechniques = MitreTechniques::T1567_002;
+pub const TECHNIQUE_DYNAMIC_RESOLUTION: MitreTechniques = MitreTechniques::T1568;
+pub const TECHNIQUE_FAST_FLUX_DNS: MitreTechniques = MitreTechniques::T1568_001;
+pub const TECHNIQUE_DOMAIN_GENERATION_ALGORITHMS: MitreTechniques = MitreTechniques::T1568_002;
+pub const TECHNIQUE_DNS_CALCULATION: MitreTechniques = MitreTechniques::T1568_003;
+pub const TECHNIQUE_SYSTEM_SERVICES: MitreTechniques = MitreTechniques::T1569;
+pub const TECHNIQUE_LAUNCHCTL: MitreTechniques = MitreTechniques::T1569_001;
+pub const TECHNIQUE_SERVICE_EXECUTION: MitreTechniques = MitreTechniques::T1569_002;
+pub const TECHNIQUE_LATERAL_TOOL_TRANSFER: MitreTechniques = MitreTechniques::T1570;
+pub const TECHNIQUE_NON_STANDARD_PORT: MitreTechniques = MitreTechniques::T1571;
+pub const TECHNIQUE_PROTOCOL_TUNNELING: MitreTechniques = MitreTechniques::T1572;
+pub const TECHNIQUE_ENCRYPTED_CHANNEL: MitreTechniques = MitreTechniques::T1573;
+pub const TECHNIQUE_SYMMETRIC_CRYPTOGRAPHY: MitreTechniques = MitreTechniques::T1573_001;
+pub const TECHNIQUE_ASYMMETRIC_CRYPTOGRAPHY: MitreTechniques = MitreTechniques::T1573_002;
+pub const TECHNIQUE_HIJACK_EXECUTION_FLOW: MitreTechniques = MitreTechniques::T1574;
+pub const TECHNIQUE_DLL_SEARCH_ORDER_HIJACKING: MitreTechniques = MitreTechniques::T1574_001;
+pub const TECHNIQUE_DLL_SIDE_LOADING: MitreTechniques = MitreTechniques::T1574_002;
+pub const TECHNIQUE_DYLIB_HIJACKING: MitreTechniques = MitreTechniques::T1574_004;
+pub const TECHNIQUE_EXECUTABLE_INSTALLER_FILE_PERMISSIONS_WEAKNESS: MitreTechniques =
+    MitreTechniques::T1574_005;
+pub const TECHNIQUE_DYNAMIC_LINKER_HIJACKING: MitreTechniques = MitreTechniques::T1574_006;
+pub const TECHNIQUE_PATH_INTERCEPTION_BY_PATH_ENVIRONMENT_VARIABLE: MitreTechniques =
+    MitreTechniques::T1574_007;
+pub const TECHNIQUE_PATH_INTERCEPTION_BY_SEARCH_ORDER_HIJACKING: MitreTechniques =
+    MitreTechniques::T1574_008;
+pub const TECHNIQUE_PATH_INTERCEPTION_BY_UNQUOTED_PATH: MitreTechniques =
+    MitreTechniques::T1574_009;
+pub const TECHNIQUE_SERVICES_FILE_PERMISSIONS_WEAKNESS: MitreTechniques =
+    MitreTechniques::T1574_010;
+pub const TECHNIQUE_SERVICES_REGISTRY_PERMISSIONS_WEAKNESS: MitreTechniques =
+    MitreTechniques::T1574_011;
+pub const TECHNIQUE_COR_PROFILER: MitreTechniques = MitreTechniques::T1574_012;
+pub const TECHNIQUE_MODIFY_CLOUD_COMPUTE_INFRASTRUCTURE: MitreTechniques = MitreTechniques::T1578;
+pub const TECHNIQUE_CREATE_SNAPSHOT: MitreTechniques = MitreTechniques::T1578_001;
+pub const TECHNIQUE_CREATE_CLOUD_INSTANCE: MitreTechniques = MitreTechniques::T1578_002;
+pub const TECHNIQUE_DELETE_CLOUD_INSTANCE: MitreTechniques = MitreTechniques::T1578_003;
+pub const TECHNIQUE_REVERT_CLOUD_INSTANCE: MitreTechniques = MitreTechniques::T1578_004;
+pub const TECHNIQUE_CLOUD_INFRASTRUCTURE_DISCOVERY: MitreTechniques = MitreTechniques::T1580;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE: MitreTechniques = MitreTechniques::T1583;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_DOMAINS: MitreTechniques = MitreTechniques::T1583_001;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_DNS_SERVER: MitreTechniques = MitreTechniques::T1583_002;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_VIRTUAL_PRIVATE_SERVER: MitreTechniques =
+    MitreTechniques::T1583_003;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_SERVER: MitreTechniques = MitreTechniques::T1583_004;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_BOTNET: MitreTechniques = MitreTechniques::T1583_005;
+pub const TECHNIQUE_ACQUIRE_INFRASTRUCTURE_WEB_SERVICES: MitreTechniques =
+    MitreTechniques::T1583_006;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE: MitreTechniques = MitreTechniques::T1584;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_DOMAINS: MitreTechniques = MitreTechniques::T1584_001;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_DNS_SERVER: MitreTechniques =
+    MitreTechniques::T1584_002;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_VIRTUAL_PRIVATE_SERVER: MitreTechniques =
+    MitreTechniques::T1584_003;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_SERVER: MitreTechniques = MitreTechniques::T1584_004;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_BOTNET: MitreTechniques = MitreTechniques::T1584_005;
+pub const TECHNIQUE_COMPROMISE_INFRASTRUCTURE_WEB_SERVICES: MitreTechniques =
+    MitreTechniques::T1584_006;
+pub const TECHNIQUE_ESTABLISH_ACCOUNTS: MitreTechniques = MitreTechniques::T1585;
+pub const TECHNIQUE_ESTABLISH_ACCOUNTS_SOCIAL_MEDIA_ACCOUNTS: MitreTechniques =
+    MitreTechniques::T1585_001;
+pub const TECHNIQUE_ESTABLISH_ACCOUNTS_EMAIL_ACCOUNTS: MitreTechniques = MitreTechniques::T1585_002;
+pub const TECHNIQUE_COMPROMISE_ACCOUNTS: MitreTechniques = MitreTechniques::T1586;
+pub const TECHNIQUE_COMPROMISE_ACCOUNTS_SOCIAL_MEDIA_ACCOUNTS: MitreTechniques =
+    MitreTechniques::T1586_001;
+pub const TECHNIQUE_COMPROMISE_ACCOUNTS_EMAIL_ACCOUNTS: MitreTechniques =
+    MitreTechniques::T1586_002;
+pub const TECHNIQUE_DEVELOP_CAPABILITIES: MitreTechniques = MitreTechniques::T1587;
+pub const TECHNIQUE_DEVELOP_CAPABILITIES_MALWARE: MitreTechniques = MitreTechniques::T1587_001;
+pub const TECHNIQUE_DEVELOP_CAPABILITIES_CODE_SIGNING_CERTIFICATES: MitreTechniques =
+    MitreTechniques::T1587_002;
+pub const TECHNIQUE_DEVELOP_CAPABILITIES_DIGITAL_CERTIFICATES: MitreTechniques =
+    MitreTechniques::T1587_003;
+pub const TECHNIQUE_DEVELOP_CAPABILITIES_EXPLOITS: MitreTechniques = MitreTechniques::T1587_004;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES: MitreTechniques = MitreTechniques::T1588;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_MALWARE: MitreTechniques = MitreTechniques::T1588_001;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_TOOL: MitreTechniques = MitreTechniques::T1588_002;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_CODE_SIGNING_CERTIFICATES: MitreTechniques =
+    MitreTechniques::T1588_003;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_DIGITAL_CERTIFICATES: MitreTechniques =
+    MitreTechniques::T1588_004;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_EXPLOITS: MitreTechniques = MitreTechniques::T1588_005;
+pub const TECHNIQUE_OBTAIN_CAPABILITIES_VULNERABILITIES: MitreTechniques =
+    MitreTechniques::T1588_006;
+pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION: MitreTechniques = MitreTechniques::T1589;
+pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_CREDENTIALS: MitreTechniques =
+    MitreTechniques::T1589_001;
+pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_EMAIL_ADDRESSES: MitreTechniques =
+    MitreTechniques::T1589_002;
+pub const TECHNIQUE_GATHER_VICTIM_IDENTITY_INFORMATION_EMPLOYEE_NAMES: MitreTechniques =
+    MitreTechniques::T1589_003;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION: MitreTechniques = MitreTechniques::T1590;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_DOMAIN_PROPERTIES: MitreTechniques =
+    MitreTechniques::T1590_001;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_DNS: MitreTechniques =
+    MitreTechniques::T1590_002;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_TRUST_DEPENDENCIES: MitreTechniques =
+    MitreTechniques::T1590_003;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_TOPOLOGY: MitreTechniques =
+    MitreTechniques::T1590_004;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_IP_ADDRESSES: MitreTechniques =
+    MitreTechniques::T1590_005;
+pub const TECHNIQUE_GATHER_VICTIM_NETWORK_INFORMATION_NETWORK_SECURITY_APPLIANCES: MitreTechniques =
+    MitreTechniques::T1590_006;
+pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION: MitreTechniques = MitreTechniques::T1591;
+pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_DETERMINE_PHYSICAL_LOCATIONS: MitreTechniques =
+    MitreTechniques::T1591_001;
+pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_BUSINESS_RELATIONSHIPS: MitreTechniques =
+    MitreTechniques::T1591_002;
+pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_IDENTIFY_BUSINESS_TEMPO: MitreTechniques =
+    MitreTechniques::T1591_003;
+pub const TECHNIQUE_GATHER_VICTIM_ORG_INFORMATION_IDENTIFY_ROLES: MitreTechniques =
+    MitreTechniques::T1591_004;
+pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION: MitreTechniques = MitreTechniques::T1592;
+pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_HARDWARE: MitreTechniques =
+    MitreTechniques::T1592_001;
+pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_SOFTWARE: MitreTechniques =
+    MitreTechniques::T1592_002;
+pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_FIRMWARE: MitreTechniques =
+    MitreTechniques::T1592_003;
+pub const TECHNIQUE_GATHER_VICTIM_HOST_INFORMATION_CLIENT_CONFIGURATIONS: MitreTechniques =
+    MitreTechniques::T1592_004;
+pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS: MitreTechniques = MitreTechniques::T1593;
+pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS_SOCIAL_MEDIA: MitreTechniques =
+    MitreTechniques::T1593_001;
+pub const TECHNIQUE_SEARCH_OPEN_WEBSITES_DOMAINS_SEARCH_ENGINES: MitreTechniques =
+    MitreTechniques::T1593_002;
+pub const TECHNIQUE_SEARCH_VICTIM_OWNED_WEBSITES: MitreTechniques = MitreTechniques::T1594;
+pub const TECHNIQUE_ACTIVE_SCANNING: MitreTechniques = MitreTechniques::T1595;
+pub const TECHNIQUE_ACTIVE_SCANNING_SCANNING_IP_BLOCKS: MitreTechniques =
+    MitreTechniques::T1595_001;
+pub const TECHNIQUE_ACTIVE_SCANNING_VULNERABILITY_SCANNING: MitreTechniques =
+    MitreTechniques::T1595_002;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES: MitreTechniques = MitreTechniques::T1596;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_DNS_PASSIVE_DNS: MitreTechniques =
+    MitreTechniques::T1596_001;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_WHOIS: MitreTechniques =
+    MitreTechniques::T1596_002;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_DIGITAL_CERTIFICATES: MitreTechniques =
+    MitreTechniques::T1596_003;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_CDNS: MitreTechniques =
+    MitreTechniques::T1596_004;
+pub const TECHNIQUE_SEARCH_OPEN_TECHNICAL_DATABASES_SCAN_DATABASES: MitreTechniques =
+    MitreTechniques::T1596_005;
+pub const TECHNIQUE_SEARCH_CLOSED_SOURCES: MitreTechniques = MitreTechniques::T1597;
+pub const TECHNIQUE_SEARCH_CLOSED_SOURCES_THREAT_INTEL_VENDORS: MitreTechniques =
+    MitreTechniques::T1597_001;
+pub const TECHNIQUE_SEARCH_CLOSED_SOURCES_PURCHASE_TECHNICAL_DATA: MitreTechniques =
+    MitreTechniques::T1597_002;
+pub const TECHNIQUE_PHISHING_FOR_INFORMATION: MitreTechniques = MitreTechniques::T1598;
+pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_SERVICE: MitreTechniques =
+    MitreTechniques::T1598_001;
+pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_ATACHMENT: MitreTechniques =
+    MitreTechniques::T1598_002;
+pub const TECHNIQUE_PHISHING_FOR_INFORMATION_SPEARPHISHING_LINK: MitreTechniques =
+    MitreTechniques::T1598_003;
+pub const TECHNIQUE_NETWORK_BOUNDARY_BRIDGING: MitreTechniques = MitreTechniques::T1599;
+pub const TECHNIQUE_NETWORK_BOUNDARY_BRIDGING_NETWORK_ADDRESS_TRANSLATION_TRAVERSAL:
+    MitreTechniques = MitreTechniques::T1599_001;
+pub const TECHNIQUE_WEAKEN_ENCRYPTION: MitreTechniques = MitreTechniques::T1600;
+pub const TECHNIQUE_WEAKEN_ENCRYPTION_REDUCE_KEY_SPACE: MitreTechniques =
+    MitreTechniques::T1600_001;
+pub const TECHNIQUE_WEAKEN_ENCRYPTION_DISABLE_CRYPTO_HARDWARE: MitreTechniques =
+    MitreTechniques::T1600_002;
+pub const TECHNIQUE_MODIFY_SYSTEM_IMAGE: MitreTechniques = MitreTechniques::T1601;
+pub const TECHNIQUE_PATCH_SYSTEM_IMAGE: MitreTechniques = MitreTechniques::T1601_001;
+pub const TECHNIQUE_DOWNGRADE_SYSTEM_IMAGE: MitreTechniques = MitreTechniques::T1601_002;
+pub const TECHNIQUE_DATA_FROM_CONFIGURATION_REPOSITORY: MitreTechniques = MitreTechniques::T1602;
+pub const TECHNIQUE_SNMP_MIB_DUMP: MitreTechniques = MitreTechniques::T1602_001;
+pub const TECHNIQUE_NETWORK_DEVICE_CONFIGURATION_DUMP: MitreTechniques = MitreTechniques::T1602_002;
+pub const TECHNIQUE_FORGE_WEB_CREDENTIALS: MitreTechniques = MitreTechniques::T1606;
+pub const TECHNIQUE_WEB_COOKIES: MitreTechniques = MitreTechniques::T1606_001;
+pub const TECHNIQUE_SAML_TOKENS: MitreTechniques = MitreTechniques::T1606_002;
+pub const TECHNIQUE_STAGE_CAPABILITIES: MitreTechniques = MitreTechniques::T1608;
+pub const TECHNIQUE_STAGE_CAPABILITIES_UPLOAD_MALWARE: MitreTechniques = MitreTechniques::T1608_001;
+pub const TECHNIQUE_STAGE_CAPABILITIES_UPLOAD_TOOL: MitreTechniques = MitreTechniques::T1608_002;
+pub const TECHNIQUE_STAGE_CAPABILITIES_INSTALL_DIGITAL_CERTIFICATE: MitreTechniques =
+    MitreTechniques::T1608_003;
+pub const TECHNIQUE_STAGE_CAPABILITIES_DRIVE_BY_TARGET: MitreTechniques =
+    MitreTechniques::T1608_004;
+pub const TECHNIQUE_STAGE_CAPABILITIES_LINK_TARGET: MitreTechniques = MitreTechniques::T1608_005;
+pub const TECHNIQUE_CONTAINER_ADMINISTRATION_COMMAND: MitreTechniques = MitreTechniques::T1609;
+pub const TECHNIQUE_DEPLOY_CONTAINER: MitreTechniques = MitreTechniques::T1610;
+pub const TECHNIQUE_ESCAPE_TO_HOST: MitreTechniques = MitreTechniques::T1611;
+pub const TECHNIQUE_BUILD_IMAGE_ON_HOST: MitreTechniques = MitreTechniques::T1612;
+pub const TECHNIQUE_CONTAINER_AND_RESOURCE_DISCOVERY: MitreTechniques = MitreTechniques::T1613;
+pub const TECHNIQUE_SYSTEM_LOCATION_DISCOVERY: MitreTechniques = MitreTechniques::T1614;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum MitreTechniques {
     /// Data Obfuscation: Adversaries may obfuscate command and control traffic to make it more difficult to detect. Command and control (C2) communications are hidden (but not necessarily encrypted) in an attempt to make the content more difficult to discover or decipher and to make the communication less conspicuous and hide commands from being seen. This encompasses many methods, such as adding junk data to protocol traffic, using steganography, or impersonating legitimate protocols.
     ///

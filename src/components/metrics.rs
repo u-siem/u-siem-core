@@ -18,14 +18,13 @@ pub static PROCESSED_BYTES_INDEXER: &'static str = "processed_bytes_indexer";
 
 /// Metrics to be registered in the kernel.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub enum SiemMetric {
     Counter(Arc<AtomicI64>),
     /// Atomic reference and a multiplier
     Gauge(Arc<AtomicI64>, f32),
     /// Timer in milliseconds
     Timer(Arc<AtomicU64>),
-    Histogram(HistogramMetric),
-    Summary(SummaryMetric),
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -35,8 +34,11 @@ pub struct SiemMetricDefinition {
     pub description: Cow<'static, str>,
     pub tags: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
 }
+
+// Work in progress...
+
 #[derive(Debug, Clone)]
-pub struct SummaryMetric {
+struct SummaryMetric {
     pub sum: Arc<AtomicI64>,
     pub count: Arc<AtomicU64>,
     pub avg: Arc<AtomicI64>,
@@ -44,7 +46,7 @@ pub struct SummaryMetric {
     pub quantiles: Vec<Quantile>,
 }
 #[derive(Debug, Clone)]
-pub struct HistogramMetric {
+struct HistogramMetric {
     pub sum: Arc<AtomicI64>,
     pub count: Arc<AtomicU64>,
     pub avg: Arc<AtomicI64>,
@@ -119,15 +121,15 @@ impl Serialize for SiemMetric {
             SiemMetric::Timer(cnt) => {
                 state.serialize_field("type", "Timer")?;
                 state.serialize_field("value", &(**cnt))?;
-            }
-            SiemMetric::Histogram(hst) => {
-                state.serialize_field("type", "Histogram")?;
-                state.serialize_field("value", hst)?;
-            }
-            SiemMetric::Summary(smr) => {
-                state.serialize_field("type", "Summary")?;
-                state.serialize_field("value", smr)?;
-            }
+            } /*
+              SiemMetric::Histogram(hst) => {
+                  state.serialize_field("type", "Histogram")?;
+                  state.serialize_field("value", hst)?;
+              }
+              SiemMetric::Summary(smr) => {
+                  state.serialize_field("type", "Summary")?;
+                  state.serialize_field("value", smr)?;
+              }*/
         }
         state.end()
     }

@@ -1,7 +1,7 @@
 /// Common HTTP Request methods
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum HttpMethod {
     UNKNOWN(String),
     GET,
@@ -11,17 +11,17 @@ pub enum HttpMethod {
     OPTIONS,
     CONNECT,
     HEAD,
-    UNDEFINED
+    UNDEFINED,
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum WebProtocol {
     UNKNOWN(String),
     HTTP,
     HTTPS,
     FTP,
     WS,
-    WSS
+    WSS,
 }
 impl std::fmt::Display for WebProtocol {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

@@ -1,6 +1,6 @@
-use std::collections::BTreeMap;
-use crate::events::schema::{FieldSchema, FieldType};
 use crate::events::field_dictionary::*;
+use crate::events::schema::{FieldSchema, FieldType};
+use std::collections::BTreeMap;
 
 pub fn get_default_schema() -> FieldSchema {
     let mut fields = BTreeMap::new();
@@ -44,16 +44,10 @@ pub fn get_default_schema() -> FieldSchema {
     fields.insert("client.hostname", FieldType::Text("Hostname of the client"));
     fields.insert("client.ip", FieldType::Ip("Ip of the client"));
     fields.insert("client.mac", FieldType::Text("MAC address of the client"));
-    fields.insert(
-        DHCP_RECORD_TYPE,
-        FieldType::Text("DHCP record type"),
-    );
+    fields.insert(DHCP_RECORD_TYPE, FieldType::Text("DHCP record type"));
     fields.insert("dhcp.requested_ip", FieldType::Ip("DHCP requested IP"));
     fields.insert(USER_NAME, FieldType::Text("User name"));
-    fields.insert(
-        USER_DOMAIN,
-        FieldType::Text("Domain of the user"),
-    );
+    fields.insert(USER_DOMAIN, FieldType::Text("Domain of the user"));
     fields.insert(
         "source.user.name",
         FieldType::Text("Username of the initiator of an action"),
@@ -70,10 +64,7 @@ pub fn get_default_schema() -> FieldSchema {
         DESTINATION_IP,
         FieldType::Ip("IP of the target of a conector"),
     );
-    fields.insert(
-        SOURCE_PORT,
-        FieldType::Numeric("Port of the source"),
-    );
+    fields.insert(SOURCE_PORT, FieldType::Numeric("Port of the source"));
     fields.insert(
         DESTINATION_PORT,
         FieldType::Numeric("Port of the destination"),
@@ -378,50 +369,20 @@ pub fn get_default_schema() -> FieldSchema {
     );
 
     fields.insert(URL_FULL, FieldType::Text("Full url"));
-    fields.insert(
-        URL_DOMAIN,
-        FieldType::Text("Domain of the url"),
-    );
+    fields.insert(URL_DOMAIN, FieldType::Text("Domain of the url"));
     fields.insert(
         HTTP_RESPONSE_MIME_TYPE,
         FieldType::Text("HTTP response mime type"),
     );
-    fields.insert(
-        RULE_NAME,
-        FieldType::Text("Name of the rule"),
-    );
-    fields.insert(
-        DNS_OP_CODE,
-        FieldType::Text("Operation code in DNS"),
-    );
-    fields.insert(
-        DNS_ANSWER_NAME,
-        FieldType::Text("DNS answer name"),
-    );
-    fields.insert(
-        DNS_ANSWER_TYPE,
-        FieldType::Text("DNS answer type"),
-    );
-    fields.insert(
-        DNS_QUESTION_NAME,
-        FieldType::Text("DNS question name"),
-    );
-    fields.insert(
-        DNS_QUESTION_TYPE,
-        FieldType::Text("DNS question type"),
-    );
-    fields.insert(
-        RULE_ID,
-        FieldType::Text("Identifier of the rule"),
-    );
-    fields.insert(
-        URL_PATH,
-        FieldType::Text("URL path: /api/v1"),
-    );
-    fields.insert(
-        URL_QUERY,
-        FieldType::Text("URL query: ?a=b&c=d"),
-    );
+    fields.insert(RULE_NAME, FieldType::Text("Name of the rule"));
+    fields.insert(DNS_OP_CODE, FieldType::Text("Operation code in DNS"));
+    fields.insert(DNS_ANSWER_NAME, FieldType::Text("DNS answer name"));
+    fields.insert(DNS_ANSWER_TYPE, FieldType::Text("DNS answer type"));
+    fields.insert(DNS_QUESTION_NAME, FieldType::Text("DNS question name"));
+    fields.insert(DNS_QUESTION_TYPE, FieldType::Text("DNS question type"));
+    fields.insert(RULE_ID, FieldType::Text("Identifier of the rule"));
+    fields.insert(URL_PATH, FieldType::Text("URL path: /api/v1"));
+    fields.insert(URL_QUERY, FieldType::Text("URL query: ?a=b&c=d"));
     fields.insert("url.extension", FieldType::Text("URL extension: exe, html"));
     fields.insert(
         NETWORK_DURATION,

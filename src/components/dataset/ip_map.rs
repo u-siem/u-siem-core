@@ -1,9 +1,9 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpMap {
@@ -35,7 +35,7 @@ impl IpMapSynDataset {
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : IpMapDataset) {
+    pub fn update(&self, data: IpMapDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpMap::Replace(data)) {
             Ok(_) => {}
@@ -60,7 +60,10 @@ impl IpMapDataset {
             data6: BTreeMap::new(),
         };
     }
-    pub fn insert<S>(&mut self, ip: SiemIp, data: S) where S: Into<Cow<'static, str>> {
+    pub fn insert<S>(&mut self, ip: SiemIp, data: S)
+    where
+        S: Into<Cow<'static, str>>,
+    {
         match ip {
             SiemIp::V4(ip) => {
                 self.data4.insert(ip, data.into());
@@ -72,16 +75,17 @@ impl IpMapDataset {
     }
     pub fn get(&self, ip: &SiemIp) -> Option<&Cow<'static, str>> {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.get(ip)
-            }
-            SiemIp::V6(ip) => {
-                self.data6.get(ip)
-            }
+            SiemIp::V4(ip) => self.data4.get(ip),
+            SiemIp::V6(ip) => self.data6.get(ip),
         }
     }
 
-    pub fn internal_ref(&self) -> (&BTreeMap<u32, Cow<'static, str>>,&BTreeMap<u128, Cow<'static, str>>) {
+    pub fn internal_ref(
+        &self,
+    ) -> (
+        &BTreeMap<u32, Cow<'static, str>>,
+        &BTreeMap<u128, Cow<'static, str>>,
+    ) {
         (&self.data4, &self.data6)
     }
 }

@@ -1,10 +1,10 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::vec::Vec;
-use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpMapList {
@@ -18,7 +18,10 @@ pub struct IpMapListSynDataset {
     comm: Sender<UpdateIpMapList>,
 }
 impl IpMapListSynDataset {
-    pub fn new(dataset: Arc<IpMapListDataset>, comm: Sender<UpdateIpMapList>) -> IpMapListSynDataset {
+    pub fn new(
+        dataset: Arc<IpMapListDataset>,
+        comm: Sender<UpdateIpMapList>,
+    ) -> IpMapListSynDataset {
         return IpMapListSynDataset { dataset, comm };
     }
     /// Used to add IP with custom information like tags.
@@ -36,7 +39,7 @@ impl IpMapListSynDataset {
             Err(_) => {}
         };
     }
-    pub fn update(&self, data : IpMapListDataset) {
+    pub fn update(&self, data: IpMapListDataset) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateIpMapList::Replace(data)) {
             Ok(_) => {}
@@ -73,15 +76,16 @@ impl IpMapListDataset {
     }
     pub fn get(&self, ip: &SiemIp) -> Option<&Vec<Cow<'static, str>>> {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.get(ip)
-            }
-            SiemIp::V6(ip) => {
-                self.data6.get(ip)
-            }
+            SiemIp::V4(ip) => self.data4.get(ip),
+            SiemIp::V6(ip) => self.data6.get(ip),
         }
     }
-    pub fn internal_ref(&self) -> (&BTreeMap<u32, Vec<Cow<'static, str>>>,&BTreeMap<u128, Vec<Cow<'static, str>>>) {
+    pub fn internal_ref(
+        &self,
+    ) -> (
+        &BTreeMap<u32, Vec<Cow<'static, str>>>,
+        &BTreeMap<u128, Vec<Cow<'static, str>>>,
+    ) {
         (&self.data4, &self.data6)
     }
 }
@@ -94,11 +98,11 @@ mod tests {
         let mut dataset = IpMapListDataset::new();
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),
-            vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")],
+            vec![Cow::Borrowed("Local IP "), Cow::Borrowed("Remote IP")],
         );
         assert_eq!(
             dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
-            Some(&(vec![Cow::Borrowed("Local IP "),Cow::Borrowed("Remote IP")]))
+            Some(&(vec![Cow::Borrowed("Local IP "), Cow::Borrowed("Remote IP")]))
         );
     }
 }

@@ -1,20 +1,20 @@
-use super::common::{HttpMethod,WebProtocol};
+use super::common::{HttpMethod, WebProtocol};
 use super::field::SiemIp;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
 /// the path requested, the user agent and the size of the resource returned
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct WebServerEvent {
     pub source_ip: SiemIp,
-    pub destination_ip: Option<SiemIp>,//Server IP 
+    pub destination_ip: Option<SiemIp>, //Server IP
     pub destination_port: u16,
     pub in_bytes: u32,
     pub out_bytes: u32,
     pub http_code: u32,
-    pub duration : f32,
+    pub duration: f32,
     pub http_method: HttpMethod,
     pub user_agent: Cow<'static, str>,
     pub url_full: Cow<'static, str>,
@@ -25,7 +25,7 @@ pub struct WebServerEvent {
     pub protocol: WebProtocol,
     pub user_name: Cow<'static, str>,
     pub mime_type: Cow<'static, str>,
-    pub outcome: WebServerOutcome
+    pub outcome: WebServerOutcome,
 }
 impl WebServerEvent {
     pub fn source_ip(&self) -> &SiemIp {
@@ -82,10 +82,9 @@ impl WebServerEvent {
     pub fn user_agent(&self) -> &str {
         &self.user_agent
     }
-    
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum WebServerOutcome {
     /// Connection was blocked
     BLOCK,

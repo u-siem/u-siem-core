@@ -1,7 +1,7 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(tag = "type")]
 #[allow(non_camel_case_types)]
 pub enum NetworkProtocol {
@@ -148,7 +148,7 @@ pub enum NetworkProtocol {
     USE,
     RESERVED,
     OTHER(Cow<'static, str>),
-    UNKNOWN
+    UNKNOWN,
 }
 impl std::fmt::Display for NetworkProtocol {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

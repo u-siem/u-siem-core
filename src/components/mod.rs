@@ -1,76 +1,82 @@
-use crossbeam_channel::{Sender, Receiver};
+use crate::prelude::SiemResult;
+use crossbeam_channel::{Receiver, Sender};
+
 use self::dataset::holder::DatasetHolder;
+use self::kernel_message::KernelMessager;
 
 use super::events::SiemLog;
-use common::{SiemMessage, SiemComponentStateStorage, SiemComponentCapabilities};
+use common::{SiemComponentCapabilities, SiemMessage};
+use dataset::SiemDatasetType;
 use std::boxed::Box;
-use dataset::{SiemDatasetType};
 use std::sync::{Arc, Mutex};
+use storage::SiemComponentStateStorage;
 
-pub mod common;
-pub mod dataset;
-pub mod mitre;
 pub mod alert;
-pub mod metrics;
-pub mod task;
-pub mod use_case;
-pub mod query;
 pub mod command;
 pub mod command_types;
-pub mod parsing;
+pub mod common;
+pub mod dataset;
 pub mod enrichment;
+pub mod kernel_message;
+pub mod metrics;
+pub mod mitre;
+pub mod parsing;
+pub mod query;
+pub mod storage;
+pub mod task;
+pub mod use_case;
 
-pub trait SiemComponent : Send {
+pub trait SiemComponent: Send {
     fn id(&self) -> u64 {
-        return 0
+        return 0;
     }
     fn set_id(&mut self, id: u64);
     fn name(&self) -> &str {
-        return &"SiemComponent"
+        return &"SiemComponent";
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;
-    /// Sets the channel of this component. It's the kernel who sets the channel
-    fn set_log_channel(&mut self, sender : Sender<SiemLog>, receiver : Receiver<SiemLog>);
+    /// Sets the channel used to receive/send logs. It's the kernel who sets the channel
+    fn set_log_channel(&mut self, sender: Sender<SiemLog>, receiver: Receiver<SiemLog>);
 
     /// Sets the channel to communicate with the kernel.
-    fn set_kernel_sender(&mut self, sender : Sender<SiemMessage>);
+    fn set_kernel_sender(&mut self, sender: KernelMessager);
 
     /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
-    fn run(&mut self);
+    fn run(&mut self) -> SiemResult<()>;
 
-    /// Allow to store information about this component like the state or conigurations.
-    fn set_storage(&mut self, conn : Box<dyn SiemComponentStateStorage>);
+    /// Allow to store information about this component like the state or configurations.
+    fn set_storage(&mut self, conn: Box<dyn SiemComponentStateStorage>);
 
     /// Capabilities and actions that can be performed by this component
     fn capabilities(&self) -> SiemComponentCapabilities;
 
     /// Allows the Kernel to duplicate this component
     fn duplicate(&self) -> Box<dyn SiemComponent>;
-    
+
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets : DatasetHolder);
+    fn set_datasets(&mut self, datasets: DatasetHolder);
 }
 
-pub trait SiemDatasetManager : Send {
+pub trait SiemDatasetManager: Send {
     fn name(&self) -> &str {
-        return &"SiemDatasetManager"
+        return &"SiemDatasetManager";
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;
 
     /// Sets the channel to communicate with the kernel.
-    fn set_kernel_sender(&mut self, sender : Sender<SiemMessage>);
+    fn set_kernel_sender(&mut self, sender: KernelMessager);
 
     /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
-    fn run(&mut self);
+    fn run(&mut self) -> SiemResult<()>;
 
     /// The kernel registers the datasets of the components
-    fn register_dataset(&mut self, dataset : SiemDatasetType);
+    fn register_dataset(&mut self, dataset: SiemDatasetType);
     /// The kernel registers the datasets of the components
-    fn register_datasets(&mut self, datasets : Vec<SiemDatasetType>);
+    fn register_datasets(&mut self, datasets: Vec<SiemDatasetType>);
 
-    /// Get the list of datasets to initialize components. 
+    /// Get the list of datasets to initialize components.
     /// This must be the live version of the datasets shared only between the DatasetManager and the Kernel
     fn get_datasets(&self) -> Arc<Mutex<DatasetHolder>>;
 }

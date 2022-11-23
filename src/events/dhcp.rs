@@ -1,8 +1,8 @@
 use super::field::SiemIp;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct DhcpEvent {
     /// Client IP address assigned, requested or cleaned
@@ -14,7 +14,7 @@ pub struct DhcpEvent {
     /// Client HostName
     pub source_hostname: Cow<'static, str>,
     /// DHCP server HostName
-    pub hostname: Cow<'static, str>
+    pub hostname: Cow<'static, str>,
 }
 
 impl DhcpEvent {
@@ -35,11 +35,11 @@ impl DhcpEvent {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum DhcpRecordType {
     Request,
     Assign,
-    Release
+    Release,
 }
 
 impl std::fmt::Display for DhcpRecordType {
@@ -49,11 +49,11 @@ impl std::fmt::Display for DhcpRecordType {
 }
 
 impl DhcpRecordType {
-    pub fn as_cow(&self) -> Cow<'static,str> {
+    pub fn as_cow(&self) -> Cow<'static, str> {
         match self {
             DhcpRecordType::Request => Cow::Borrowed("Request"),
             DhcpRecordType::Assign => Cow::Borrowed("Assign"),
-            DhcpRecordType::Release => Cow::Borrowed("Release")
+            DhcpRecordType::Release => Cow::Borrowed("Release"),
         }
     }
 }

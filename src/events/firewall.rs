@@ -1,9 +1,9 @@
 use super::field::SiemIp;
 use super::protocol::NetworkProtocol;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub struct FirewallEvent {
     /// Ip that started the connection
@@ -48,7 +48,7 @@ impl FirewallEvent {
     }
 }
 
-#[derive(Serialize, Debug, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum FirewallOutcome {
     /// Connection was blocked
     BLOCK,
