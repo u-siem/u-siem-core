@@ -6,6 +6,7 @@ use std::fmt::Display;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum SiemField {
     /// A basic String field
     Text(Cow<'static, str>),
@@ -35,6 +36,7 @@ pub enum SiemField {
     F64(f64),
     ///A date in a decimal number format with 64 bits
     Date(i64),
+    Array(Vec<String>)
 }
 impl SiemField {
     pub fn from_str<S>(val: S) -> SiemField
@@ -65,6 +67,7 @@ impl Display for SiemField {
             SiemField::I64(txt) => write!(f, "{}", txt.to_string()),
             SiemField::F64(txt) => write!(f, "{}", txt.to_string()),
             SiemField::Date(txt) => write!(f, "{}", txt.to_string()),
+            SiemField::Array(v) => write!(f, "[{}]", v.join(","))
         }
     }
 }

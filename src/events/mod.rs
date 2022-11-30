@@ -128,14 +128,6 @@ impl<'a> SiemLog {
     {
         let cw = origin.into();
         let ms = message.into();
-        let mut fields = BTreeMap::new();
-        fields.insert(
-            Cow::Borrowed("message"),
-            SiemField::Text(Cow::Owned(ms.clone())),
-        );
-        fields.insert(Cow::Borrowed("origin"), SiemField::Text(cw.clone()));
-        fields.insert(Cow::Borrowed("event_received"), SiemField::I64(received));
-        fields.insert(Cow::Borrowed("event_created"), SiemField::I64(received));
         SiemLog {
             message: ms,
             event_received: received,
@@ -147,7 +139,7 @@ impl<'a> SiemLog {
             vendor: Cow::default(),
             event: SiemEvent::Unknown,
             tags: BTreeSet::default(),
-            fields,
+            fields : BTreeMap::new(),
             event_created: received,
         }
     }

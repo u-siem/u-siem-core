@@ -52,7 +52,7 @@ pub enum TaskFireMode {
     /// Execute this taks using a cron definition
     Cron(u32, u32, u32, u32, u32),
     /// Execute each X miliseconds
-    Repetitive(u32),
+    Repetitive(u64),
     /// Execute this task once in the future
     Future(i64),
 }

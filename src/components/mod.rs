@@ -7,7 +7,9 @@ use self::kernel_message::KernelMessager;
 use super::events::SiemLog;
 use common::{SiemComponentCapabilities, SiemMessage};
 use dataset::SiemDatasetType;
+use std::borrow::Cow;
 use std::boxed::Box;
+use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use storage::SiemComponentStateStorage;
 
@@ -25,6 +27,7 @@ pub mod query;
 pub mod storage;
 pub mod task;
 pub mod use_case;
+pub mod rule;
 
 pub trait SiemComponent: Send {
     fn id(&self) -> u64 {
@@ -59,6 +62,11 @@ pub trait SiemComponent: Send {
 }
 
 pub trait SiemDatasetManager: Send {
+    fn id(&self) -> u64 {
+        return 0;
+    }
+    fn set_id(&mut self, id: u64);
+    
     fn name(&self) -> &str {
         return &"SiemDatasetManager";
     }
@@ -79,4 +87,10 @@ pub trait SiemDatasetManager: Send {
     /// Get the list of datasets to initialize components.
     /// This must be the live version of the datasets shared only between the DatasetManager and the Kernel
     fn get_datasets(&self) -> Arc<Mutex<DatasetHolder>>;
+}
+
+
+pub trait SiemRuleEngine : SiemComponent {
+    /// Sets the dictionary of languages to generate the different alerts of the rules
+    fn set_languages(&mut self, languages : BTreeMap<Cow<'static, str>,BTreeMap<Cow<'static, str>,Cow<'static, str>>>);
 }

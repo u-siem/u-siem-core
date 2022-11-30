@@ -8,6 +8,9 @@ pub extern crate chrono;
 pub extern crate crossbeam_channel;
 pub extern crate serde;
 pub extern crate serde_json;
+pub extern crate regex;
+pub extern crate lazy_static;
+
 
 pub mod prelude {
     pub use crate::components::{

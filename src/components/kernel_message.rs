@@ -5,6 +5,7 @@ use crossbeam_channel::Sender;
 
 use crate::prelude::{Notification, NotificationLevel, SiemMessage, SiemResult};
 
+#[derive(Clone)]
 pub struct KernelMessager {
     component_id: u64,
     component_name: String,
