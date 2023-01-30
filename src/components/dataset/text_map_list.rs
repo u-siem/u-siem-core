@@ -77,7 +77,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_find_data_in_dataset() {
         let mut dataset = TextMapListDataset::new();
         dataset.insert(
             LogString::Borrowed("192.168.1.1"),

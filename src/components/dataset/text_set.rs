@@ -81,7 +81,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_be_in_set() {
         let mut dataset = TextSetDataset::new();
         dataset.insert(LogString::Borrowed("192.168.1.1"));
         assert_eq!(dataset.contains(&LogString::Borrowed("192.168.1.1")), true);

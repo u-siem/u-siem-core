@@ -152,7 +152,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_find_info_of_ip_in_net_map() {
         let mut dataset = IpNetDataset::new();
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),

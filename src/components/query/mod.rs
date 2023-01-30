@@ -327,7 +327,7 @@ pub fn get_keyword_token(ident: &Vec<char>) -> Result<Token, String> {
 mod tests {
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_parse_the_query() {
         let input = String::from("filter field_name2=\"*something\" | fields os.actor_process as osap | filter to_string(osap,'something') = \"12345\"");
         let mut l = QueryLexer::new(input.chars().collect());
         l.read_char();

@@ -83,7 +83,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_find_data_in_map() {
         let mut dataset = TextMapDataset::new();
         dataset.insert(LogString::Borrowed("192.168.1.1"), LogString::Borrowed("Local IP"));
         assert_eq!(dataset.get("192.168.1.1"), Some(&LogString::Borrowed("Local IP")));

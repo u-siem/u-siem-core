@@ -95,7 +95,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_find_info_of_ip_in_map() {
         let mut dataset = IpMapDataset::new();
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),

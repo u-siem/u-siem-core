@@ -143,7 +143,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn geo_ip_should_find_ip() {
         let info = GeoIpInfo {
             city: LogString::Borrowed("LocalCity"),
             country: LogString::Borrowed("LocalCountry"),

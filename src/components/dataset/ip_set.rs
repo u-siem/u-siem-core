@@ -84,7 +84,7 @@ impl IpSetDataset {
 mod tests {
     use super::*;
     #[test]
-    fn test_dataset_creation() {
+    fn should_be_in_set() {
         let mut dataset = IpSetDataset::new();
         dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap());
         assert_eq!(

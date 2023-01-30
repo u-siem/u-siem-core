@@ -1,33 +1,19 @@
 use std::convert::TryFrom;
 
 pub fn ipv4_from_str(ipv4: &str) -> Result<u32, &'static str> {
-    let mut chars = String::new();
-    let mut desplazamiento = 24;
-    let mut number = 0;
-    for character in ipv4.chars() {
-        if character == '.' {
-            let parsed = chars.parse::<u8>();
-            let parsed = match parsed {
-                Ok(v) => v,
-                Err(_) => return Err("Cannot parse as u8"),
-            };
-            number += (parsed as u32) << desplazamiento;
-            chars = String::new();
-            desplazamiento -= 8;
-        } else {
-            chars.push(character);
+    let mut number : u32 = 0;
+    let mut desplazamiento = 0;
+    for part in ipv4.split('.').rev() {
+        if desplazamiento >= 32 {
+            return Err("More than 4 dots");
         }
+        let parsed = match part.parse::<u8>() {
+            Ok(v) => v,
+            Err(_) => return Err("Cannot parse as u8")
+        };
+        number += (parsed as u32) << desplazamiento;
+        desplazamiento += 8;
     }
-    if desplazamiento < 0 {
-        return Err("More than 4 dots");
-    }
-    let parsed = chars.parse::<u32>();
-    let parsed = match parsed {
-        Ok(v) => v,
-        Err(_) => return Err("Cannot parse as u32"),
-    };
-    number += parsed << desplazamiento;
-
     return Ok(number);
 }
 
@@ -48,26 +34,10 @@ fn hex_to_digit(byte: u8) -> u8 {
     }
 }
 pub fn ipv4_to_u32_bytes(ipv4: &[u8]) -> Result<u32, &'static str> {
-    let mut chars = String::new();
-    let mut desplazamiento = 24;
-    let mut number = 0;
-    for character in ipv4 {
-        if *character == 46 {
-            number += match chars.parse::<u32>() {
-                Ok(val) => val,
-                Err(_) => return Err("Cannot parse as u32"),
-            } << desplazamiento;
-            chars = String::new();
-            desplazamiento -= 8;
-        } else {
-            chars.push(*character as char);
-        }
+    if ipv4.len() != 4 {
+        return Err("Invalid IPV4 length");
     }
-    number += match chars.parse::<u32>() {
-        Ok(val) => val,
-        Err(_) => return Err("Cannot parse as u32"),
-    } << desplazamiento;
-    return Ok(number);
+    return Ok(((ipv4[0] as u32) << 24) + ((ipv4[1] as u32) << 16) + ((ipv4[2] as u32) << 8) +(ipv4[3] as u32))
 }
 
 /// Read up to four ASCII characters that represent hexadecimal digits, and return their value, as
@@ -327,6 +297,16 @@ pub fn port_to_u16(port: &str) -> Result<u16, &'static str> {
     };
 }
 
+pub fn parse_ipv4_port(text: &str) -> Option<(u32, u16)> {
+    match text.rfind(":") {
+        Some(pos) => match (ipv4_from_str(&text[..pos]), port_to_u16(&text[(pos + 1)..])) {
+            (Ok(v1), Ok(v2)) => Some((v1,v2)),
+            _ => None,
+        },
+        None => None,
+    }
+}
+
 pub fn is_ipv4_port(text: &str) -> bool {
     match text.rfind(":") {
         Some(pos) => match (ipv4_from_str(&text[..pos]), port_to_u16(&text[(pos + 1)..])) {
@@ -352,8 +332,37 @@ pub fn is_ipv6(text: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
-    fn test_is_local_ip() {
+    fn should_parse_ips() {
+        //192.168.1.1 = 3232235777
+        assert_eq!(3232235777, ipv4_from_str("192.168.1.1").unwrap());
+        //8.8.8.8 = 134744072
+        assert_eq!(134744072, ipv4_from_str("8.8.8.8").unwrap());
+        //10.127.222.21 = 176152085
+        assert_eq!(176152085, ipv4_from_str("10.127.222.21").unwrap());
+        //100.64.0.0 = 1681915904
+        assert_eq!(1681915904, ipv4_from_str("100.64.0.0").unwrap());
+        //10.255.255.255 = 184549375
+        assert_eq!(184549375, ipv4_from_str("10.255.255.255").unwrap());
+    }
+
+    #[test]
+    fn should_parse_ip_from_u8_array() {
+        //192.168.1.1 = 3232235777
+        assert_eq!(3232235777, ipv4_to_u32_bytes(&[192,168,1,1]).unwrap());
+        //8.8.8.8 = 134744072
+        assert_eq!(134744072, ipv4_to_u32_bytes(&[8,8,8,8]).unwrap());
+        //10.127.222.21 = 176152085
+        assert_eq!(176152085, ipv4_to_u32_bytes(&[10,127,222,21]).unwrap());
+        //100.64.0.0 = 1681915904
+        assert_eq!(1681915904, ipv4_to_u32_bytes(&[100,64,0,0]).unwrap());
+        //10.255.255.255 = 184549375
+        assert_eq!(184549375, ipv4_to_u32_bytes(&[10,255,255,255]).unwrap());
+    }
+
+    #[test]
+    fn check_ip_is_local() {
         //192.168.1.1 = 3232235777
         assert_eq!(is_local_ip(3232235777), true);
         //8.8.8.8 = 134744072
@@ -367,7 +376,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_ipv4_port() {
+    fn should_parse_socket() {
         assert_eq!(is_ipv4_port("192.168.0.1:1000"), true);
         assert_eq!(is_ipv4_port("192.168.0.1:100000"), false);
         assert_eq!(is_ipv4("256.168.0.1"), false);
