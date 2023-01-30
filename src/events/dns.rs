@@ -1,6 +1,7 @@
+use crate::prelude::types::LogString;
+
 use super::field::SiemIp;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -14,8 +15,8 @@ pub struct DnsEvent {
     /// dns.question.type or dns.answer.type
     pub record_type: DnsRecordType,
     /// dns.question.name or dns.answer.name
-    pub record_name: Cow<'static, str>,
-    pub data: Option<Cow<'static, str>>,
+    pub record_name: LogString,
+    pub data: Option<LogString>,
 }
 
 impl DnsEvent {
@@ -34,7 +35,7 @@ impl DnsEvent {
     pub fn record_name(&self) -> &str {
         &self.record_name
     }
-    pub fn data(&self) -> &Option<Cow<'static, str>> {
+    pub fn data(&self) -> &Option<LogString> {
         &self.data
     }
 }
@@ -76,18 +77,18 @@ impl std::fmt::Display for DnsRecordType {
 }
 
 impl DnsRecordType {
-    pub fn as_cow(&self) -> Cow<'static, str> {
+    pub fn as_cow(&self) -> LogString {
         match self {
-            DnsRecordType::A => Cow::Borrowed("A"),
-            DnsRecordType::AAAA => Cow::Borrowed("AAAA"),
-            DnsRecordType::CNAME => Cow::Borrowed("CNAME"),
-            DnsRecordType::MX => Cow::Borrowed("MX"),
-            DnsRecordType::NS => Cow::Borrowed("NS"),
-            DnsRecordType::PTR => Cow::Borrowed("PTR"),
-            DnsRecordType::CERT => Cow::Borrowed("CERT"),
-            DnsRecordType::SRV => Cow::Borrowed("SRV"),
-            DnsRecordType::TXT => Cow::Borrowed("TXT"),
-            DnsRecordType::SOA => Cow::Borrowed("SOA"),
+            DnsRecordType::A => LogString::Borrowed("A"),
+            DnsRecordType::AAAA => LogString::Borrowed("AAAA"),
+            DnsRecordType::CNAME => LogString::Borrowed("CNAME"),
+            DnsRecordType::MX => LogString::Borrowed("MX"),
+            DnsRecordType::NS => LogString::Borrowed("NS"),
+            DnsRecordType::PTR => LogString::Borrowed("PTR"),
+            DnsRecordType::CERT => LogString::Borrowed("CERT"),
+            DnsRecordType::SRV => LogString::Borrowed("SRV"),
+            DnsRecordType::TXT => LogString::Borrowed("TXT"),
+            DnsRecordType::SOA => LogString::Borrowed("SOA"),
         }
     }
 }

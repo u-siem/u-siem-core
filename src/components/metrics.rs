@@ -1,6 +1,6 @@
 use serde::ser::{SerializeStruct, Serializer};
 use serde::Serialize;
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::AtomicU64;
@@ -30,9 +30,9 @@ pub enum SiemMetric {
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemMetricDefinition {
     pub metric: SiemMetric,
-    pub name: Cow<'static, str>,
-    pub description: Cow<'static, str>,
-    pub tags: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    pub name: LogString,
+    pub description: LogString,
+    pub tags: BTreeMap<LogString, LogString>,
 }
 
 // Work in progress...

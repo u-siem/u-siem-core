@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::{BTreeMap, BTreeSet};
 pub mod auth;
 pub mod common;
@@ -93,25 +93,25 @@ pub enum SiemEvent {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SiemLog {
     /// IP or Hostname of the server that sent the log.
-    origin: Cow<'static, str>,
+    origin: LogString,
     /// Customer name for SOC environments. Ex: Contoso
-    tenant: Cow<'static, str>,
+    tenant: LogString,
     /// Name of the product for wich the log belongs. Ex: ASA
-    product: Cow<'static, str>,
+    product: LogString,
     /// Subset of the product logs. Like a OS that can have multiple programs running inside generating multiple logs.
-    service: Cow<'static, str>,
+    service: LogString,
     /// Category of the device: Firewall, web, antivirus
-    category: Cow<'static, str>,
+    category: LogString,
     /// Company that created the product. Ex: Cisco
-    vendor: Cow<'static, str>,
+    vendor: LogString,
     /// Categorization of the log. This forces the developer to use
     /// the same naming convention and reduces the number of human errors.
     event: SiemEvent,
     /// Tags to better describe the event.Must be in lowercase. Ex: vip_user, critical_asset, fake_account, honeypot
-    tags: BTreeSet<Cow<'static, str>>,
+    tags: BTreeSet<LogString>,
     /// Map of fields extracted or generated for this log. Must follow the Elastic Common Schema (ECS v1.x)
     #[serde(flatten)]
-    fields: BTreeMap<Cow<'static, str>, SiemField>,
+    fields: BTreeMap<LogString, SiemField>,
     /// Original log message including syslog header
     message: String,
     /// Timestamp at witch the log arrived  
@@ -123,7 +123,7 @@ pub struct SiemLog {
 impl<'a> SiemLog {
     pub fn new<S, M>(message: M, received: i64, origin: S) -> SiemLog
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
         M: Into<String>,
     {
         let cw = origin.into();
@@ -132,11 +132,11 @@ impl<'a> SiemLog {
             message: ms,
             event_received: received,
             origin: cw,
-            tenant: Cow::default(),
-            product: Cow::default(),
-            service: Cow::default(),
-            category: Cow::default(),
-            vendor: Cow::default(),
+            tenant: LogString::default(),
+            product: LogString::default(),
+            service: LogString::default(),
+            category: LogString::default(),
+            vendor: LogString::default(),
             event: SiemEvent::Unknown,
             tags: BTreeSet::default(),
             fields : BTreeMap::new(),
@@ -155,11 +155,11 @@ impl<'a> SiemLog {
     }
     pub fn set_tenant<S>(&mut self, tenant: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         let tenant = tenant.into();
         self.fields
-            .insert(Cow::Borrowed("tenant"), SiemField::Text(tenant.clone()));
+            .insert(LogString::Borrowed("tenant"), SiemField::Text(tenant.clone()));
         self.tenant = tenant;
     }
     pub fn product(&'a self) -> &'a str {
@@ -167,11 +167,11 @@ impl<'a> SiemLog {
     }
     pub fn set_product<S>(&mut self, product: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         let product = product.into();
         self.fields
-            .insert(Cow::Borrowed("product"), SiemField::Text(product.clone()));
+            .insert(LogString::Borrowed("product"), SiemField::Text(product.clone()));
         self.product = product;
     }
     pub fn service(&'a self) -> &'a str {
@@ -180,11 +180,11 @@ impl<'a> SiemLog {
 
     pub fn set_service<S>(&mut self, service: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         let service = service.into();
         self.fields
-            .insert(Cow::Borrowed("service"), SiemField::Text(service.clone()));
+            .insert(LogString::Borrowed("service"), SiemField::Text(service.clone()));
         self.service = service;
     }
     pub fn category(&'a self) -> &'a str {
@@ -192,11 +192,11 @@ impl<'a> SiemLog {
     }
     pub fn set_category<S>(&mut self, category: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         let category = category.into();
         self.fields
-            .insert(Cow::Borrowed("category"), SiemField::Text(category.clone()));
+            .insert(LogString::Borrowed("category"), SiemField::Text(category.clone()));
         self.category = category;
     }
     pub fn vendor(&'a self) -> &'a str {
@@ -204,11 +204,11 @@ impl<'a> SiemLog {
     }
     pub fn set_vendor<S>(&mut self, vendor: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         let vendor = vendor.into();
         self.fields
-            .insert(Cow::Borrowed("vendor"), SiemField::Text(vendor.clone()));
+            .insert(LogString::Borrowed("vendor"), SiemField::Text(vendor.clone()));
         self.vendor = vendor;
     }
     pub fn event_received(&'a self) -> i64 {
@@ -220,16 +220,16 @@ impl<'a> SiemLog {
     pub fn set_event_created(&mut self, date: i64) {
         self.event_created = date;
         self.fields
-            .insert(Cow::Borrowed("event_created"), SiemField::I64(date));
+            .insert(LogString::Borrowed("event_created"), SiemField::I64(date));
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
     }
     pub fn add_tag(&mut self, tag: &str) {
-        self.tags.insert(Cow::Owned(tag.to_lowercase()));
+        self.tags.insert(LogString::Owned(tag.to_lowercase()));
         self.fields.insert(
-            Cow::Borrowed("tags"),
-            SiemField::Text(Cow::Owned(
+            LogString::Borrowed("tags"),
+            SiemField::Text(LogString::Owned(
                 self.tags
                     .iter()
                     .map(|x| x.to_uppercase())
@@ -238,7 +238,7 @@ impl<'a> SiemLog {
             )),
         );
     }
-    pub fn tags(&'a self) -> &'a BTreeSet<Cow<'static, str>> {
+    pub fn tags(&'a self) -> &'a BTreeSet<LogString> {
         &self.tags
     }
     pub fn field(&'a self, field_name: &str) -> Option<&SiemField> {
@@ -246,7 +246,7 @@ impl<'a> SiemLog {
     }
     pub fn add_field(&mut self, field_name: &str, field_value: SiemField) {
         self.fields
-            .insert(Cow::Owned(field_name.to_owned()), field_value);
+            .insert(LogString::Owned(field_name.to_owned()), field_value);
     }
     pub fn has_field(&self, field_name: &str) -> bool {
         self.fields.contains_key(field_name)
@@ -276,15 +276,15 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::EVENT_OUTCOME,
-                    SiemField::Text(Cow::Owned(fw.outcome().to_string())),
+                    SiemField::Text(LogString::Owned(fw.outcome().to_string())),
                 );
                 self.add_field(
                     field_dictionary::IN_INTERFACE,
-                    SiemField::Text(Cow::Owned(fw.in_interface().to_string())),
+                    SiemField::Text(LogString::Owned(fw.in_interface().to_string())),
                 );
                 self.add_field(
                     field_dictionary::OUT_INTERFACE,
-                    SiemField::Text(Cow::Owned(fw.out_interface().to_string())),
+                    SiemField::Text(LogString::Owned(fw.out_interface().to_string())),
                 );
                 self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
                 self.add_field(
@@ -293,7 +293,7 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::NETWORK_TRANSPORT,
-                    SiemField::Text(Cow::Owned(fw.network_protocol().to_string())),
+                    SiemField::Text(LogString::Owned(fw.network_protocol().to_string())),
                 );
             }
             SiemEvent::WebProxy(fw) => {
@@ -311,7 +311,7 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::EVENT_OUTCOME,
-                    SiemField::Text(Cow::Owned(fw.outcome().to_string())),
+                    SiemField::Text(LogString::Owned(fw.outcome().to_string())),
                 );
                 self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
                 self.add_field(
@@ -320,7 +320,7 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::NETWORK_PROTOCOL,
-                    SiemField::Text(Cow::Owned(fw.protocol().to_string())),
+                    SiemField::Text(LogString::Owned(fw.protocol().to_string())),
                 );
                 self.add_field(
                     field_dictionary::HTTP_RESPONSE_STATUS_CODE,
@@ -328,15 +328,15 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::HTTP_REQUEST_METHOD,
-                    SiemField::Text(Cow::Owned(fw.http_method().to_string())),
+                    SiemField::Text(LogString::Owned(fw.http_method().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_FULL,
-                    SiemField::Text(Cow::Owned(fw.url().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_DOMAIN,
-                    SiemField::Text(Cow::Owned(fw.domain().to_string())),
+                    SiemField::Text(LogString::Owned(fw.domain().to_string())),
                 );
                 self.add_field(
                     field_dictionary::USER_NAME,
@@ -378,7 +378,7 @@ impl<'a> SiemLog {
                     DnsEventType::ANSWER => {
                         self.add_field(
                             field_dictionary::DNS_OP_CODE,
-                            SiemField::Text(Cow::Borrowed("ANSWER")),
+                            SiemField::Text(LogString::Borrowed("ANSWER")),
                         );
                         self.add_field(
                             field_dictionary::DNS_ANSWER_NAME,
@@ -401,7 +401,7 @@ impl<'a> SiemLog {
                     DnsEventType::QUERY => {
                         self.add_field(
                             field_dictionary::DNS_OP_CODE,
-                            SiemField::Text(Cow::Borrowed("QUERY")),
+                            SiemField::Text(LogString::Borrowed("QUERY")),
                         );
                         self.add_field(
                             field_dictionary::DNS_QUESTION_NAME,
@@ -433,11 +433,11 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::EVENT_OUTCOME,
-                    SiemField::Text(Cow::Owned(fw.outcome().to_string())),
+                    SiemField::Text(LogString::Owned(fw.outcome().to_string())),
                 );
                 self.add_field(
                     field_dictionary::NETWORK_PROTOCOL,
-                    SiemField::Text(Cow::Owned(fw.network_protocol().to_string())),
+                    SiemField::Text(LogString::Owned(fw.network_protocol().to_string())),
                 );
                 self.add_field(
                     field_dictionary::RULE_CATEGORY,
@@ -467,7 +467,7 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::EVENT_OUTCOME,
-                    SiemField::Text(Cow::Owned(fw.outcome().to_string())),
+                    SiemField::Text(LogString::Owned(fw.outcome().to_string())),
                 );
                 self.add_field(field_dictionary::SOURCE_BYTES, SiemField::U32(fw.out_bytes));
                 self.add_field(
@@ -476,7 +476,7 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::NETWORK_PROTOCOL,
-                    SiemField::Text(Cow::Owned(fw.protocol().to_string())),
+                    SiemField::Text(LogString::Owned(fw.protocol().to_string())),
                 );
                 self.add_field(
                     field_dictionary::HTTP_RESPONSE_STATUS_CODE,
@@ -484,27 +484,27 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     field_dictionary::HTTP_REQUEST_METHOD,
-                    SiemField::Text(Cow::Owned(fw.http_method().to_string())),
+                    SiemField::Text(LogString::Owned(fw.http_method().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_FULL,
-                    SiemField::Text(Cow::Owned(fw.url_full().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url_full().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_DOMAIN,
-                    SiemField::Text(Cow::Owned(fw.url_domain().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url_domain().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_PATH,
-                    SiemField::Text(Cow::Owned(fw.url_path().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url_path().to_string())),
                 );
                 self.add_field(
                     field_dictionary::URL_QUERY,
-                    SiemField::Text(Cow::Owned(fw.url_query().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url_query().to_string())),
                 );
                 self.add_field(
                     "url.extension",
-                    SiemField::Text(Cow::Owned(fw.url_extension().to_string())),
+                    SiemField::Text(LogString::Owned(fw.url_extension().to_string())),
                 );
                 self.add_field(
                     field_dictionary::USER_NAME,
@@ -520,17 +520,17 @@ impl<'a> SiemLog {
                 );
                 self.add_field(
                     "user_agent.original",
-                    SiemField::Text(Cow::Owned(fw.user_agent().to_string())),
+                    SiemField::Text(LogString::Owned(fw.user_agent().to_string())),
                 );
             }
             SiemEvent::Auth(fw) => {
                 self.add_field(
                     "host.hostname",
-                    SiemField::Text(Cow::Owned(fw.hostname().to_string())),
+                    SiemField::Text(LogString::Owned(fw.hostname().to_string())),
                 );
                 self.add_field(
                     field_dictionary::EVENT_OUTCOME,
-                    SiemField::Text(Cow::Owned(fw.outcome().to_string())),
+                    SiemField::Text(LogString::Owned(fw.outcome().to_string())),
                 );
                 match fw.login_type() {
                     AuthLoginType::Local(evnt) => {
@@ -554,7 +554,7 @@ impl<'a> SiemLog {
                         );
                         self.add_field(
                             "source.address",
-                            SiemField::Text(Cow::Owned(evnt.source_address.to_string())),
+                            SiemField::Text(LogString::Owned(evnt.source_address.to_string())),
                         );
                         match SiemIp::from_ip_str(&evnt.source_address) {
                             Ok(ip) => {
@@ -584,7 +584,7 @@ impl<'a> SiemLog {
                         );
                         self.add_field(
                             "source.address",
-                            SiemField::Text(Cow::Owned(evnt.source_address.to_string())),
+                            SiemField::Text(LogString::Owned(evnt.source_address.to_string())),
                         );
                         match SiemIp::from_ip_str(&evnt.source_address) {
                             Ok(ip) => {
@@ -616,15 +616,15 @@ impl<'a> SiemLog {
             SiemEvent::DHCP(dhcp) => {
                 self.add_field(
                     "host.hostname",
-                    SiemField::Text(Cow::Owned(dhcp.hostname().to_string())),
+                    SiemField::Text(LogString::Owned(dhcp.hostname().to_string())),
                 );
                 self.add_field(
                     "server.hostname",
-                    SiemField::Text(Cow::Owned(dhcp.hostname().to_string())),
+                    SiemField::Text(LogString::Owned(dhcp.hostname().to_string())),
                 );
                 self.add_field(
                     "client.hostname",
-                    SiemField::Text(Cow::Owned(dhcp.source_hostname().to_string())),
+                    SiemField::Text(LogString::Owned(dhcp.source_hostname().to_string())),
                 );
                 self.add_field("client.ip", SiemField::IP(dhcp.source_ip().clone()));
                 self.add_field(
@@ -650,7 +650,7 @@ impl<'a> SiemLog {
         }
         self.event = event;
     }
-    pub fn fields(&self) -> &BTreeMap<Cow<'static, str>, SiemField> {
+    pub fn fields(&self) -> &BTreeMap<LogString, SiemField> {
         &self.fields
     }
 }
@@ -672,11 +672,11 @@ mod tests {
             outcome: FirewallOutcome::ALLOW,
             in_bytes: 0,
             out_bytes: 0,
-            in_interface: Cow::Borrowed("in123"),
-            out_interface: Cow::Borrowed("out123"),
+            in_interface: LogString::Borrowed("in123"),
+            out_interface: LogString::Borrowed("out123"),
             network_protocol: NetworkProtocol::TCP,
         }));
-        log.add_field("event.dataset", SiemField::Text(Cow::Borrowed("filterlog")));
+        log.add_field("event.dataset", SiemField::Text(LogString::Borrowed("filterlog")));
         match log.field("event.dataset") {
             Some(val) => match val {
                 SiemField::Text(val) => {

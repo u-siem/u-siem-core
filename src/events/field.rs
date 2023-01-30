@@ -1,7 +1,8 @@
+use crate::prelude::types::LogString;
+
 use super::super::utilities::ip_utils::{ipv4_from_str, ipv4_to_str, ipv6_from_str, ipv6_to_str};
 use serde::Serialize;
 use serde::{ser::Serializer, Deserialize};
-use std::borrow::Cow;
 use std::fmt::Display;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -9,7 +10,7 @@ use std::fmt::Display;
 #[non_exhaustive]
 pub enum SiemField {
     /// A basic String field
-    Text(Cow<'static, str>),
+    Text(LogString),
     /// IPv4 or IPv6
     IP(SiemIp),
     //Domain like contoso.com
@@ -41,7 +42,7 @@ pub enum SiemField {
 impl SiemField {
     pub fn from_str<S>(val: S) -> SiemField
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         SiemField::Text(val.into())
     }
@@ -136,12 +137,12 @@ impl SiemIp {
             },
         }
     }
-    pub fn from_ip_str(val: &str) -> Result<SiemIp, Cow<'static, str>> {
+    pub fn from_ip_str(val: &str) -> Result<SiemIp, LogString> {
         match ipv4_from_str(&val) {
             Ok(val) => Ok(SiemIp::V4(val)),
             Err(_) => match ipv6_from_str(&val) {
                 Ok(val) => Ok(SiemIp::V6(val)),
-                Err(_) => Err(Cow::Borrowed("Invalid IP value")),
+                Err(_) => Err(LogString::Borrowed("Invalid IP value")),
             },
         }
     }
@@ -178,29 +179,29 @@ mod tests {
     use super::*;
     #[test]
     fn test_equals_between_fields() {
-        let field_text = SiemField::Text(Cow::Borrowed("TEXT_001"));
+        let field_text = SiemField::Text(LogString::Borrowed("TEXT_001"));
         let field_domain = SiemField::Domain(String::from("TEXT_001"));
         assert_eq!(field_text, field_domain);
-        let field_text = SiemField::Text(Cow::Borrowed("0.0.0.0"));
+        let field_text = SiemField::Text(LogString::Borrowed("0.0.0.0"));
         let field_ip = SiemField::IP(SiemIp::V4(0));
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(Cow::Borrowed("123"));
+        let field_text = SiemField::Text(LogString::Borrowed("123"));
         let field_ip = SiemField::U32(123);
         assert_eq!(field_text, field_ip);
         let field_ip = SiemField::U64(123);
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(Cow::Borrowed("123.456"));
+        let field_text = SiemField::Text(LogString::Borrowed("123.456"));
         let field_ip = SiemField::F64(123.456);
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(Cow::Borrowed("User1234"));
+        let field_text = SiemField::Text(LogString::Borrowed("User1234"));
         let field_ip = SiemField::User("User1234".to_string());
         assert_eq!(field_text, field_ip);
         let field_ip = SiemField::AssetID("User1234".to_string());
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(Cow::Borrowed("-1234"));
+        let field_text = SiemField::Text(LogString::Borrowed("-1234"));
         let field_ip = SiemField::I64(-1234);
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(Cow::Borrowed("-1234"));
+        let field_text = SiemField::Text(LogString::Borrowed("-1234"));
         let field_ip = SiemField::Date(-1234);
         assert_eq!(field_text, field_ip);
     }

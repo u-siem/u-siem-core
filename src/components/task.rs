@@ -1,21 +1,23 @@
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, collections::BTreeMap};
+use std::{collections::BTreeMap};
+
+use crate::prelude::types::LogString;
 
 use super::common::UserRole;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TaskDefinition {
     class: SiemTaskType,
-    name: Cow<'static, str>,
-    description: Cow<'static, str>,
+    name: LogString,
+    description: LogString,
     min_permission: UserRole,
     fire_mode: TaskFireMode,
 }
 impl TaskDefinition {
     pub fn new(
         class: SiemTaskType,
-        name: Cow<'static, str>,
-        description: Cow<'static, str>,
+        name: LogString,
+        description: LogString,
         min_permission: UserRole,
         fire_mode: TaskFireMode,
     ) -> TaskDefinition {
@@ -63,18 +65,18 @@ pub enum TaskFireMode {
 pub enum SiemTaskType {
     /// Script name and Script parameters
     EXECUTE_ENDPOINT_SCRIPT(
-        Cow<'static, str>,
-        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+        LogString,
+        BTreeMap<LogString, LogString>,
     ),
     /// Remediate a list of emails. List of parameters
-    REMEDIATE_EMAILS(BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+    REMEDIATE_EMAILS(BTreeMap<LogString, LogString>),
     /// Report IP, email to abuse mail. Needed provider name and parameters
-    REPORT_ABUSE(BTreeMap<Cow<'static, str>, Cow<'static, str>>),
+    REPORT_ABUSE(BTreeMap<LogString, LogString>),
     UPDATE_GEOIP,
     /// Task name, Map<ParamName, Description>
     OTHER(
-        Cow<'static, str>,
-        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+        LogString,
+        BTreeMap<LogString, LogString>,
     ),
 }
 

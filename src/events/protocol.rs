@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(tag = "type")]
@@ -147,7 +147,7 @@ pub enum NetworkProtocol {
     ETHERNET,
     USE,
     RESERVED,
-    OTHER(Cow<'static, str>),
+    OTHER(LogString),
     UNKNOWN,
 }
 impl std::fmt::Display for NetworkProtocol {

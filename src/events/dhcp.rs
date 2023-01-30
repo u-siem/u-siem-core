@@ -1,6 +1,7 @@
+use crate::prelude::types::LogString;
+
 use super::field::SiemIp;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -12,9 +13,9 @@ pub struct DhcpEvent {
     /// Request or assignation
     pub record_type: DhcpRecordType,
     /// Client HostName
-    pub source_hostname: Cow<'static, str>,
+    pub source_hostname: LogString,
     /// DHCP server HostName
-    pub hostname: Cow<'static, str>,
+    pub hostname: LogString,
 }
 
 impl DhcpEvent {
@@ -49,11 +50,11 @@ impl std::fmt::Display for DhcpRecordType {
 }
 
 impl DhcpRecordType {
-    pub fn as_cow(&self) -> Cow<'static, str> {
+    pub fn as_cow(&self) -> LogString {
         match self {
-            DhcpRecordType::Request => Cow::Borrowed("Request"),
-            DhcpRecordType::Assign => Cow::Borrowed("Assign"),
-            DhcpRecordType::Release => Cow::Borrowed("Release"),
+            DhcpRecordType::Request => LogString::Borrowed("Request"),
+            DhcpRecordType::Assign => LogString::Borrowed("Assign"),
+            DhcpRecordType::Release => LogString::Borrowed("Release"),
         }
     }
 }

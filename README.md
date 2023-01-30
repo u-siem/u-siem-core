@@ -132,7 +132,7 @@ pub enum WebProxyRuleCategory {
 - [x] Design of components with local horizontal scalability: The kernel must be able to increase the number of threads assigned to a components if there is a congestion in the event queue.
 - [x] Prometheus metrics: processed events of each type, errors, users connected, number of querys...
 - [x] Event types with fields.
-- [ ] Custom error system as to work with ?
+- [x] Custom error system
 - [x] Components and kernel interfaces. The components must be registered in the kernel, but the kernel in another instance must be able to know that they exist.
 - [x] SIEM inter-Kernel channels, to allow horizontal scaling (Redis channels). Depends on the kernel implementation.
 - [x] Datasets that allow Real-Time log enhancement.
@@ -140,8 +140,7 @@ pub enum WebProxyRuleCategory {
 - [ ] Behavour Engine component: Inspiration from Darktrace that uses a lot of small rules to generate a threat score for the event and increse the total score for the user.
 - [ ] Active Directory integration for enrich event logs related to users. 
 - [ ] Desing a lightweight components that works as agents to get logs from Cloud related sources [Agent Ingestion Components](https://docs.paloaltonetworks.com/cortex/cortex-xdr/cortex-xdr-pro-admin/external-data-ingestion/ingest-authentication-logs-and-data/ingest-authentication-logs-and-data-from-azure-ad.html)
-- [ ] SIGMA rule engine with redis as a Working Memmory.
-- [ ] Enforced storage schema for logs. Each source extracts multiple fields with different names. In elastic its not recomended to have more than 1000 fields. Also, it must allow renaming of fields because ECS uses dots in the field names but the majority of databases cant.
+- [x] SIGMA rules support.
+- [x] Enforced storage schema for logs. Each source extracts multiple fields with different names. In elastic its not recomended to have more than 1000 fields. Also, it must allow renaming of fields because ECS uses dots in the field names but the majority of databases cant.
 - [ ] GDPR included for logs: An analyst does not need to know information about users, such as the websites they visit or the emails they receive. Integrated into the Storage Schema, like the url related fields must be stored encrypted for WebProxy events or the email.subject, email.files or email.source.user.name for Mail events.
-- [ ] Support for Threat Hunting using Jupyter.
 - [ ] Mantaince calendar. Used to disable alerting of events related to device configurations, like FortiSIEM does.

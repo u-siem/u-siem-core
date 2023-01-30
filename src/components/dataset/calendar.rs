@@ -1,13 +1,13 @@
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
 #[derive(Serialize, Debug)]
 pub enum UpdateCalendar {
-    Add((i64, i64, Cow<'static, str>)),
+    Add((i64, i64, LogString)),
     Remove((i64, i64)),
     Replace(CalendarDataset),
 }
@@ -22,7 +22,7 @@ impl CalendarSynDataset {
         return CalendarSynDataset { dataset, comm };
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&mut self, start: i64, end: i64, data: Cow<'static, str>) {
+    pub fn insert(&mut self, start: i64, end: i64, data: LogString) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateCalendar::Add((start, end, data))) {
             Ok(_) => {}
@@ -43,7 +43,7 @@ impl CalendarSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, time: i64) -> Option<Vec<&Cow<'static, str>>> {
+    pub fn get(&self, time: i64) -> Option<Vec<&LogString>> {
         // Todo improve with cached content
         self.dataset.get(time)
     }
@@ -51,7 +51,7 @@ impl CalendarSynDataset {
 
 #[derive(Serialize, Debug)]
 pub struct CalendarDataset {
-    data: BTreeMap<i64, Vec<(i64, i64, Cow<'static, str>)>>,
+    data: BTreeMap<i64, Vec<(i64, i64, LogString)>>,
 }
 
 impl CalendarDataset {
@@ -60,7 +60,7 @@ impl CalendarDataset {
             data: BTreeMap::new(),
         };
     }
-    pub fn insert(&mut self, start: i64, end: i64, data: Cow<'static, str>) {
+    pub fn insert(&mut self, start: i64, end: i64, data: LogString) {
         let start_day = start / 86400000;
         let end_day = end / 86400000;
         match start_day - end_day {
@@ -101,7 +101,7 @@ impl CalendarDataset {
         }
     }
     /// Time in millisecs
-    pub fn get(&self, time: i64) -> Option<Vec<&Cow<'static, str>>> {
+    pub fn get(&self, time: i64) -> Option<Vec<&LogString>> {
         let day = time / 86400000;
         match self.data.get(&day) {
             Some(v) => {
@@ -123,9 +123,10 @@ impl CalendarDataset {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
     use chrono::prelude::{TimeZone, Utc};
-    use std::borrow::Cow;
+    
     #[test]
     fn test_dataset_creation_same_day() {
         let mut dataset = CalendarDataset::new();
@@ -153,8 +154,8 @@ mod tests {
                 panic!("Must not happen")
             }
         };
-        dataset.insert(start, end, Cow::Borrowed("LOLOLO"));
-        assert_eq!(dataset.get(time), Some(vec!(&Cow::Borrowed("LOLOLO"))));
+        dataset.insert(start, end, LogString::Borrowed("LOLOLO"));
+        assert_eq!(dataset.get(time), Some(vec!(&LogString::Borrowed("LOLOLO"))));
         assert_eq!(dataset.get(0), None);
         assert_eq!(dataset.get(time2), None);
     }
@@ -198,9 +199,9 @@ mod tests {
                 panic!("Must not happen")
             }
         };
-        dataset.insert(start, end, Cow::Borrowed("LOLOLO"));
-        assert_eq!(dataset.get(time), Some(vec!(&Cow::Borrowed("LOLOLO"))));
-        assert_eq!(dataset.get(time2), Some(vec!(&Cow::Borrowed("LOLOLO"))));
+        dataset.insert(start, end, LogString::Borrowed("LOLOLO"));
+        assert_eq!(dataset.get(time), Some(vec!(&LogString::Borrowed("LOLOLO"))));
+        assert_eq!(dataset.get(time2), Some(vec!(&LogString::Borrowed("LOLOLO"))));
         assert_eq!(dataset.get(0), None);
         assert_eq!(dataset.get(time3), None);
         assert_eq!(dataset.get(time4), None);

@@ -1,7 +1,8 @@
+use crate::prelude::types::LogString;
+
 use super::field::SiemIp;
 use super::protocol::NetworkProtocol;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -23,9 +24,9 @@ pub struct FirewallEvent {
     /// Bytes sended. Equals source.bytes
     pub out_bytes: u32,
     /// Input interface for the connection
-    pub in_interface: Cow<'static, str>,
+    pub in_interface: LogString,
     /// Output interface for the connection
-    pub out_interface: Cow<'static, str>,
+    pub out_interface: LogString,
 }
 impl FirewallEvent {
     pub fn source_ip(&self) -> &SiemIp {

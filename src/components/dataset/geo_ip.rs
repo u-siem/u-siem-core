@@ -1,7 +1,7 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -14,11 +14,11 @@ pub enum UpdateGeoIp {
 }
 #[derive(Serialize, Debug)]
 pub struct GeoIpInfo {
-    pub country: Cow<'static, str>,
-    pub city: Cow<'static, str>,
+    pub country: LogString,
+    pub city: LogString,
     pub latitude: f32,
     pub longitude: f32,
-    pub isp: Cow<'static, str>, // More important than country in my opinion because Geolocalization is very imprecise.
+    pub isp: LogString, // More important than country in my opinion because Geolocalization is very imprecise.
 }
 #[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
@@ -140,13 +140,14 @@ impl GeoIpDataset {
 }
 #[cfg(test)]
 mod tests {
+
     use super::*;
     #[test]
     fn test_dataset_creation() {
         let info = GeoIpInfo {
-            city: Cow::Borrowed("LocalCity"),
-            country: Cow::Borrowed("LocalCountry"),
-            isp: Cow::Borrowed("ISP"),
+            city: LogString::Borrowed("LocalCity"),
+            country: LogString::Borrowed("LocalCountry"),
+            isp: LogString::Borrowed("ISP"),
             latitude: 0.1,
             longitude: 0.2,
         };
@@ -157,7 +158,7 @@ mod tests {
                 .get(&SiemIp::from_ip_str("192.168.1.1").unwrap())
                 .unwrap()
                 .city[..],
-            &(&Cow::Borrowed("LocalCity"))[..]
+            &(&LogString::Borrowed("LocalCity"))[..]
         );
     }
 }

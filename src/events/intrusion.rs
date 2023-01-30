@@ -1,7 +1,7 @@
 use super::field::SiemIp;
 use super::protocol::NetworkProtocol;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -14,7 +14,7 @@ pub struct IntrusionEvent {
     pub destination_port: u16,
     pub network_protocol: NetworkProtocol,
     pub outcome: IntrusionOutcome, //Allowed, Deny...
-    pub rule_name: Cow<'static, str>,
+    pub rule_name: LogString,
     pub rule_category: IntrusionCategory, //Allowed, Deny...
     pub rule_id: u32,
 }

@@ -2,7 +2,7 @@ use serde::de::{MapAccess, Visitor};
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;
 use std::marker::PhantomData;
-use std::{borrow::Cow, fmt::Debug};
+use std::{fmt::Debug};
 
 use super::{
     command_types::{
@@ -12,6 +12,7 @@ use super::{
     common::{DatasetDefinition, UserRole},
 };
 use crate::events::field::SiemField;
+use crate::prelude::types::LogString;
 
 /// Define commands to be used by the users or other components.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -37,23 +38,23 @@ pub enum SiemFunctionType {
     LIST_PARSERS,
     /// Function name, Map<ParamName, Description>
     OTHER(
-        Cow<'static, str>,
-        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+        LogString,
+        BTreeMap<LogString, LogString>,
     ),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CommandDefinition {
     class: SiemFunctionType,
-    name: Cow<'static, str>,
-    description: Cow<'static, str>,
+    name: LogString,
+    description: LogString,
     min_permission: UserRole,
 }
 impl CommandDefinition {
     pub fn new(
         class: SiemFunctionType,
-        name: Cow<'static, str>,
-        description: Cow<'static, str>,
+        name: LogString,
+        description: LogString,
         min_permission: UserRole,
     ) -> CommandDefinition {
         CommandDefinition {
@@ -67,10 +68,10 @@ impl CommandDefinition {
     pub fn class(&self) -> &SiemFunctionType {
         &self.class
     }
-    pub fn name(&self) -> &Cow<'static, str> {
+    pub fn name(&self) -> &LogString {
         &self.name
     }
-    pub fn description(&self) -> &Cow<'static, str> {
+    pub fn description(&self) -> &LogString {
         &self.description
     }
     pub fn min_permission(&self) -> &UserRole {
@@ -130,8 +131,8 @@ pub enum SiemCommandCall {
     LOGIN_USER(LoginUser),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(
-        Cow<'static, str>,
-        BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+        LogString,
+        BTreeMap<LogString, LogString>,
     ),
 }
 
@@ -144,9 +145,9 @@ pub struct Pagination {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[non_exhaustive]
 pub enum CommandError {
-    BadParameters(Cow<'static, str>),
-    SyntaxError(Cow<'static, str>),
-    NotFound(Cow<'static, str>),
+    BadParameters(LogString),
+    SyntaxError(LogString),
+    NotFound(LogString),
 }
 
 /// The response of a command execution
@@ -176,8 +177,8 @@ pub enum SiemCommandResponse {
     LIST_PARSERS(CommandResult<Vec<ParserDefinition>>),
     LOGIN_USER(CommandResult<LoggedOnUser>),
     OTHER(
-        Cow<'static, str>,
-        CommandResult<BTreeMap<Cow<'static, str>, Cow<'static, str>>>,
+        LogString,
+        CommandResult<BTreeMap<LogString, LogString>>,
     ),
     //TODO: Authentication command, to allow login using third party systems: LDAP...
 }
@@ -278,9 +279,8 @@ pub struct QueryInfo {
 
 #[cfg(test)]
 mod de_ser {
-    use std::borrow::Cow;
 
-    use crate::prelude::DatasetDefinition;
+    use crate::prelude::{DatasetDefinition, types::LogString};
 
     use super::SiemCommandResponse;
 
@@ -322,8 +322,8 @@ mod de_ser {
 
         let res = SiemCommandResponse::LIST_DATASETS(super::CommandResult::Ok(vec![
             DatasetDefinition::new(
-                crate::prelude::SiemDatasetType::CustomIpMap(Cow::Borrowed("")),
-                Cow::Borrowed("Description"),
+                crate::prelude::SiemDatasetType::CustomIpMap(LogString::Borrowed("")),
+                LogString::Borrowed("Description"),
                 crate::prelude::UserRole::Administrator,
             ),
         ]));

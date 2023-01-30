@@ -1,3 +1,5 @@
+use crate::prelude::types::LogString;
+
 use super::super::events::SiemLog;
 use super::alert::SiemAlert;
 use super::command::{CommandDefinition, SiemCommandCall, SiemCommandHeader, SiemCommandResponse};
@@ -5,7 +7,6 @@ use super::dataset::{SiemDataset, SiemDatasetType};
 use super::metrics::SiemMetricDefinition;
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[non_exhaustive]
@@ -31,8 +32,8 @@ pub enum SiemMessage {
 pub struct Notification {
     pub timestamp: i64,
     pub component: u64,
-    pub component_name: Cow<'static, str>,
-    pub log: Cow<'static, str>,
+    pub component_name: LogString,
+    pub log: LogString,
     pub level: NotificationLevel,
 }
 
@@ -49,9 +50,9 @@ pub enum NotificationLevel {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemComponentCapabilities {
-    name: Cow<'static, str>,
-    description: Cow<'static, str>,
-    view: Cow<'static, str>,
+    name: LogString,
+    description: LogString,
+    view: LogString,
     datasets: Vec<DatasetDefinition>,
     commands: Vec<CommandDefinition>,
     tasks: Vec<TaskDefinition>,
@@ -59,9 +60,9 @@ pub struct SiemComponentCapabilities {
 }
 impl SiemComponentCapabilities {
     pub fn new(
-        name: Cow<'static, str>,
-        description: Cow<'static, str>,
-        view: Cow<'static, str>,
+        name: LogString,
+        description: LogString,
+        view: LogString,
         datasets: Vec<DatasetDefinition>,
         commands: Vec<CommandDefinition>,
         tasks: Vec<TaskDefinition>,
@@ -116,13 +117,13 @@ pub enum UserRole {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct DatasetDefinition {
     name: SiemDatasetType,
-    description: Cow<'static, str>,
+    description: LogString,
     required_permission: UserRole,
 }
 impl DatasetDefinition {
     pub fn new(
         name: SiemDatasetType,
-        description: Cow<'static, str>,
+        description: LogString,
         required_permission: UserRole,
     ) -> DatasetDefinition {
         DatasetDefinition {
@@ -136,7 +137,7 @@ impl DatasetDefinition {
         &self.name
     }
     /// Description of the dataset
-    pub fn description(&self) -> &Cow<'static, str> {
+    pub fn description(&self) -> &LogString {
         &self.description
     }
     /// Permission needed to access this dataset

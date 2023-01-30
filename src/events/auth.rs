@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -9,7 +9,7 @@ pub struct AuthEvent {
     /// Login success or failed
     pub outcome: LoginOutcome,
     /// Host where the login happened
-    pub hostname: Cow<'static, str>,
+    pub hostname: LogString,
 }
 
 impl AuthEvent {
@@ -49,15 +49,15 @@ pub enum LoginOutcome {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct LocalLogin {
     /// User that logged in
-    pub user_name: Cow<'static, str>,
+    pub user_name: LogString,
     /// User domain
-    pub domain: Cow<'static, str>,
+    pub domain: LogString,
 }
 
 impl LocalLogin {
     pub fn new<S>(user_name: S, domain: S) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         Self {
             user_name: user_name.into(),
@@ -70,12 +70,12 @@ impl LocalLogin {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct DelegationLogin {
     /// Original user name
-    pub source_user: Cow<'static, str>,
-    pub source_domain: Cow<'static, str>,
+    pub source_user: LogString,
+    pub source_domain: LogString,
     /// User to be logged as
-    pub destination_user: Cow<'static, str>,
+    pub destination_user: LogString,
     /// Domain of the user to be logged as
-    pub destination_domain: Cow<'static, str>,
+    pub destination_domain: LogString,
 }
 
 impl DelegationLogin {
@@ -86,7 +86,7 @@ impl DelegationLogin {
         destination_domain: S,
     ) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         Self {
             source_user: source_user.into(),
@@ -101,17 +101,17 @@ impl DelegationLogin {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct RemoteLogin {
     /// User that logged in
-    pub user_name: Cow<'static, str>,
+    pub user_name: LogString,
     /// User domain
-    pub domain: Cow<'static, str>,
+    pub domain: LogString,
     /// Ip or hostname of the remote location
-    pub source_address: Cow<'static, str>,
+    pub source_address: LogString,
 }
 
 impl RemoteLogin {
     pub fn new<S>(user_name: S, domain: S, source_address: S) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         Self {
             user_name: user_name.into(),
@@ -125,17 +125,17 @@ impl RemoteLogin {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct UpgradeLogin {
     /// Original user name
-    pub source_user: Cow<'static, str>,
+    pub source_user: LogString,
     /// User to be logged as
-    pub destination_user: Cow<'static, str>,
+    pub destination_user: LogString,
     /// Domain of the user to be logged as
-    pub destination_domain: Cow<'static, str>,
+    pub destination_domain: LogString,
 }
 
 impl UpgradeLogin {
     pub fn new<S>(source_user: S, destination_user: S, destination_domain: S) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         Self {
             source_user: source_user.into(),
@@ -149,15 +149,15 @@ impl UpgradeLogin {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct ValidationLogin {
     /// User doing the login
-    pub user_name: Cow<'static, str>,
+    pub user_name: LogString,
     /// Origin og the connection
-    pub source_address: Cow<'static, str>,
+    pub source_address: LogString,
 }
 
 impl ValidationLogin {
     pub fn new<S>(user_name: S, source_address: S) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         Self {
             user_name: user_name.into(),

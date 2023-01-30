@@ -1,7 +1,7 @@
 use super::common::{HttpMethod, WebProtocol};
 use super::field::SiemIp;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -13,15 +13,15 @@ pub struct WebProxyEvent {
     pub out_bytes: u32,
     pub http_code: u32,
     pub http_method: HttpMethod,
-    pub url: Cow<'static, str>,
-    pub domain: Cow<'static, str>,
+    pub url: LogString,
+    pub domain: LogString,
     /// Web protocol: http, https, ftp...Only UPPERCASE
     pub protocol: WebProtocol,
-    pub user_name: Cow<'static, str>,
-    pub mime_type: Cow<'static, str>,
+    pub user_name: LogString,
+    pub mime_type: LogString,
     pub outcome: WebProxyOutcome,
     /// Rule that routed/blocked the connection
-    pub rule_name: Option<Cow<'static, str>>,
+    pub rule_name: Option<LogString>,
     /// Categorization of the traffic
     pub rule_category: Option<WebProxyRuleCategory>,
 }
@@ -53,7 +53,7 @@ impl WebProxyEvent {
     pub fn domain(&self) -> &str {
         &self.domain
     }
-    pub fn rule_name(&self) -> &Option<Cow<'static, str>> {
+    pub fn rule_name(&self) -> &Option<LogString> {
         &self.rule_name
     }
     pub fn rule_category(&self) -> &Option<WebProxyRuleCategory> {

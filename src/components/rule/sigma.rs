@@ -2,14 +2,14 @@ use std::{borrow::Cow, collections::BTreeMap, fmt::Display};
 
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::{mitre::{MitreTactics, MitreTechniques}, AlertSeverity, SiemField};
+use crate::prelude::{mitre::{MitreTactics, MitreTechniques}, AlertSeverity, SiemField, types::LogString};
 
 use super::{SiemRule, MitreInfo, AlertGenerator, AlertContent, SiemSubRule, RuleCondition, RuleOperator};
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct SigmaRule {
     /// A brief title for the rule that should contain what the rules is supposed to detect (max. 256 characters)
-    pub title: Cow<'static, str>,
+    pub title: LogString,
     /// Sigma rules should be identified by a globally unique identifier in the id attribute. For this purpose random generated UUIDs (version 4) are recommended but not mandatory. An example for this is:
     /// ```yml
     /// title: Test rule
@@ -37,27 +37,27 @@ pub struct SigmaRule {
     /// - renamed: The rule had previously the referred identifier or identifiers but was renamed for any other reason, e.g. from a private naming scheme to UUIDs, to resolve collisions etc. It's not expected that a rule with this id exists anymore.
     ///
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<Cow<'static, str>>,
+    pub id: Option<LogString>,
     /// A short description of the rule and the malicious activity that can be detected (max. 65,535 characters)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<Cow<'static, str>>,
+    pub description: Option<LogString>,
     /// References to the source that the rule was derived from. These could be blog articles, technical papers, presentations or even tweets.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub references: Option<Vec<Cow<'static, str>>>,
+    pub references: Option<Vec<LogString>>,
     /// Declares the status of the rule:
     /// - stable: the rule is considered as stable and may be used in production systems or dashboards.
     /// - test: an almost stable rule that possibly could require some fine tuning.
     /// - experimental: an experimental rule that could lead to false results or be noisy, but could also identify interesting events.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<Cow<'static, str>>,
+    pub status: Option<LogString>,
     /// License of the rule according the SPDX ID specification: https://spdx.org/ids
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub license: Option<Cow<'static, str>>,
+    pub license: Option<LogString>,
     /// Creator of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub author: Option<Cow<'static, str>>,
+    pub author: Option<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub date: Option<Cow<'static, str>>,
+    pub date: Option<LogString>,
     ///This section describes the log data on which the detection is meant to be applied to. It describes the log source, the platform, the application and the type that is required in detection.
     ///
     ///It consists of three attributes that are evaluated automatically by the converters and an arbitrary number of optional elements. We recommend using a "definition" value in cases in which further explication is necessary.
@@ -80,27 +80,27 @@ pub struct SigmaRule {
     pub detection: Cow<'static, SigmaRuleDetection>,
     /// A list of log fields that could be interesting in further analysis of the event and should be displayed to the analyst.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub fields: Option<Vec<Cow<'static, str>>>,
+    pub fields: Option<Vec<LogString>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub falsepositives: Option<Vec<Cow<'static, str>>>,
+    pub falsepositives: Option<Vec<LogString>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub level: Option<Cow<'static, str>>,
+    pub level: Option<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Vec<Cow<'static, str>>>,
+    pub tags: Option<Vec<LogString>>,
 }
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct SigmaRuleDetection {
     #[serde(flatten)]
-    pub search_identifiers: BTreeMap<Cow<'static, str>, SigmaRuleCondition>,
-    pub condition: Cow<'static, str>,
+    pub search_identifiers: BTreeMap<LogString, SigmaRuleCondition>,
+    pub condition: LogString,
 }
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SigmaRuleCondition {
-    Map(BTreeMap<Cow<'static, str>, SigmaValue>),
-    List(Vec<BTreeMap<Cow<'static, str>, SigmaValue>>),
+    Map(BTreeMap<LogString, SigmaValue>),
+    List(Vec<BTreeMap<LogString, SigmaValue>>),
     #[default]
     None,
 }
@@ -141,7 +141,7 @@ impl Into<SiemSubRule> for SigmaRuleCondition {
     }
 }
 
-fn parse_rule_condition(field : Cow<'static, str>, value : SigmaValue) -> RuleCondition {
+fn parse_rule_condition(field : LogString, value : SigmaValue) -> RuleCondition {
     let mut iter = field.split("|");
     let field_name = iter.next().unwrap_or_else(|| "");
     let operator = iter.next();
@@ -246,19 +246,19 @@ impl Into<SiemField> for SigmaValue {
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct SigmaRuleLogSource {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub category: Option<Cow<'static, str>>,
+    pub category: Option<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub product: Option<Cow<'static, str>>,
+    pub product: Option<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub service: Option<Cow<'static, str>>,
+    pub service: Option<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub definition: Option<Cow<'static, str>>,
+    pub definition: Option<LogString>,
 }
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SigmaValue {
-    Text(Cow<'static, str>),
+    Text(LogString),
     Int(i64),
     Float(f64),
     Array(Vec<SigmaValue>),
@@ -314,7 +314,7 @@ impl Into<SiemRule> for SigmaRule {
     }
 }
 
-fn parse_subrules(rule : &mut SigmaRule) -> BTreeMap<Cow<'static, str>, SiemSubRule> {
+fn parse_subrules(rule : &mut SigmaRule) -> BTreeMap<LogString, SiemSubRule> {
     let mut ret = BTreeMap::new();
     for (id, condition) in &rule.detection.search_identifiers {
         ret.insert(Cow::Owned(id.to_string()), condition.clone().into());
@@ -444,8 +444,8 @@ impl SigmaDescriptionLexer {
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    Text(Cow<'static, str>),
-    FIELD(Cow<'static, str>),
+    Text(LogString),
+    FIELD(LogString),
     EOF
 }
 
@@ -454,10 +454,10 @@ fn should_translate_condition() {
     let input = String::from("This is a basic description with source.ip=$source.ip and this a text $field123");
     let mut l = SigmaDescriptionLexer::new(input.chars().collect());
     l.read_char();
-    assert_eq!(Token::Text(Cow::Borrowed("This is a basic description with source.ip=")),l.next_token());
-    assert_eq!(Token::FIELD(Cow::Borrowed("source.ip")),l.next_token());
-    assert_eq!(Token::Text(Cow::Borrowed(" and this a text ")),l.next_token());
-    assert_eq!(Token::FIELD(Cow::Borrowed("field123")),l.next_token());
+    assert_eq!(Token::Text(LogString::Borrowed("This is a basic description with source.ip=")),l.next_token());
+    assert_eq!(Token::FIELD(LogString::Borrowed("source.ip")),l.next_token());
+    assert_eq!(Token::Text(LogString::Borrowed(" and this a text ")),l.next_token());
+    assert_eq!(Token::FIELD(LogString::Borrowed("field123")),l.next_token());
     assert_eq!(Token::EOF,l.next_token());
     
 }
@@ -481,7 +481,7 @@ fn should_transform_c2_sigma_to_siem_rule() {
     let yml_test: SigmaRule = serde_yaml::from_str(&rule).unwrap();
     let siem_rule : SiemRule = yml_test.into();
     assert_eq!(&MitreTechniques::T1041, siem_rule.mitre.techniques.get(0).unwrap());
-    assert_eq!(&AlertContent::Text(Cow::Borrowed("Detects communication to C2 servers mentioned in the operational notes of the ShadowBroker leak of EquationGroup C2 tools")), siem_rule.alert.content.get(0).unwrap());
+    assert_eq!(&AlertContent::Text(LogString::Borrowed("Detects communication to C2 servers mentioned in the operational notes of the ShadowBroker leak of EquationGroup C2 tools")), siem_rule.alert.content.get(0).unwrap());
     let select_incoming = siem_rule.subrules.get("select_incoming").unwrap().conditions.get(0).unwrap();
     assert_eq!("src_ip",select_incoming.field);
     assert_eq!(RuleOperator::Any(vec![
@@ -501,7 +501,7 @@ fn should_transform_7zip_sigma_to_siem_rule() {
     let rule = include_str!("7zip_sigma_rule.yml");
     let yml_test: SigmaRule = serde_yaml::from_str(&rule).unwrap();
     let siem_rule : SiemRule = yml_test.into();
-    assert_eq!(&AlertContent::Text(Cow::Borrowed("7-Zip through 21.07 on Windows allows privilege escalation (CVE-2022-29072) and command execution when a file with the .7z extension is dragged to the Help>Contents area. This is caused by misconfiguration of 7z.dll and a heap overflow. The command runs in a child process under the 7zFM.exe process.")), siem_rule.alert.content.get(0).unwrap());
+    assert_eq!(&AlertContent::Text(LogString::Borrowed("7-Zip through 21.07 on Windows allows privilege escalation (CVE-2022-29072) and command execution when a file with the .7z extension is dragged to the Help>Contents area. This is caused by misconfiguration of 7z.dll and a heap overflow. The command runs in a child process under the 7zFM.exe process.")), siem_rule.alert.content.get(0).unwrap());
     
     let img_ends_with = siem_rule.subrules.get("selection_img").unwrap().conditions.get(0).unwrap();
     assert_eq!("Image",img_ends_with.field);

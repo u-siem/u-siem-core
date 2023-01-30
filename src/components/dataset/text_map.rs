@@ -1,12 +1,12 @@
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 #[derive(Serialize, Debug)]
 pub enum UpdateTextMap {
-    Add((Cow<'static, str>, Cow<'static, str>)),
-    Remove(Cow<'static, str>),
+    Add((LogString, LogString)),
+    Remove(LogString),
     Replace(TextMapDataset),
 }
 #[derive(Debug, Clone)]
@@ -20,7 +20,7 @@ impl TextMapSynDataset {
     }
     pub fn insert<S>(&self, key: S, data: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         match self
             .comm
@@ -32,7 +32,7 @@ impl TextMapSynDataset {
     }
     pub fn remove<S>(&self, key: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMap::Remove(key.into())) {
@@ -47,14 +47,14 @@ impl TextMapSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, key: &str) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, key: &str) -> Option<&LogString> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
 }
 #[derive(Serialize, Debug)]
 pub struct TextMapDataset {
-    data: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    data: BTreeMap<LogString, LogString>,
 }
 
 impl TextMapDataset {
@@ -65,25 +65,27 @@ impl TextMapDataset {
     }
     pub fn insert<S>(&mut self, key: S, data: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         self.data.insert(key.into(), data.into());
     }
-    pub fn get(&self, key: &str) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, key: &str) -> Option<&LogString> {
         self.data.get(key)
     }
-    pub fn internal_ref(&self) -> &BTreeMap<Cow<'static, str>, Cow<'static, str>> {
+    pub fn internal_ref(&self) -> &BTreeMap<LogString, LogString> {
         &self.data
     }
 }
 
 #[cfg(test)]
 mod tests {
+
+
     use super::*;
     #[test]
     fn test_dataset_creation() {
         let mut dataset = TextMapDataset::new();
-        dataset.insert(Cow::Borrowed("192.168.1.1"), Cow::Borrowed("Local IP"));
-        assert_eq!(dataset.get("192.168.1.1"), Some(&Cow::Borrowed("Local IP")));
+        dataset.insert(LogString::Borrowed("192.168.1.1"), LogString::Borrowed("Local IP"));
+        assert_eq!(dataset.get("192.168.1.1"), Some(&LogString::Borrowed("Local IP")));
     }
 }

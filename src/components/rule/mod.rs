@@ -3,6 +3,7 @@ use crate::prelude::{SiemField, SiemIp, AlertSeverity, AlertAggregation};
 use super::dataset::{ SiemDatasetType};
 use super::mitre::{MitreTactics, MitreTechniques};
 use regex::Regex;
+use crate::prelude::types::LogString;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::str::FromStr;
@@ -12,19 +13,19 @@ pub mod sigma;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SiemRule {
-    pub id: Cow<'static,str>,
+    pub id: LogString,
     /// Name of the rule
-    pub name: Cow<'static,str>,
+    pub name: LogString,
     /// A description of the rule to be showed in the UI
-    pub description: Cow<'static,str>,
+    pub description: LogString,
     /// tactics and techniques covered by this rule
     pub mitre: Cow<'static,MitreInfo>,
     /// List of datasets needed by this rule
     pub needed_datasets: Vec<SiemDatasetType>,
     /// List of subrules that this rule is made of
-    pub subrules : Cow<'static,BTreeMap<Cow<'static,str>, SiemSubRule>>,
+    pub subrules : Cow<'static,BTreeMap<LogString, SiemSubRule>>,
     /// List of subrules that triggers this rule.
-    pub conditions : Cow<'static,Vec<Vec<Cow<'static,str>>>>,
+    pub conditions : Cow<'static,Vec<Vec<LogString>>>,
     /// Generates the content of the alert
     pub alert : Cow<'static,AlertGenerator>
 }
@@ -33,7 +34,7 @@ pub struct SiemRule {
 pub struct AlertGenerator {
     pub content : Vec<AlertContent>,
     pub severity : AlertSeverity,
-    pub tags : Vec<Cow<'static, str>>,
+    pub tags : Vec<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aggregation : Option<AlertAggregation>
 }
@@ -53,7 +54,7 @@ pub struct SiemSubRule {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct RuleCondition {
-    pub field : Cow<'static,str>,
+    pub field : LogString,
     #[serde(flatten)]
     pub operator : RuleOperator,
 }
@@ -61,11 +62,11 @@ pub struct RuleCondition {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum AlertContent {
     /// A basic text
-    Text(Cow<'static,str>),
+    Text(LogString),
     /// Content of a Log field
-    Field(Cow<'static,str>),
+    Field(LogString),
     /// List of matched rules joined by a string. Ex ("\n", ","...)
-    MatchedRules(Cow<'static,str>)
+    MatchedRules(LogString)
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -170,20 +171,20 @@ pub struct RuleState {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum RuleStateValue {
-    Text(Cow<'static,str>),
-    Field(Cow<'static,str>)
+    Text(LogString),
+    Field(LogString)
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AlertDictionary {
-    pub language_map : BTreeMap<Cow<'static,str>, BTreeMap<Cow<'static,str>, Cow<'static,str>>>
+    pub language_map : BTreeMap<LogString, BTreeMap<LogString, LogString>>
 }
 impl AlertDictionary {
-    pub fn get_mappings_for(&self, language : &str) -> Option<&BTreeMap<Cow<'static,str>, Cow<'static,str>>> {
+    pub fn get_mappings_for(&self, language : &str) -> Option<&BTreeMap<LogString, LogString>> {
         self.language_map.get(language)
     }
 
-    pub fn get_mappings_for_id(&self, language : &str, id : &str) -> Option<&Cow<'static,str>> {
+    pub fn get_mappings_for_id(&self, language : &str, id : &str) -> Option<&LogString> {
         self.language_map.get(language).and_then(|v| v.get(id))
     }
 }
@@ -191,26 +192,26 @@ impl AlertDictionary {
 #[test]
 fn should_be_serialized_and_deserialize() {
     let superrule = SiemRule {
-        id : Cow::Borrowed("id001"),
-        name: Cow::Borrowed("Rule001"),
-        description: Cow::Borrowed("descripcion"),
+        id : LogString::Borrowed("id001"),
+        name: LogString::Borrowed("Rule001"),
+        description: LogString::Borrowed("descripcion"),
         mitre: Cow::Owned(MitreInfo { tactics: vec![MitreTactics::TA0001], techniques: vec![] }),
         needed_datasets: vec![SiemDatasetType::BlockIp],
         subrules: {
             let mut map = BTreeMap::new();
-            map.insert(Cow::Borrowed("rule_source_ip"), SiemSubRule { 
+            map.insert(LogString::Borrowed("rule_source_ip"), SiemSubRule { 
                 conditions: vec![
                     RuleCondition {
-                        field : Cow::Borrowed("source.ip"),
+                        field : LogString::Borrowed("source.ip"),
                         operator : RuleOperator::Not(Box::new(RuleOperator::Equals(SiemField::IP([192,168,1,1].into()))))
                     }
                 ], 
                 rule_state: None 
             });
-            map.insert(Cow::Borrowed("rule_destination_ip"), SiemSubRule { 
+            map.insert(LogString::Borrowed("rule_destination_ip"), SiemSubRule { 
                 conditions: vec![
                     RuleCondition {
-                        field : Cow::Borrowed("destination.ip"),
+                        field : LogString::Borrowed("destination.ip"),
                         operator : RuleOperator::All(vec![
                             Box::new(RuleOperator::IsExternalIp(true)),
                             Box::new(RuleOperator::InDataset(SiemDatasetType::BlockIp))
@@ -221,16 +222,16 @@ fn should_be_serialized_and_deserialize() {
             });
             Cow::Owned(map)
         },
-        conditions: Cow::Owned(vec![vec![Cow::Borrowed("rule_source_ip"), Cow::Borrowed("rule_destination_ip")]]),
+        conditions: Cow::Owned(vec![vec![LogString::Borrowed("rule_source_ip"), LogString::Borrowed("rule_destination_ip")]]),
         alert: Cow::Owned(AlertGenerator {
             content : vec![
-                AlertContent::Text(Cow::Borrowed("A local ip tried to connect to a a malicious IP: source.ip=")),
-                AlertContent::Field(Cow::Borrowed("source.ip")),
-                AlertContent::Text(Cow::Borrowed(", destination.ip=")),
-                AlertContent::Field(Cow::Borrowed("destination.ip")),
+                AlertContent::Text(LogString::Borrowed("A local ip tried to connect to a a malicious IP: source.ip=")),
+                AlertContent::Field(LogString::Borrowed("source.ip")),
+                AlertContent::Text(LogString::Borrowed(", destination.ip=")),
+                AlertContent::Field(LogString::Borrowed("destination.ip")),
             ],
             severity : AlertSeverity::HIGH,
-            tags : vec![Cow::Borrowed("external_attack")],
+            tags : vec![LogString::Borrowed("external_attack")],
             aggregation : None
         })
     };

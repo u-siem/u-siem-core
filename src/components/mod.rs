@@ -1,4 +1,5 @@
 use crate::prelude::SiemResult;
+use crate::prelude::types::LogString;
 use crossbeam_channel::{Receiver, Sender};
 
 use self::dataset::holder::DatasetHolder;
@@ -7,7 +8,6 @@ use self::kernel_message::KernelMessager;
 use super::events::SiemLog;
 use common::{SiemComponentCapabilities, SiemMessage};
 use dataset::SiemDatasetType;
-use std::borrow::Cow;
 use std::boxed::Box;
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
@@ -92,5 +92,5 @@ pub trait SiemDatasetManager: Send {
 
 pub trait SiemRuleEngine : SiemComponent {
     /// Sets the dictionary of languages to generate the different alerts of the rules
-    fn set_languages(&mut self, languages : BTreeMap<Cow<'static, str>,BTreeMap<Cow<'static, str>,Cow<'static, str>>>);
+    fn set_languages(&mut self, languages : BTreeMap<LogString,BTreeMap<LogString,LogString>>);
 }

@@ -1,13 +1,13 @@
 use super::super::super::events::field::SiemIp;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateNetIp {
-    Add((SiemIp, u8, Cow<'static, str>)),
+    Add((SiemIp, u8, LogString)),
     Remove((SiemIp, u8)),
     Replace(IpNetDataset),
 }
@@ -20,7 +20,7 @@ impl IpNetSynDataset {
     pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> IpNetSynDataset {
         return IpNetSynDataset { dataset, comm };
     }
-    pub fn insert(&self, ip: SiemIp, net: u8, data: Cow<'static, str>) {
+    pub fn insert(&self, ip: SiemIp, net: u8, data: LogString) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Add((ip, net, data))) {
             Ok(_) => {}
@@ -41,15 +41,15 @@ impl IpNetSynDataset {
             Err(_) => {}
         };
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
 }
 #[derive(Serialize, Debug)]
 pub struct IpNetDataset {
-    data4: BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,
-    data6: BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>,
+    data4: BTreeMap<u32, BTreeMap<u32, LogString>>,
+    data6: BTreeMap<u32, BTreeMap<u128, LogString>>,
 }
 
 impl IpNetDataset {
@@ -61,7 +61,7 @@ impl IpNetDataset {
     }
     pub fn insert<S>(&mut self, ip: SiemIp, net: u8, data: S)
     where
-        S: Into<Cow<'static, str>>,
+        S: Into<LogString>,
     {
         match ip {
             SiemIp::V4(ip) => {
@@ -96,7 +96,7 @@ impl IpNetDataset {
             }
         }
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&Cow<'static, str>> {
+    pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
         match ip {
             SiemIp::V4(ip) => {
                 let zeros = ip.trailing_zeros();
@@ -139,8 +139,8 @@ impl IpNetDataset {
     pub fn internal_ref(
         &self,
     ) -> (
-        &BTreeMap<u32, BTreeMap<u32, Cow<'static, str>>>,
-        &BTreeMap<u32, BTreeMap<u128, Cow<'static, str>>>,
+        &BTreeMap<u32, BTreeMap<u32, LogString>>,
+        &BTreeMap<u32, BTreeMap<u128, LogString>>,
     ) {
         (&self.data4, &self.data6)
     }
@@ -148,6 +148,8 @@ impl IpNetDataset {
 
 #[cfg(test)]
 mod tests {
+
+
     use super::*;
     #[test]
     fn test_dataset_creation() {
@@ -155,11 +157,11 @@ mod tests {
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),
             24,
-            Cow::Borrowed("Local IP "),
+            LogString::Borrowed("Local IP "),
         );
         assert_eq!(
             dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
-            Some(&Cow::Borrowed("Local IP "))
+            Some(&LogString::Borrowed("Local IP "))
         );
     }
 }

@@ -1,8 +1,6 @@
-use std::borrow::Cow;
-
 use dyn_clone::{clone_trait_object, DynClone};
 
-use crate::prelude::StorageError;
+use crate::prelude::{StorageError, types::LogString};
 
 pub trait SiemComponentStateStorage: DynClone + Send {
     /// Read a key value from the database
@@ -10,7 +8,7 @@ pub trait SiemComponentStateStorage: DynClone + Send {
     /// Write to the database a key/value pair
     fn set_value(
         &mut self,
-        key: Cow<'static, str>,
+        key: LogString,
         value: String,
         replace: bool,
     ) -> Result<(), StorageError>;
@@ -55,7 +53,7 @@ impl SiemComponentStateStorage for DummyStateStorage {
 
     fn set_value(
         &mut self,
-        _key: Cow<'static, str>,
+        _key: LogString,
         _value: String,
         _replace: bool,
     ) -> Result<(), StorageError> {

@@ -1,7 +1,7 @@
 use super::common::{HttpMethod, WebProtocol};
 use super::field::SiemIp;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
 /// the path requested, the user agent and the size of the resource returned
@@ -16,15 +16,15 @@ pub struct WebServerEvent {
     pub http_code: u32,
     pub duration: f32,
     pub http_method: HttpMethod,
-    pub user_agent: Cow<'static, str>,
-    pub url_full: Cow<'static, str>,
-    pub url_domain: Cow<'static, str>,
-    pub url_path: Cow<'static, str>,
-    pub url_query: Cow<'static, str>,
-    pub url_extension: Cow<'static, str>,
+    pub user_agent: LogString,
+    pub url_full: LogString,
+    pub url_domain: LogString,
+    pub url_path: LogString,
+    pub url_query: LogString,
+    pub url_extension: LogString,
     pub protocol: WebProtocol,
-    pub user_name: Cow<'static, str>,
-    pub mime_type: Cow<'static, str>,
+    pub user_name: LogString,
+    pub mime_type: LogString,
     pub outcome: WebServerOutcome,
 }
 impl WebServerEvent {

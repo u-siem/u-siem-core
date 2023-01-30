@@ -1,9 +1,9 @@
-use std::{borrow::Cow, time::Duration};
+use std::{time::Duration};
 
 use chrono::Utc;
 use crossbeam_channel::Sender;
 
-use crate::prelude::{Notification, NotificationLevel, SiemMessage, SiemResult};
+use crate::prelude::{Notification, NotificationLevel, SiemMessage, SiemResult, types::LogString};
 
 #[derive(Clone)]
 pub struct KernelMessager {
@@ -62,8 +62,8 @@ impl KernelMessager {
             .try_send(SiemMessage::Notification(Notification {
                 component: self.component_id,
                 timestamp: Utc::now().timestamp_millis(),
-                component_name: Cow::Owned(self.component_name.clone()),
-                log: Cow::Owned(log),
+                component_name: LogString::Owned(self.component_name.clone()),
+                log: LogString::Owned(log),
                 level: level,
             }));
     }

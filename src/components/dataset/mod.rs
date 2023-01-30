@@ -17,7 +17,7 @@ use ip_net::{IpNetSynDataset, UpdateNetIp};
 use ip_set::{IpSetSynDataset, UpdateIpSet};
 use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use crate::prelude::types::LogString;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt;
@@ -67,23 +67,23 @@ pub enum SiemDataset {
     /// Working hours of each headquarter
     HeadquartersWorkingHours,
     /// User custom dataset IP_NET => Text
-    CustomMapIpNet((Cow<'static, str>, IpNetSynDataset)),
+    CustomMapIpNet((LogString, IpNetSynDataset)),
     /// User custom dataset Text => Text
-    CustomMapText((Cow<'static, str>, TextMapSynDataset)),
+    CustomMapText((LogString, TextMapSynDataset)),
     /// User custom dataset Text => Text
-    CustomMapTextList((Cow<'static, str>, TextMapListSynDataset)),
+    CustomMapTextList((LogString, TextMapListSynDataset)),
     /// User custom dataset IP list
-    CustomIpList((Cow<'static, str>, IpSetSynDataset)),
+    CustomIpList((LogString, IpSetSynDataset)),
     /// User custom dataset IP list
-    CustomIpMap((Cow<'static, str>, IpMapSynDataset)),
+    CustomIpMap((LogString, IpMapSynDataset)),
     /// User custom dataset Text list
-    CustomTextList((Cow<'static, str>, TextSetSynDataset)),
+    CustomTextList((LogString, TextSetSynDataset)),
     /// Mantaince Calendar
     MantainceCalendar(CalendarSynDataset),
     /// Configuration of components. Allows modifications of component parameters in real time.
     Configuration(TextMapSynDataset),
     /// Secret store. A component will only be able to access his own secrets.
-    Secrets((Cow<'static, str>, TextMapSynDataset)),
+    Secrets((LogString, TextMapSynDataset)),
 }
 
 impl TryFrom<(SiemDatasetType, GeoIpSynDataset)> for SiemDataset {
@@ -435,20 +435,20 @@ pub enum SiemDatasetType {
     /// Vulnerabilities on a computer  
     HostVulnerable,
     /// User custom dataset IP_NET => Text
-    CustomMapIpNet(Cow<'static, str>),
+    CustomMapIpNet(LogString),
     /// User custom dataset Text => Text
-    CustomMapText(Cow<'static, str>),
+    CustomMapText(LogString),
     /// User custom dataset Text => Text[]
-    CustomMapTextList(Cow<'static, str>),
+    CustomMapTextList(LogString),
     /// User custom dataset IP list
-    CustomIpList(Cow<'static, str>),
-    CustomIpMap(Cow<'static, str>),
+    CustomIpList(LogString),
+    CustomIpMap(LogString),
     /// User custom dataset Text list
-    CustomTextList(Cow<'static, str>),
+    CustomTextList(LogString),
     /// Mantaince Calendar
     MantainceCalendar,
     Configuration,
-    Secrets(Cow<'static, str>),
+    Secrets(LogString),
 }
 
 impl SiemDataset {
