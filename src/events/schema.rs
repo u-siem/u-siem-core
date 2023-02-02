@@ -1,6 +1,8 @@
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 
+use super::SiemLog;
+
 #[path = "base_schema.rs"]
 pub mod base_schema;
 
@@ -105,11 +107,19 @@ impl FieldSchema {
         to_ret
     }
     /// Remove fields from the schema
-    pub fn filter_fields(&mut self, fields: &BTreeSet<&'static str>) {
+    pub fn remove_fields(&mut self, fields: &BTreeSet<&'static str>) {
         for key in fields.iter() {
             self.fields.remove(*key);
         }
     }
+
+    /// Apply the schema to the log removing fields not contemplated by the schema
+    pub fn apply(&self, log : &mut SiemLog) {
+        log.fields.retain(|k,_v| {
+            self.fields.contains_key(&k[..])
+        });
+    }
+
 }
 
 #[derive(Serialize, Debug, Clone)]

@@ -34,7 +34,7 @@ pub trait SiemComponent: Send {
         return 0;
     }
     fn set_id(&mut self, id: u64);
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         return &"SiemComponent";
     }
     /// Get the channel to this component

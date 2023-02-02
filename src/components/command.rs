@@ -15,7 +15,7 @@ use crate::events::field::SiemField;
 use crate::prelude::types::LogString;
 
 /// Define commands to be used by the users or other components.
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
 pub enum SiemFunctionType {
@@ -28,7 +28,7 @@ pub enum SiemFunctionType {
     FILTER_DOMAIN,
     FILTER_EMAIL_SENDER,
     LIST_USE_CASES,
-    GET_USE_CASES,
+    GET_USE_CASE,
     LIST_RULES,
     GET_RULE,
     LIST_TASKS,
@@ -36,10 +36,9 @@ pub enum SiemFunctionType {
     DOWNLOAD_QUERY,
     LOGIN_USER,
     LIST_PARSERS,
-    /// Function name, Map<ParamName, Description>
+    /// Function name
     OTHER(
-        LogString,
-        BTreeMap<LogString, LogString>,
+        LogString
     ),
 }
 
@@ -134,6 +133,31 @@ pub enum SiemCommandCall {
         LogString,
         BTreeMap<LogString, LogString>,
     ),
+}
+
+impl SiemCommandCall {
+    pub fn get_type(&self) -> SiemFunctionType {
+        match self {
+            SiemCommandCall::START_COMPONENT(_) => SiemFunctionType::START_COMPONENT,
+            SiemCommandCall::STOP_COMPONENT(_) => SiemFunctionType::STOP_COMPONENT,
+            SiemCommandCall::LOG_QUERY(_) => SiemFunctionType::LOG_QUERY,
+            SiemCommandCall::ISOLATE_IP(_) => SiemFunctionType::ISOLATE_IP,
+            SiemCommandCall::ISOLATE_ENDPOINT(_) => SiemFunctionType::ISOLATE_ENDPOINT,
+            SiemCommandCall::FILTER_IP(_) => SiemFunctionType::FILTER_IP,
+            SiemCommandCall::FILTER_DOMAIN(_) => SiemFunctionType::FILTER_DOMAIN,
+            SiemCommandCall::FILTER_EMAIL_SENDER(_) => SiemFunctionType::FILTER_EMAIL_SENDER,
+            SiemCommandCall::LIST_USE_CASES(_) => SiemFunctionType::LIST_USE_CASES,
+            SiemCommandCall::GET_USE_CASE(_) => SiemFunctionType::GET_USE_CASE,
+            SiemCommandCall::LIST_RULES(_) => SiemFunctionType::LIST_RULES,
+            SiemCommandCall::GET_RULE(_) => SiemFunctionType::GET_RULE,
+            SiemCommandCall::LIST_DATASETS(_) => SiemFunctionType::LIST_DATASETS,
+            SiemCommandCall::LIST_TASKS(_) => SiemFunctionType::LIST_TASKS,
+            SiemCommandCall::DOWNLOAD_QUERY() => SiemFunctionType::DOWNLOAD_QUERY,
+            SiemCommandCall::LIST_PARSERS(_) => SiemFunctionType::LIST_PARSERS,
+            SiemCommandCall::LOGIN_USER(_) => SiemFunctionType::LOGIN_USER,
+            SiemCommandCall::OTHER(v, _) => SiemFunctionType::OTHER(v.clone()),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
