@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 use std::marker::PhantomData;
 use std::{fmt::Debug};
 
+use super::task::{SiemTask, SiemTaskResult};
 use super::{
     command_types::{
         FilterDomain, FilterEmail, FilterIp, IsolateEndpoint, IsolateIp, LoggedOnUser, LoginUser,
@@ -36,6 +37,8 @@ pub enum SiemFunctionType {
     DOWNLOAD_QUERY,
     LOGIN_USER,
     LIST_PARSERS,
+    START_TASK,
+    GET_TASK_RESULT,
     /// Function name
     OTHER(
         LogString
@@ -128,6 +131,8 @@ pub enum SiemCommandCall {
     DOWNLOAD_QUERY(),
     LIST_PARSERS(Pagination),
     LOGIN_USER(LoginUser),
+    START_TASK(SiemTask),
+    GET_TASK_RESULT(u64),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
     OTHER(
         LogString,
@@ -155,6 +160,8 @@ impl SiemCommandCall {
             SiemCommandCall::DOWNLOAD_QUERY() => SiemFunctionType::DOWNLOAD_QUERY,
             SiemCommandCall::LIST_PARSERS(_) => SiemFunctionType::LIST_PARSERS,
             SiemCommandCall::LOGIN_USER(_) => SiemFunctionType::LOGIN_USER,
+            SiemCommandCall::START_TASK(_) => SiemFunctionType::START_TASK,
+            SiemCommandCall::GET_TASK_RESULT(_) => SiemFunctionType::GET_TASK_RESULT,
             SiemCommandCall::OTHER(v, _) => SiemFunctionType::OTHER(v.clone()),
         }
     }
@@ -200,6 +207,8 @@ pub enum SiemCommandResponse {
     LIST_TASKS(CommandResult<Vec<TaskDefinition>>),
     LIST_PARSERS(CommandResult<Vec<ParserDefinition>>),
     LOGIN_USER(CommandResult<LoggedOnUser>),
+    START_TASK(CommandResult<u64>),
+    GET_TASK_RESULT(CommandResult<SiemTaskResult>),
     OTHER(
         LogString,
         CommandResult<BTreeMap<LogString, LogString>>,
