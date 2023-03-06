@@ -5,7 +5,6 @@ use super::protocol::NetworkProtocol;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
 pub struct FirewallEvent {
     /// Ip that started the connection
     pub source_ip: SiemIp,

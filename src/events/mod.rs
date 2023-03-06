@@ -13,6 +13,7 @@ pub mod protocol;
 pub mod schema;
 pub mod webproxy;
 pub mod webserver;
+pub mod tags;
 //use serde::ser::{Serializer, SerializeStruct};
 use auth::{AuthEvent, AuthLoginType};
 use dhcp::{DhcpEvent, DhcpRecordType};
@@ -23,8 +24,8 @@ use intrusion::IntrusionEvent;
 use webproxy::WebProxyEvent;
 use webserver::WebServerEvent;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(tag = "event_type")]
 pub enum SiemEvent {
     /// Firewall events: connections between IPs, blocked connections...
     Firewall(FirewallEvent),
@@ -81,6 +82,7 @@ pub enum SiemEvent {
     // Unknown info that must be extracted and added to event fields. JSON format, like Windows events
     Json(serde_json::Value),
     // Unknown info that must be extracted and added to event fields.
+    #[default]
     Unknown,
     /// Forensic artifacts from custom parsers
     Artifacts,
@@ -92,18 +94,25 @@ pub enum SiemEvent {
 /// better describe the content inside.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SiemLog {
+    #[serde(skip, default)]
     /// IP or Hostname of the server that sent the log.
     origin: LogString,
+    #[serde(skip, default)]
     /// Customer name for SOC environments. Ex: Contoso
     tenant: LogString,
+    #[serde(skip, default)]
     /// Name of the product for wich the log belongs. Ex: ASA
     product: LogString,
+    #[serde(skip, default)]
     /// Subset of the product logs. Like a OS that can have multiple programs running inside generating multiple logs.
     service: LogString,
+    #[serde(skip, default)]
     /// Category of the device: Firewall, web, antivirus
     category: LogString,
+    #[serde(skip, default)]
     /// Company that created the product. Ex: Cisco
     vendor: LogString,
+    #[serde(skip, default)]
     /// Categorization of the log. This forces the developer to use
     /// the same naming convention and reduces the number of human errors.
     event: SiemEvent,
@@ -112,12 +121,17 @@ pub struct SiemLog {
     /// Map of fields extracted or generated for this log. Must follow the Elastic Common Schema (ECS v1.x)
     #[serde(flatten)]
     fields: BTreeMap<LogString, SiemField>,
+    #[serde(skip, default)]
     /// Original log message including syslog header
     message: String,
+    #[serde(skip, default)]
     /// Timestamp at witch the log arrived  
     event_received: i64,
+    #[serde(skip, default)]
     /// Timestamp at witch the log was generated. The clocks at origin must be correctly configured.
     event_created: i64,
+    #[serde(skip, default)]
+    ip_fields: BTreeSet<LogString>,
 }
 
 impl<'a> SiemLog {
@@ -128,6 +142,15 @@ impl<'a> SiemLog {
     {
         let cw = origin.into();
         let ms = message.into();
+        let mut fields = BTreeMap::new();
+        fields
+            .insert(LogString::Borrowed("message"), SiemField::Text(LogString::Owned(ms.to_string())));
+        fields
+            .insert(LogString::Borrowed("origin"), SiemField::Text(LogString::Owned(cw.to_string())));
+        fields
+            .insert(LogString::Borrowed("event_created"), SiemField::Date(received));
+        fields
+            .insert(LogString::Borrowed("event_received"), SiemField::Date(received));
         SiemLog {
             message: ms,
             event_received: received,
@@ -139,8 +162,9 @@ impl<'a> SiemLog {
             vendor: LogString::default(),
             event: SiemEvent::Unknown,
             tags: BTreeSet::default(),
-            fields : BTreeMap::new(),
+            fields,
             event_created: received,
+            ip_fields : BTreeSet::new()
         }
     }
 
@@ -244,9 +268,19 @@ impl<'a> SiemLog {
     pub fn field(&'a self, field_name: &str) -> Option<&SiemField> {
         self.fields.get(field_name)
     }
+    pub fn field_mut(&'a mut self, field_name: &str) -> Option<&mut SiemField> {
+        self.fields.get_mut(field_name)
+    }
     pub fn add_field(&mut self, field_name: &str, field_value: SiemField) {
+        let field_name = LogString::Owned(field_name.to_owned());
+        self.insert(field_name, field_value);
+    }
+    pub fn insert(&mut self, field_name: LogString, field_value: SiemField) {
+        if let SiemField::IP(_) = &field_value {
+            self.ip_fields.insert(field_name.clone());
+        }
         self.fields
-            .insert(LogString::Owned(field_name.to_owned()), field_value);
+            .insert(field_name, field_value);
     }
     pub fn has_field(&self, field_name: &str) -> bool {
         self.fields.contains_key(field_name)
@@ -650,8 +684,63 @@ impl<'a> SiemLog {
         }
         self.event = event;
     }
-    pub fn fields(&self) -> &BTreeMap<LogString, SiemField> {
-        &self.fields
+    pub fn fields(&self) -> EventIter<'_> {
+        EventIter {
+            children : self.fields.iter()
+        }
+    }
+    pub fn iter(&self) -> EventIter<'_> {
+        EventIter {
+            children : self.fields.iter()
+        }
+    }
+    pub fn iter_mut(&mut self) -> EventIterMut<'_> {
+        EventIterMut {
+            children : self.fields.iter_mut()
+        }
+    }
+    pub fn ip_fields(&self) -> EventFieldIter<'_> {
+        EventFieldIter {
+            names : self.ip_fields.iter(),
+            fields : &self.fields
+        }
+    }
+
+}
+
+pub struct EventIter<'a>{
+    children : std::collections::btree_map::Iter<'a,LogString, SiemField>
+}
+pub struct EventFieldIter<'a>{
+    names : std::collections::btree_set::Iter<'a,LogString>,
+    fields : &'a BTreeMap<LogString, SiemField>
+}
+
+pub struct EventIterMut<'a>{
+    children : std::collections::btree_map::IterMut<'a,LogString, SiemField>
+}
+
+impl<'a> Iterator for EventIter<'a> {
+    type Item = (&'a LogString, &'a SiemField);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.children.next()
+    }
+}
+impl<'a> Iterator for EventIterMut<'a> {
+    type Item = (&'a LogString, &'a mut SiemField);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.children.next()
+    }
+}
+impl<'a> Iterator for EventFieldIter<'a> {
+    type Item = (&'a LogString, &'a SiemField);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let field = self.names.next()?;
+        let value = self.fields.get(field)?;
+        Some((field,value))
     }
 }
 

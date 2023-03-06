@@ -4,7 +4,6 @@ use super::field::SiemIp;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
 pub struct DhcpEvent {
     /// Client IP address assigned, requested or cleaned
     pub source_ip: SiemIp,

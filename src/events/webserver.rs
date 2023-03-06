@@ -6,7 +6,6 @@ use crate::prelude::types::LogString;
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
 /// the path requested, the user agent and the size of the resource returned
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
 pub struct WebServerEvent {
     pub source_ip: SiemIp,
     pub destination_ip: Option<SiemIp>, //Server IP

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-#[serde(tag = "type")]
+#[serde(tag = "np_type")]
 #[allow(non_camel_case_types)]
 pub enum NetworkProtocol {
     HOPOPT,

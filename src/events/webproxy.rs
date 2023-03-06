@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
 pub struct WebProxyEvent {
     pub source_ip: SiemIp,
     pub destination_ip: SiemIp,

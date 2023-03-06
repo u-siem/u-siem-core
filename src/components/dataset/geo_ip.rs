@@ -12,13 +12,15 @@ pub enum UpdateGeoIp {
     Remove((SiemIp, u8)),
     Replace(GeoIpDataset),
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct GeoIpInfo {
     pub country: LogString,
+    pub country_iso: LogString,
     pub city: LogString,
     pub latitude: f32,
     pub longitude: f32,
     pub isp: LogString, // More important than country in my opinion because Geolocalization is very imprecise.
+    pub asn : u32
 }
 #[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
@@ -29,6 +31,13 @@ impl GeoIpSynDataset {
     pub fn new(dataset: Arc<GeoIpDataset>, comm: Sender<UpdateGeoIp>) -> GeoIpSynDataset {
         return GeoIpSynDataset { dataset, comm };
     }
+    pub fn full_update(&self, dataset : GeoIpDataset) {
+        match self.comm.send(UpdateGeoIp::Replace(dataset)) {
+            Ok(_) => {}
+            Err(_) => {}
+        };
+    }
+
     /// This method must not be used with this dataset, because no source will give you accurate data to update this dataset. Maybe some firewalls, but updating the dataset with each log information is not a good idea.
     pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
         // Todo: improve with local cache to send retries
@@ -147,9 +156,11 @@ mod tests {
         let info = GeoIpInfo {
             city: LogString::Borrowed("LocalCity"),
             country: LogString::Borrowed("LocalCountry"),
+            country_iso: LogString::Borrowed("LC"),
             isp: LogString::Borrowed("ISP"),
             latitude: 0.1,
             longitude: 0.2,
+            asn : 1
         };
         let mut dataset = GeoIpDataset::new();
         dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap(), 24, info);

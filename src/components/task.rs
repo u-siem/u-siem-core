@@ -182,6 +182,7 @@ pub enum SiemTaskType {
     REPORT_ABUSE,
     /// Update GeoIP database
     UPDATE_GEOIP,
+    UPDATE_CLOUD_PROVIDER,
     /// Task name, Map<ParamName, Description>
     OTHER(LogString)
 }
@@ -193,6 +194,7 @@ impl std::fmt::Display for SiemTaskType {
             SiemTaskType::REMEDIATE_EMAILS => write!(f, "REMEDIATE_EMAILS"),
             SiemTaskType::REPORT_ABUSE => write!(f, "REPORT_ABUSE"),
             SiemTaskType::UPDATE_GEOIP => write!(f, "UPDATE_GEOIP"),
+            SiemTaskType::UPDATE_CLOUD_PROVIDER => write!(f, "UPDATE_CLOUD_PROVIDER"),
             SiemTaskType::OTHER(name) => write!(f, "{}",name),
         }
     }
@@ -211,8 +213,10 @@ pub enum SiemTaskData {
     REMEDIATE_EMAILS(BTreeMap<LogString, LogString>),
     /// Report IP, email to abuse mail. Needed provider name and parameters
     REPORT_ABUSE(BTreeMap<LogString, LogString>),
-    /// Update GeoIP database
+    /// Update GeoIP dataset
     UPDATE_GEOIP,
+    /// Update CloudProvider dataset
+    UPDATE_CLOUD_PROVIDER,
     /// Task name, Map<ParamName, Description>
     OTHER(
         LogString,
@@ -227,6 +231,7 @@ impl SiemTaskData {
             SiemTaskData::REMEDIATE_EMAILS(_) => SiemTaskType::REMEDIATE_EMAILS,
             SiemTaskData::REPORT_ABUSE(_) => SiemTaskType::REPORT_ABUSE,
             SiemTaskData::UPDATE_GEOIP => SiemTaskType::UPDATE_GEOIP,
+            SiemTaskData::UPDATE_CLOUD_PROVIDER => SiemTaskType::UPDATE_CLOUD_PROVIDER,
             SiemTaskData::OTHER(v, _) => SiemTaskType::OTHER(v.clone()),
         }
     }

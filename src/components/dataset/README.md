@@ -29,6 +29,6 @@ The blocklists are intended to be used internally by the SIEM not directly by an
 - [x] Block list email sender
 - [x] DNS-IP association dataset. If we have DNS logs, we can populate this dataset with the real IPs associated with that domain (If we try to resolve them in another place it may be different).
 - [ ] Datasets for WebServers: WebHosted (name of the app hosted in the server); WebAppTechnology (If the APP uses PHP, .NET, JavaScript, Java...) this is useful to detect SCANNERS; SlowWebRequest if some request like "/download/all_logs" are always slow, we can tag them as to not interfere with the rules used to detect BlindSQL injections that uses the sleep command or Web exploits that downloads excessive data.
-- [ ] Authentication dataset: pairs user/secret only to be used by user facing components: inputs, outputs, comander, database...
+- [x] Authentication dataset: pairs user/secret only to be used by user facing components: inputs, outputs, comander, database...
 - [ ] uSIEM user dataset: Local auth for uSIEM.
 - [ ] Dataset with the list of hosts that send logs and the last time they do it.

@@ -8,6 +8,7 @@ pub mod ip_set;
 pub mod text_map;
 pub mod text_map_list;
 pub mod text_set;
+pub mod rules;
 
 use calendar::{CalendarSynDataset, UpdateCalendar};
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
@@ -32,6 +33,8 @@ use text_set::{TextSetSynDataset, UpdateTextSet};
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SiemDataset {
+    /// Correlation Rules that can be updated in real-time
+    CorrelationRules(GeoIpSynDataset),
     /// Map IP to country, city, latitude and longitude
     GeoIp(GeoIpSynDataset),
     /// IP associated with a MAC address
@@ -434,6 +437,7 @@ pub enum SiemDatasetType {
     HeadquartersWorkingHours,
     /// Vulnerabilities on a computer  
     HostVulnerable,
+    CorrelationRules,
     /// User custom dataset IP_NET => Text
     CustomMapIpNet(LogString),
     /// User custom dataset Text => Text
@@ -454,6 +458,7 @@ pub enum SiemDatasetType {
 impl SiemDataset {
     pub fn dataset_type(&self) -> SiemDatasetType {
         match self {
+            SiemDataset::CorrelationRules(_) => SiemDatasetType::CorrelationRules,
             SiemDataset::GeoIp(_) => SiemDatasetType::GeoIp,
             SiemDataset::IpMac(_) => SiemDatasetType::IpMac,
             SiemDataset::IpDNS(_) => SiemDatasetType::IpDNS,
@@ -517,6 +522,7 @@ impl Serialize for SiemDataset {
     {
         let mut state = serializer.serialize_struct("SiemDataset", 2)?;
         let typ = match self {
+            SiemDataset::CorrelationRules(_) => "CorrelationRules",
             SiemDataset::GeoIp(_) => "GeoIp",
             SiemDataset::IpMac(_) => "IpMac",
             SiemDataset::IpDNS(_) => "IpDNS",
@@ -597,4 +603,5 @@ pub enum UpdateDataset {
     Configuration(UpdateTextMap),
     Secrets(UpdateTextMap),
     HostVulnerable(UpdateTextMapList),
+    CorrelationRules(UpdateGeoIp)
 }

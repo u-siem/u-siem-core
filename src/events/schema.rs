@@ -126,6 +126,7 @@ impl FieldSchema {
 pub enum FieldType {
     /// Save IP as text
     Ip(&'static str),
+    Array(&'static str),
     /// A basic String field
     Text(&'static str),
     /// Signed number with 64 bits

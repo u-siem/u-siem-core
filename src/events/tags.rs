@@ -6,7 +6,7 @@ pub static VIP_USER: &'static str = "vip_user";
 /// The event involved an administrator.
 pub static ADMIN_USER: &'static str = "admin_user";
 
-/// Unused accounts used to detect intrusions.
+/// Unused accounts for detecting intrusions.
 pub static FAKE_ACCOUNT: &'static str = "fake_account";
 
 /// An asset that no user inside the company should be accessing.
@@ -46,3 +46,6 @@ pub static IOC_MISP: &'static str = "ioc_misp";
 
 /// Used to mark an IP as never seen before. Use only for small instances.
 pub static NEVER_SEEN_IP: &'static str = "never_seen_ip";
+
+/// Used to mark an IP that is in the block list
+pub static BLOCKED_IP: &'static str = "in_block_list";

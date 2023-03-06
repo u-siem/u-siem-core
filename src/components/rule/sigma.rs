@@ -237,7 +237,7 @@ impl Into<SiemField> for SigmaValue {
             SigmaValue::Text(v) => SiemField::Text(v),
             SigmaValue::Int(v) => SiemField::I64(v),
             SigmaValue::Float(v) => SiemField::F64(v),
-            SigmaValue::Array(v) => SiemField::Array(v.iter().map(|v| v.to_string()).collect()),
+            SigmaValue::Array(v) => SiemField::Array(v.iter().map(|v| LogString::Owned(v.to_string())).collect()),
             SigmaValue::None => todo!(),
         }
     }

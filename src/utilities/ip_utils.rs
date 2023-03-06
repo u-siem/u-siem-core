@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{net::Ipv6Addr};
 
 pub fn ipv4_from_str(ipv4: &str) -> Result<u32, &'static str> {
     let mut number : u32 = 0;
@@ -246,26 +246,13 @@ pub fn ipv4_to_str(ipv4: u32) -> String {
     return format!("{}.{}.{}.{}", chars[0], chars[1], chars[2], chars[3]);
 }
 
-const HEX: [&str; 16] = [
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F",
-];
 pub fn ipv6_to_str(ipv6: u128) -> String {
-    let mut chars = Vec::new();
-    let mut ip = ipv6;
-    for _ in (0..32).rev() {
-        chars.push(HEX[(ip & 0xF) as usize]);
-        ip = ip >> 4;
-    }
-    return chars.join(":");
+    Ipv6Addr::from(ipv6).to_string()
 }
 pub fn is_local_ipv6(ip: u128) -> bool {
-    let ipv4 = u32::try_from(ip);
-    return match ipv4 {
-        Ok(data) => is_local_ip(data),
-        Err(_err) => false,
-    };
+    ip >> 120 & 0xfe == 0xfc
 }
-pub fn is_local_ip(ip: u32) -> bool {
+pub fn is_local_ipv4(ip: u32) -> bool {
     /*
      *
     Range from 10.0.0.0 to 10.255.255.255 — a 10.0.0.0 network with a 255.0.0.0 or an /8 (8-bit) mask
@@ -364,15 +351,15 @@ mod tests {
     #[test]
     fn check_ip_is_local() {
         //192.168.1.1 = 3232235777
-        assert_eq!(is_local_ip(3232235777), true);
+        assert_eq!(is_local_ipv4(3232235777), true);
         //8.8.8.8 = 134744072
-        assert_eq!(is_local_ip(134744072), false);
+        assert_eq!(is_local_ipv4(134744072), false);
         //10.127.222.21 = 176152085
-        assert_eq!(is_local_ip(176152085), true);
+        assert_eq!(is_local_ipv4(176152085), true);
         //100.64.0.0 = 1681915904
-        assert_eq!(is_local_ip(1681915904), true);
+        assert_eq!(is_local_ipv4(1681915904), true);
         //10.255.255.255 = 184549375
-        assert_eq!(is_local_ip(184549375), true);
+        assert_eq!(is_local_ipv4(184549375), true);
     }
 
     #[test]

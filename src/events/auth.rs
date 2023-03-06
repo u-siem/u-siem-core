@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
 pub struct AuthEvent {
     /// Login type: local, remote, upgrade (change user)
     pub login_type: AuthLoginType,

@@ -11,7 +11,7 @@ use serde::{Serialize, Deserialize, Serializer, de};
 
 pub mod sigma;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SiemRule {
     pub id: LogString,
     /// Name of the rule
@@ -30,7 +30,7 @@ pub struct SiemRule {
     pub alert : Cow<'static,AlertGenerator>
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct AlertGenerator {
     pub content : Vec<AlertContent>,
     pub severity : AlertSeverity,
@@ -39,20 +39,20 @@ pub struct AlertGenerator {
     pub aggregation : Option<AlertAggregation>
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct MitreInfo {
     pub tactics : Vec<MitreTactics>,
     pub techniques : Vec<MitreTechniques>
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize,Debug)]
 pub struct SiemSubRule {
     pub conditions : Vec<RuleCondition>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rule_state : Option<RuleState>
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize,Debug)]
 pub struct RuleCondition {
     pub field : LogString,
     #[serde(flatten)]
