@@ -1,7 +1,7 @@
 use super::super::super::events::field::SiemIp;
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -20,7 +20,7 @@ pub struct GeoIpInfo {
     pub latitude: f32,
     pub longitude: f32,
     pub isp: LogString, // More important than country in my opinion because Geolocalization is very imprecise.
-    pub asn : u32
+    pub asn: u32,
 }
 #[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
@@ -31,7 +31,7 @@ impl GeoIpSynDataset {
     pub fn new(dataset: Arc<GeoIpDataset>, comm: Sender<UpdateGeoIp>) -> GeoIpSynDataset {
         return GeoIpSynDataset { dataset, comm };
     }
-    pub fn full_update(&self, dataset : GeoIpDataset) {
+    pub fn full_update(&self, dataset: GeoIpDataset) {
         match self.comm.send(UpdateGeoIp::Replace(dataset)) {
             Ok(_) => {}
             Err(_) => {}
@@ -160,7 +160,7 @@ mod tests {
             isp: LogString::Borrowed("ISP"),
             latitude: 0.1,
             longitude: 0.2,
-            asn : 1
+            asn: 1,
         };
         let mut dataset = GeoIpDataset::new();
         dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap(), 24, info);

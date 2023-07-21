@@ -2,9 +2,15 @@ use std::{borrow::Cow, collections::BTreeMap, fmt::Display};
 
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::{mitre::{MitreTactics, MitreTechniques}, AlertSeverity, SiemField, types::LogString};
+use crate::prelude::{
+    mitre::{MitreTactics, MitreTechniques},
+    types::LogString,
+    AlertSeverity, SiemField,
+};
 
-use super::{SiemRule, MitreInfo, AlertGenerator, AlertContent, SiemSubRule, RuleCondition, RuleOperator};
+use super::{
+    AlertContent, AlertGenerator, MitreInfo, RuleCondition, RuleOperator, SiemRule, SiemSubRule,
+};
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct SigmaRule {
@@ -115,9 +121,9 @@ impl Into<SiemSubRule> for SigmaRuleCondition {
                 }
                 SiemSubRule {
                     conditions,
-                    rule_state : None
+                    rule_state: None,
                 }
-            },
+            }
             SigmaRuleCondition::List(condition_list) => {
                 let mut conditions = Vec::with_capacity(16);
                 for condition in condition_list {
@@ -127,88 +133,89 @@ impl Into<SiemSubRule> for SigmaRuleCondition {
                 }
                 SiemSubRule {
                     conditions,
-                    rule_state : None
-                }
-
-            },
-            SigmaRuleCondition::None => {
-                SiemSubRule {
-                    conditions : vec![],
-                    rule_state : None
+                    rule_state: None,
                 }
             }
+            SigmaRuleCondition::None => SiemSubRule {
+                conditions: vec![],
+                rule_state: None,
+            },
         }
     }
 }
 
-fn parse_rule_condition(field : LogString, value : SigmaValue) -> RuleCondition {
+fn parse_rule_condition(field: LogString, value: SigmaValue) -> RuleCondition {
     let mut iter = field.split("|");
     let field_name = iter.next().unwrap_or_else(|| "");
     let operator = iter.next();
     let extra = iter.next();
     if let Some(val) = operator {
         RuleCondition {
-            field : Cow::Owned(field_name.to_string()),
-            operator : translate_operator(val, extra, value)
+            field: Cow::Owned(field_name.to_string()),
+            operator: translate_operator(val, extra, value),
         }
-    }else {
+    } else {
         RuleCondition {
-            field : Cow::Owned(field_name.to_string()),
-            operator : translate_content_to_operator(value)
+            field: Cow::Owned(field_name.to_string()),
+            operator: translate_content_to_operator(value),
         }
     }
 }
 
-fn translate_content_to_operator(value : SigmaValue) -> RuleOperator{
+fn translate_content_to_operator(value: SigmaValue) -> RuleOperator {
     match value {
         SigmaValue::Text(v) => {
             let starts = v.starts_with('*');
             let ends = v.ends_with('*') && !v.ends_with("\\*");
             if starts && ends && v.len() > 2 {
                 RuleOperator::Contains(v[1..v.len() - 2].to_string())
-            }else if starts {
+            } else if starts {
                 RuleOperator::StartsWith(v[1..].to_string())
-            }else if ends && v.len() > 1 {
-                RuleOperator::StartsWith(v[..v.len()-1].to_string())
-            }else {
+            } else if ends && v.len() > 1 {
+                RuleOperator::StartsWith(v[..v.len() - 1].to_string())
+            } else {
                 RuleOperator::Equals(SiemField::Text(Cow::Owned(v.to_string())))
             }
-        },
+        }
         SigmaValue::Int(v) => RuleOperator::Equals(SiemField::I64(v)),
         SigmaValue::Float(v) => RuleOperator::Equals(SiemField::F64(v)),
-        SigmaValue::Array(v) => RuleOperator::Any(v.into_iter().map(|v| Box::new(RuleOperator::Equals(v.into()))).collect()),
+        SigmaValue::Array(v) => RuleOperator::Any(
+            v.into_iter()
+                .map(|v| Box::new(RuleOperator::Equals(v.into())))
+                .collect(),
+        ),
         SigmaValue::None => RuleOperator::IsNull(true),
     }
 }
 
-fn translate_operator(operator : &str, extra : Option<&str>, value : SigmaValue) -> RuleOperator {
+fn translate_operator(operator: &str, extra: Option<&str>, value: SigmaValue) -> RuleOperator {
     match operator {
-        "equals" => {
-            RuleOperator::Equals(value.into())
-        },
-        "contains" => {
-            match value {
-                SigmaValue::Text(v) => RuleOperator::Contains(v.to_string()),
-                SigmaValue::Int(v) => RuleOperator::Contains(format!("{}",v)),
-                SigmaValue::Float(v) => RuleOperator::Contains(format!("{}",v)),
-                SigmaValue::Array(v) => {
-                    if let Some(extra) = extra {
-                        if extra == "all" {
-                            return RuleOperator::All(v.iter().map(|v| Box::new(RuleOperator::Contains(v.to_string()))).collect());
-                        }
+        "equals" => RuleOperator::Equals(value.into()),
+        "contains" => match value {
+            SigmaValue::Text(v) => RuleOperator::Contains(v.to_string()),
+            SigmaValue::Int(v) => RuleOperator::Contains(format!("{}", v)),
+            SigmaValue::Float(v) => RuleOperator::Contains(format!("{}", v)),
+            SigmaValue::Array(v) => {
+                if let Some(extra) = extra {
+                    if extra == "all" {
+                        return RuleOperator::All(
+                            v.iter()
+                                .map(|v| Box::new(RuleOperator::Contains(v.to_string())))
+                                .collect(),
+                        );
                     }
-                    RuleOperator::Any(v.iter().map(|v| Box::new(RuleOperator::Contains(v.to_string()))).collect())
-                },
-                SigmaValue::None => RuleOperator::Contains(format!("")),
+                }
+                RuleOperator::Any(
+                    v.iter()
+                        .map(|v| Box::new(RuleOperator::Contains(v.to_string())))
+                        .collect(),
+                )
             }
+            SigmaValue::None => RuleOperator::Contains(format!("")),
         },
-        "endswith" => {
-            RuleOperator::EndsWith(value.to_string())
-        },
-        "startswith" => {
-            RuleOperator::StartsWith(value.to_string())
-        },
-        _ => RuleOperator::All(vec![])
+        "endswith" => RuleOperator::EndsWith(value.to_string()),
+        "startswith" => RuleOperator::StartsWith(value.to_string()),
+        _ => RuleOperator::All(vec![]),
     }
 }
 
@@ -216,16 +223,16 @@ impl Display for SigmaValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             SigmaValue::Text(v) => f.write_str(v),
-            SigmaValue::Int(v) => f.write_fmt(format_args!("{}",v)),
-            SigmaValue::Float(v) => f.write_fmt(format_args!("{}",v)),
+            SigmaValue::Int(v) => f.write_fmt(format_args!("{}", v)),
+            SigmaValue::Float(v) => f.write_fmt(format_args!("{}", v)),
             SigmaValue::Array(list) => {
                 f.write_str("[")?;
                 for value in list {
-                    f.write_fmt(format_args!("{},",value))?;
+                    f.write_fmt(format_args!("{},", value))?;
                 }
                 f.write_str("]")
-            },
-            SigmaValue::None => return Err(std::fmt::Error::default())
+            }
+            SigmaValue::None => return Err(std::fmt::Error::default()),
         }?;
         Ok(())
     }
@@ -237,7 +244,9 @@ impl Into<SiemField> for SigmaValue {
             SigmaValue::Text(v) => SiemField::Text(v),
             SigmaValue::Int(v) => SiemField::I64(v),
             SigmaValue::Float(v) => SiemField::F64(v),
-            SigmaValue::Array(v) => SiemField::Array(v.iter().map(|v| LogString::Owned(v.to_string())).collect()),
+            SigmaValue::Array(v) => {
+                SiemField::Array(v.iter().map(|v| LogString::Owned(v.to_string())).collect())
+            }
             SigmaValue::None => todo!(),
         }
     }
@@ -272,33 +281,39 @@ impl Into<SiemRule> for SigmaRule {
         let subrules = parse_subrules(&mut slf);
         let conditions = Vec::with_capacity(16);
         let description = slf.description.unwrap_or_default();
-        let alert_content =  transform_alert_content(&description);
-        SiemRule { 
-            id : slf.id.unwrap_or_default(),
-            name : slf.title,
-            mitre : Cow::Owned(MitreInfo {
-                tactics : slf.tags.as_ref().and_then(|v| 
-                    Some(v.iter()
-                    .filter(|t|t.starts_with("attack."))
-                    .map(|t|
-                        MitreTactics::try_from(&t[7..])
-                    ).filter(|v| 
-                        v.is_ok()
-                    ).map(|v| v.unwrap())
-                    .collect())
-                ).unwrap_or_default(),
-                techniques : slf.tags.as_ref().and_then(|v| 
-                    Some(v.iter()
-                    .filter(|t|t.starts_with("attack."))
-                    .map(|t|
-                        MitreTechniques::try_from(&t[7..])
-                    ).filter(|v| 
-                        v.is_ok()
-                    ).map(|v| 
-                        v.unwrap()
-                    )
-                    .collect())
-                ).unwrap_or_default(),
+        let alert_content = transform_alert_content(&description);
+        SiemRule {
+            id: slf.id.unwrap_or_default(),
+            name: slf.title,
+            mitre: Cow::Owned(MitreInfo {
+                tactics: slf
+                    .tags
+                    .as_ref()
+                    .and_then(|v| {
+                        Some(
+                            v.iter()
+                                .filter(|t| t.starts_with("attack."))
+                                .map(|t| MitreTactics::try_from(&t[7..]))
+                                .filter(|v| v.is_ok())
+                                .map(|v| v.unwrap())
+                                .collect(),
+                        )
+                    })
+                    .unwrap_or_default(),
+                techniques: slf
+                    .tags
+                    .as_ref()
+                    .and_then(|v| {
+                        Some(
+                            v.iter()
+                                .filter(|t| t.starts_with("attack."))
+                                .map(|t| MitreTechniques::try_from(&t[7..]))
+                                .filter(|v| v.is_ok())
+                                .map(|v| v.unwrap())
+                                .collect(),
+                        )
+                    })
+                    .unwrap_or_default(),
             }),
             description: description,
             needed_datasets: vec![],
@@ -314,7 +329,7 @@ impl Into<SiemRule> for SigmaRule {
     }
 }
 
-fn parse_subrules(rule : &mut SigmaRule) -> BTreeMap<LogString, SiemSubRule> {
+fn parse_subrules(rule: &mut SigmaRule) -> BTreeMap<LogString, SiemSubRule> {
     let mut ret = BTreeMap::new();
     for (id, condition) in &rule.detection.search_identifiers {
         ret.insert(Cow::Owned(id.to_string()), condition.clone().into());
@@ -322,7 +337,7 @@ fn parse_subrules(rule : &mut SigmaRule) -> BTreeMap<LogString, SiemSubRule> {
     ret
 }
 
-fn level_to_severity(level : &str) -> AlertSeverity {
+fn level_to_severity(level: &str) -> AlertSeverity {
     match level {
         "info" => AlertSeverity::INFORMATIONAL,
         "informational" => AlertSeverity::INFORMATIONAL,
@@ -337,11 +352,11 @@ fn level_to_severity(level : &str) -> AlertSeverity {
         "CRITICAL" => AlertSeverity::CRITICAL,
         "critic" => AlertSeverity::CRITICAL,
         "CRITIC" => AlertSeverity::CRITICAL,
-        _ => AlertSeverity::LOW
+        _ => AlertSeverity::LOW,
     }
 }
 
-fn transform_alert_content(description :&str) -> Vec<AlertContent> {
+fn transform_alert_content(description: &str) -> Vec<AlertContent> {
     let mut to_return = Vec::with_capacity(16);
     let mut l = SigmaDescriptionLexer::new(description.chars().collect());
     l.read_char();
@@ -350,12 +365,9 @@ fn transform_alert_content(description :&str) -> Vec<AlertContent> {
             Token::EOF => break,
             Token::FIELD(field) => {
                 to_return.push(AlertContent::Field(field));
-            },
-            Token::Text(text) => {
-                to_return.push(AlertContent::Text(text))
             }
+            Token::Text(text) => to_return.push(AlertContent::Text(text)),
         }
-        
     }
     if to_return.len() == 0 {
         to_return.push(AlertContent::Text(Cow::Owned(description.to_string())));
@@ -428,10 +440,10 @@ impl SigmaDescriptionLexer {
                 self.read_char();
                 let data = read_field(self);
                 tok = Token::FIELD(Cow::Owned(data.iter().collect()));
-            },
+            }
             '\0' => {
                 tok = Token::EOF;
-            },
+            }
             _ => {
                 let data = read_text(self);
                 tok = Token::Text(Cow::Owned(data.iter().collect()));
@@ -446,20 +458,35 @@ impl SigmaDescriptionLexer {
 pub enum Token {
     Text(LogString),
     FIELD(LogString),
-    EOF
+    EOF,
 }
 
 #[test]
 fn should_translate_condition() {
-    let input = String::from("This is a basic description with source.ip=$source.ip and this a text $field123");
+    let input = String::from(
+        "This is a basic description with source.ip=$source.ip and this a text $field123",
+    );
     let mut l = SigmaDescriptionLexer::new(input.chars().collect());
     l.read_char();
-    assert_eq!(Token::Text(LogString::Borrowed("This is a basic description with source.ip=")),l.next_token());
-    assert_eq!(Token::FIELD(LogString::Borrowed("source.ip")),l.next_token());
-    assert_eq!(Token::Text(LogString::Borrowed(" and this a text ")),l.next_token());
-    assert_eq!(Token::FIELD(LogString::Borrowed("field123")),l.next_token());
-    assert_eq!(Token::EOF,l.next_token());
-    
+    assert_eq!(
+        Token::Text(LogString::Borrowed(
+            "This is a basic description with source.ip="
+        )),
+        l.next_token()
+    );
+    assert_eq!(
+        Token::FIELD(LogString::Borrowed("source.ip")),
+        l.next_token()
+    );
+    assert_eq!(
+        Token::Text(LogString::Borrowed(" and this a text ")),
+        l.next_token()
+    );
+    assert_eq!(
+        Token::FIELD(LogString::Borrowed("field123")),
+        l.next_token()
+    );
+    assert_eq!(Token::EOF, l.next_token());
 }
 
 #[test]
@@ -479,50 +506,117 @@ fn should_be_deserialized() {
 fn should_transform_c2_sigma_to_siem_rule() {
     let rule = include_str!("c2_sigma_rule.yml");
     let yml_test: SigmaRule = serde_yaml::from_str(&rule).unwrap();
-    let siem_rule : SiemRule = yml_test.into();
-    assert_eq!(&MitreTechniques::T1041, siem_rule.mitre.techniques.get(0).unwrap());
+    let siem_rule: SiemRule = yml_test.into();
+    assert_eq!(
+        &MitreTechniques::T1041,
+        siem_rule.mitre.techniques.get(0).unwrap()
+    );
     assert_eq!(&AlertContent::Text(LogString::Borrowed("Detects communication to C2 servers mentioned in the operational notes of the ShadowBroker leak of EquationGroup C2 tools")), siem_rule.alert.content.get(0).unwrap());
-    let select_incoming = siem_rule.subrules.get("select_incoming").unwrap().conditions.get(0).unwrap();
-    assert_eq!("src_ip",select_incoming.field);
-    assert_eq!(RuleOperator::Any(vec![
-        Box::new(RuleOperator::Equals(SiemField::IP([69,42,98,86].into()))),
-        Box::new(RuleOperator::Equals(SiemField::IP([89,185,234,145].into())))
-    ]),select_incoming.operator);
-    let select_outgoing = siem_rule.subrules.get("select_outgoing").unwrap().conditions.get(0).unwrap();
-    assert_eq!("dst_ip",select_outgoing.field);
-    assert_eq!(RuleOperator::Any(vec![
-        Box::new(RuleOperator::Equals(SiemField::IP([69,42,98,86].into()))),
-        Box::new(RuleOperator::Equals(SiemField::IP([89,185,234,145].into())))
-    ]),select_outgoing.operator);
+    let select_incoming = siem_rule
+        .subrules
+        .get("select_incoming")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("src_ip", select_incoming.field);
+    assert_eq!(
+        RuleOperator::Any(vec![
+            Box::new(RuleOperator::Equals(SiemField::IP([69, 42, 98, 86].into()))),
+            Box::new(RuleOperator::Equals(SiemField::IP(
+                [89, 185, 234, 145].into()
+            )))
+        ]),
+        select_incoming.operator
+    );
+    let select_outgoing = siem_rule
+        .subrules
+        .get("select_outgoing")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("dst_ip", select_outgoing.field);
+    assert_eq!(
+        RuleOperator::Any(vec![
+            Box::new(RuleOperator::Equals(SiemField::IP([69, 42, 98, 86].into()))),
+            Box::new(RuleOperator::Equals(SiemField::IP(
+                [89, 185, 234, 145].into()
+            )))
+        ]),
+        select_outgoing.operator
+    );
 }
 
 #[test]
 fn should_transform_7zip_sigma_to_siem_rule() {
     let rule = include_str!("7zip_sigma_rule.yml");
     let yml_test: SigmaRule = serde_yaml::from_str(&rule).unwrap();
-    let siem_rule : SiemRule = yml_test.into();
+    let siem_rule: SiemRule = yml_test.into();
     assert_eq!(&AlertContent::Text(LogString::Borrowed("7-Zip through 21.07 on Windows allows privilege escalation (CVE-2022-29072) and command execution when a file with the .7z extension is dragged to the Help>Contents area. This is caused by misconfiguration of 7z.dll and a heap overflow. The command runs in a child process under the 7zFM.exe process.")), siem_rule.alert.content.get(0).unwrap());
-    
-    let img_ends_with = siem_rule.subrules.get("selection_img").unwrap().conditions.get(0).unwrap();
-    assert_eq!("Image",img_ends_with.field);
-    assert_eq!(RuleOperator::EndsWith(format!("\\cmd.exe")),img_ends_with.operator);
-    let original_file_name = siem_rule.subrules.get("selection_img").unwrap().conditions.get(1).unwrap();
-    assert_eq!("OriginalFileName",original_file_name.field);
-    assert_eq!(RuleOperator::Equals(SiemField::from_str("Cmd.Exe")),original_file_name.operator);
- 
-    let parent_image = siem_rule.subrules.get("selection_parent").unwrap().conditions.get(0).unwrap();
-    assert_eq!("ParentImage",parent_image.field);
-    assert_eq!(RuleOperator::EndsWith(format!("\\7zFM.exe")),parent_image.operator);
 
-    let bat_command_line = siem_rule.subrules.get("filter_bat").unwrap().conditions.get(0).unwrap();
-    assert_eq!("CommandLine",bat_command_line.field);
-    assert_eq!(RuleOperator::Any(vec![
-        Box::new(RuleOperator::Contains(format!(" /c "))),
-        Box::new(RuleOperator::Contains(format!(" /k "))),
-        Box::new(RuleOperator::Contains(format!(" /r "))),
-    ]),bat_command_line.operator);
+    let img_ends_with = siem_rule
+        .subrules
+        .get("selection_img")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("Image", img_ends_with.field);
+    assert_eq!(
+        RuleOperator::EndsWith(format!("\\cmd.exe")),
+        img_ends_with.operator
+    );
+    let original_file_name = siem_rule
+        .subrules
+        .get("selection_img")
+        .unwrap()
+        .conditions
+        .get(1)
+        .unwrap();
+    assert_eq!("OriginalFileName", original_file_name.field);
+    assert_eq!(
+        RuleOperator::Equals(SiemField::from_str("Cmd.Exe")),
+        original_file_name.operator
+    );
 
-    let filter_null = siem_rule.subrules.get("filter_null").unwrap().conditions.get(0).unwrap();
-    assert_eq!("CommandLine",filter_null.field);
+    let parent_image = siem_rule
+        .subrules
+        .get("selection_parent")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("ParentImage", parent_image.field);
+    assert_eq!(
+        RuleOperator::EndsWith(format!("\\7zFM.exe")),
+        parent_image.operator
+    );
+
+    let bat_command_line = siem_rule
+        .subrules
+        .get("filter_bat")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("CommandLine", bat_command_line.field);
+    assert_eq!(
+        RuleOperator::Any(vec![
+            Box::new(RuleOperator::Contains(format!(" /c "))),
+            Box::new(RuleOperator::Contains(format!(" /k "))),
+            Box::new(RuleOperator::Contains(format!(" /r "))),
+        ]),
+        bat_command_line.operator
+    );
+
+    let filter_null = siem_rule
+        .subrules
+        .get("filter_null")
+        .unwrap()
+        .conditions
+        .get(0)
+        .unwrap();
+    assert_eq!("CommandLine", filter_null.field);
     assert_eq!(RuleOperator::IsNull(true), filter_null.operator);
 }

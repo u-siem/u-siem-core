@@ -1,6 +1,6 @@
 use dyn_clone::{clone_trait_object, DynClone};
 
-use crate::prelude::{StorageError, types::LogString};
+use crate::prelude::{types::LogString, StorageError};
 
 pub trait SiemComponentStateStorage: DynClone + Send {
     /// Read a key value from the database

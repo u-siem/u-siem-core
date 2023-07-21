@@ -1,7 +1,7 @@
 use super::field::SiemIp;
 use super::protocol::NetworkProtocol;
-use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IntrusionEvent {

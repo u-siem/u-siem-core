@@ -1,4 +1,4 @@
-use super::mitre::{MitreTechniques};
+use super::mitre::MitreTechniques;
 use super::SiemLog;
 use serde::{Deserialize, Serialize};
 
@@ -28,8 +28,7 @@ pub struct SiemAlert {
     pub rule: String,
     /// The log that triggered this alert
     pub log: SiemLog,
-    pub aggregation : Option<AlertAggregation>
-
+    pub aggregation: Option<AlertAggregation>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AlertAggregation {

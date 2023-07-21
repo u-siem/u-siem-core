@@ -1,5 +1,5 @@
-use crate::prelude::SiemResult;
 use crate::prelude::types::LogString;
+use crate::prelude::SiemResult;
 use crossbeam_channel::{Receiver, Sender};
 
 use self::dataset::holder::DatasetHolder;
@@ -24,10 +24,10 @@ pub mod metrics;
 pub mod mitre;
 pub mod parsing;
 pub mod query;
+pub mod rule;
 pub mod storage;
 pub mod task;
 pub mod use_case;
-pub mod rule;
 
 pub trait SiemComponent: Send {
     fn id(&self) -> u64 {
@@ -66,7 +66,7 @@ pub trait SiemDatasetManager: Send {
         return 0;
     }
     fn set_id(&mut self, id: u64);
-    
+
     fn name(&self) -> &str {
         return &"SiemDatasetManager";
     }
@@ -89,8 +89,7 @@ pub trait SiemDatasetManager: Send {
     fn get_datasets(&self) -> Arc<Mutex<DatasetHolder>>;
 }
 
-
-pub trait SiemRuleEngine : SiemComponent {
+pub trait SiemRuleEngine: SiemComponent {
     /// Sets the dictionary of languages to generate the different alerts of the rules
-    fn set_languages(&mut self, languages : BTreeMap<LogString,BTreeMap<LogString,LogString>>);
+    fn set_languages(&mut self, languages: BTreeMap<LogString, BTreeMap<LogString, LogString>>);
 }

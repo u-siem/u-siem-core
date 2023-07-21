@@ -1,6 +1,6 @@
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -126,7 +126,7 @@ mod tests {
 
     use super::*;
     use chrono::prelude::{TimeZone, Utc};
-    
+
     #[test]
     fn test_dataset_creation_same_day() {
         let mut dataset = CalendarDataset::new();
@@ -155,7 +155,10 @@ mod tests {
             }
         };
         dataset.insert(start, end, LogString::Borrowed("LOLOLO"));
-        assert_eq!(dataset.get(time), Some(vec!(&LogString::Borrowed("LOLOLO"))));
+        assert_eq!(
+            dataset.get(time),
+            Some(vec!(&LogString::Borrowed("LOLOLO")))
+        );
         assert_eq!(dataset.get(0), None);
         assert_eq!(dataset.get(time2), None);
     }
@@ -200,8 +203,14 @@ mod tests {
             }
         };
         dataset.insert(start, end, LogString::Borrowed("LOLOLO"));
-        assert_eq!(dataset.get(time), Some(vec!(&LogString::Borrowed("LOLOLO"))));
-        assert_eq!(dataset.get(time2), Some(vec!(&LogString::Borrowed("LOLOLO"))));
+        assert_eq!(
+            dataset.get(time),
+            Some(vec!(&LogString::Borrowed("LOLOLO")))
+        );
+        assert_eq!(
+            dataset.get(time2),
+            Some(vec!(&LogString::Borrowed("LOLOLO")))
+        );
         assert_eq!(dataset.get(0), None);
         assert_eq!(dataset.get(time3), None);
         assert_eq!(dataset.get(time4), None);

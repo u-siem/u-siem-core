@@ -1,9 +1,9 @@
-use std::{time::Duration};
+use std::time::Duration;
 
 use chrono::Utc;
 use crossbeam_channel::Sender;
 
-use crate::prelude::{Notification, NotificationLevel, SiemMessage, SiemResult, types::LogString};
+use crate::prelude::{types::LogString, Notification, NotificationLevel, SiemMessage, SiemResult};
 
 #[derive(Clone)]
 pub struct KernelMessager {

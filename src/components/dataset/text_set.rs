@@ -1,6 +1,6 @@
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeSet;
 use std::sync::Arc;
 #[derive(Serialize, Debug)]
@@ -77,7 +77,6 @@ impl TextSetDataset {
 
 #[cfg(test)]
 mod tests {
-
 
     use super::*;
     #[test]

@@ -1,7 +1,7 @@
 use super::common::{HttpMethod, WebProtocol};
 use super::field::SiemIp;
-use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
+use serde::{Deserialize, Serialize};
 
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
 /// the path requested, the user agent and the size of the resource returned

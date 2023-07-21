@@ -1,7 +1,7 @@
 use super::super::super::events::field::SiemIp;
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -80,12 +80,7 @@ impl IpMapDataset {
         }
     }
 
-    pub fn internal_ref(
-        &self,
-    ) -> (
-        &BTreeMap<u32, LogString>,
-        &BTreeMap<u128, LogString>,
-    ) {
+    pub fn internal_ref(&self) -> (&BTreeMap<u32, LogString>, &BTreeMap<u128, LogString>) {
         (&self.data4, &self.data6)
     }
 }

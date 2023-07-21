@@ -1,16 +1,27 @@
-use serde::{Deserialize, Serialize, de::{Visitor, MapAccess}, Deserializer};
+use serde::{
+    de::{MapAccess, Visitor},
+    Deserialize, Deserializer, Serialize,
+};
 use std::{collections::BTreeMap, future::Future, pin::Pin};
 
-use crate::prelude::{types::LogString, SiemResult, holder::DatasetHolder};
+use crate::prelude::{holder::DatasetHolder, types::LogString, SiemResult};
 
 use super::common::UserRole;
 
-pub trait TaskBuilder2 : std::fmt::Debug{
-    fn build(& self, task : SiemTask) -> SiemResult<Pin<Box<dyn Future<Output = SiemTaskResult> + Send>>> where Self: Sized;
-    fn clone(& self) -> Box<dyn TaskBuilder2>;
+pub trait TaskBuilder2: std::fmt::Debug {
+    fn build(
+        &self,
+        task: SiemTask,
+    ) -> SiemResult<Pin<Box<dyn Future<Output = SiemTaskResult> + Send>>>
+    where
+        Self: Sized;
+    fn clone(&self) -> Box<dyn TaskBuilder2>;
 }
 
-pub type TaskBuilder = fn(SiemTask, &DatasetHolder) -> SiemResult<Pin<Box<dyn Future<Output = SiemTaskResult> + Send>>>;
+pub type TaskBuilder = fn(
+    SiemTask,
+    &DatasetHolder,
+) -> SiemResult<Pin<Box<dyn Future<Output = SiemTaskResult> + Send>>>;
 
 #[derive(Serialize)]
 pub struct TaskDefinition {
@@ -20,9 +31,9 @@ pub struct TaskDefinition {
     min_permission: UserRole,
     fire_mode: TaskFireMode,
     /// Time after which the task can be killed
-    max_duration : u64,
+    max_duration: u64,
     #[serde(skip)]
-    builder : TaskBuilder
+    builder: TaskBuilder,
 }
 
 impl TaskDefinition {
@@ -32,8 +43,8 @@ impl TaskDefinition {
         description: LogString,
         min_permission: UserRole,
         fire_mode: TaskFireMode,
-        max_duration : u64,
-        builder : TaskBuilder
+        max_duration: u64,
+        builder: TaskBuilder,
     ) -> TaskDefinition {
         TaskDefinition {
             data,
@@ -42,7 +53,7 @@ impl TaskDefinition {
             min_permission,
             fire_mode,
             max_duration,
-            builder
+            builder,
         }
     }
 
@@ -71,7 +82,14 @@ impl TaskDefinition {
 
 impl std::fmt::Debug for TaskDefinition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TaskDefinition").field("data", &self.data).field("name", &self.name).field("description", &self.description).field("min_permission", &self.min_permission).field("fire_mode", &self.fire_mode).field("max_duration", &self.max_duration).finish()
+        f.debug_struct("TaskDefinition")
+            .field("data", &self.data)
+            .field("name", &self.name)
+            .field("description", &self.description)
+            .field("min_permission", &self.min_permission)
+            .field("fire_mode", &self.fire_mode)
+            .field("max_duration", &self.max_duration)
+            .finish()
     }
 }
 
@@ -89,9 +107,7 @@ impl Clone for TaskDefinition {
     }
 }
 
-impl<'de> Deserialize<'de>
-    for TaskDefinition
-{
+impl<'de> Deserialize<'de> for TaskDefinition {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -129,34 +145,41 @@ impl<'de> Visitor<'de> for TaskDefinitionVisitor {
         let mut max_duration = 0;
         while let Some(key) = access.next_key::<&str>()? {
             if key == "name" {
-                name= access.next_value()?;
+                name = access.next_value()?;
             } else if key == "description" {
                 description = access.next_value()?;
-            }else if key == "min_permission" {
+            } else if key == "min_permission" {
                 min_permission = access.next_value()?;
-            }else if key == "fire_mode" {
+            } else if key == "fire_mode" {
                 fire_mode = access.next_value()?;
-            }else if key == "max_duration" {
+            } else if key == "max_duration" {
                 max_duration = access.next_value()?;
-            }else if key == "data" {
+            } else if key == "data" {
                 data = access.next_value()?;
             }
         }
-        Ok(TaskDefinition::new(data, LogString::Owned(name), LogString::Owned(description), min_permission, fire_mode, max_duration, |task : SiemTask, _datasets : &DatasetHolder| {
-            Ok(Box::pin(async move {
-                SiemTaskResult {
-                    data : Some(Ok(format!("OK"))),
-                    id : task.id
-                }
-            }))
-        }))
+        Ok(TaskDefinition::new(
+            data,
+            LogString::Owned(name),
+            LogString::Owned(description),
+            min_permission,
+            fire_mode,
+            max_duration,
+            |task: SiemTask, _datasets: &DatasetHolder| {
+                Ok(Box::pin(async move {
+                    SiemTaskResult {
+                        data: Some(Ok(format!("OK"))),
+                        id: task.id,
+                    }
+                }))
+            },
+        ))
     }
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(formatter, "A valid command result")
     }
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum TaskFireMode {
@@ -184,7 +207,7 @@ pub enum SiemTaskType {
     UPDATE_GEOIP,
     UPDATE_CLOUD_PROVIDER,
     /// Task name, Map<ParamName, Description>
-    OTHER(LogString)
+    OTHER(LogString),
 }
 
 impl std::fmt::Display for SiemTaskType {
@@ -195,7 +218,7 @@ impl std::fmt::Display for SiemTaskType {
             SiemTaskType::REPORT_ABUSE => write!(f, "REPORT_ABUSE"),
             SiemTaskType::UPDATE_GEOIP => write!(f, "UPDATE_GEOIP"),
             SiemTaskType::UPDATE_CLOUD_PROVIDER => write!(f, "UPDATE_CLOUD_PROVIDER"),
-            SiemTaskType::OTHER(name) => write!(f, "{}",name),
+            SiemTaskType::OTHER(name) => write!(f, "{}", name),
         }
     }
 }
@@ -205,10 +228,7 @@ impl std::fmt::Display for SiemTaskType {
 #[non_exhaustive]
 pub enum SiemTaskData {
     /// Script name and Script parameters
-    EXECUTE_ENDPOINT_SCRIPT(
-        LogString,
-        BTreeMap<LogString, LogString>,
-    ),
+    EXECUTE_ENDPOINT_SCRIPT(LogString, BTreeMap<LogString, LogString>),
     /// Remediate a list of emails. List of parameters
     REMEDIATE_EMAILS(BTreeMap<LogString, LogString>),
     /// Report IP, email to abuse mail. Needed provider name and parameters
@@ -218,10 +238,7 @@ pub enum SiemTaskData {
     /// Update CloudProvider dataset
     UPDATE_CLOUD_PROVIDER,
     /// Task name, Map<ParamName, Description>
-    OTHER(
-        LogString,
-        BTreeMap<LogString, LogString>,
-    ),
+    OTHER(LogString, BTreeMap<LogString, LogString>),
 }
 
 impl SiemTaskData {
@@ -256,26 +273,30 @@ pub struct SiemTaskResult {
     pub data: Option<Result<String, String>>,
 }
 
-
-
 #[test]
 fn task_builder_should_generate_async_task() {
-    let builder : TaskBuilder = |task : SiemTask, _datasets : &DatasetHolder| {
+    let builder: TaskBuilder = |task: SiemTask, _datasets: &DatasetHolder| {
         Ok(Box::pin(async move {
             SiemTaskResult {
-                data : Some(Ok(format!("OK"))),
-                id : task.id
+                data: Some(Ok(format!("OK"))),
+                id: task.id,
             }
         }))
     };
 
-    let task = SiemTask { created_at: 0, enqueued_at: 1, origin: format!("123"), id: 12345, data: SiemTaskData::REPORT_ABUSE(BTreeMap::new()) };
+    let task = SiemTask {
+        created_at: 0,
+        enqueued_at: 1,
+        origin: format!("123"),
+        id: 12345,
+        data: SiemTaskData::REPORT_ABUSE(BTreeMap::new()),
+    };
     let dataset = DatasetHolder::default();
     let task = builder(task, &dataset).unwrap();
 
     async_std::task::block_on(async move {
         let result = task.await;
         assert_eq!(12345, result.id);
-        assert_eq!(Ok(format!("OK")),result.data.unwrap());
+        assert_eq!(Ok(format!("OK")), result.data.unwrap());
     });
 }

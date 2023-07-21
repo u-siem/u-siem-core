@@ -114,12 +114,9 @@ impl FieldSchema {
     }
 
     /// Apply the schema to the log removing fields not contemplated by the schema
-    pub fn apply(&self, log : &mut SiemLog) {
-        log.fields.retain(|k,_v| {
-            self.fields.contains_key(&k[..])
-        });
+    pub fn apply(&self, log: &mut SiemLog) {
+        log.fields.retain(|k, _v| self.fields.contains_key(&k[..]));
     }
-
 }
 
 #[derive(Serialize, Debug, Clone)]

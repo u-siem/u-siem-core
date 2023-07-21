@@ -1,6 +1,6 @@
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 #[derive(Serialize, Debug)]
@@ -80,12 +80,17 @@ impl TextMapDataset {
 #[cfg(test)]
 mod tests {
 
-
     use super::*;
     #[test]
     fn should_find_data_in_map() {
         let mut dataset = TextMapDataset::new();
-        dataset.insert(LogString::Borrowed("192.168.1.1"), LogString::Borrowed("Local IP"));
-        assert_eq!(dataset.get("192.168.1.1"), Some(&LogString::Borrowed("Local IP")));
+        dataset.insert(
+            LogString::Borrowed("192.168.1.1"),
+            LogString::Borrowed("Local IP"),
+        );
+        assert_eq!(
+            dataset.get("192.168.1.1"),
+            Some(&LogString::Borrowed("Local IP"))
+        );
     }
 }

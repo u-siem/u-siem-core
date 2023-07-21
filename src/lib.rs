@@ -6,16 +6,20 @@ pub mod testing;
 pub mod utilities;
 pub extern crate chrono;
 pub extern crate crossbeam_channel;
+pub extern crate lazy_static;
+pub extern crate regex;
 pub extern crate serde;
 pub extern crate serde_json;
-pub extern crate regex;
-pub extern crate lazy_static;
-
 
 pub mod prelude {
     pub use crate::components::{
-        alert::*, command::*, command_types::*, common::*, dataset::*, enrichment::*, *,
+        mitre, mitre::*,
+        rule, rule::*,
+        alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
+        dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, parsing,
+        parsing::*, SiemComponent, SiemDatasetManager, SiemRuleEngine,
     };
+
     pub use crate::err::*;
     pub use crate::events::{
         auth::*, common::*, dhcp::*, dns::*, field::*, firewall::*, intrusion::*, protocol::*,

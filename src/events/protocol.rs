@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(tag = "np_type")]

@@ -1,7 +1,7 @@
-use std::{net::Ipv6Addr};
+use std::net::Ipv6Addr;
 
 pub fn ipv4_from_str(ipv4: &str) -> Result<u32, &'static str> {
-    let mut number : u32 = 0;
+    let mut number: u32 = 0;
     let mut desplazamiento = 0;
     for part in ipv4.split('.').rev() {
         if desplazamiento >= 32 {
@@ -9,7 +9,7 @@ pub fn ipv4_from_str(ipv4: &str) -> Result<u32, &'static str> {
         }
         let parsed = match part.parse::<u8>() {
             Ok(v) => v,
-            Err(_) => return Err("Cannot parse as u8")
+            Err(_) => return Err("Cannot parse as u8"),
         };
         number += (parsed as u32) << desplazamiento;
         desplazamiento += 8;
@@ -37,7 +37,10 @@ pub fn ipv4_to_u32_bytes(ipv4: &[u8]) -> Result<u32, &'static str> {
     if ipv4.len() != 4 {
         return Err("Invalid IPV4 length");
     }
-    return Ok(((ipv4[0] as u32) << 24) + ((ipv4[1] as u32) << 16) + ((ipv4[2] as u32) << 8) +(ipv4[3] as u32))
+    return Ok(((ipv4[0] as u32) << 24)
+        + ((ipv4[1] as u32) << 16)
+        + ((ipv4[2] as u32) << 8)
+        + (ipv4[3] as u32));
 }
 
 /// Read up to four ASCII characters that represent hexadecimal digits, and return their value, as
@@ -287,7 +290,7 @@ pub fn port_to_u16(port: &str) -> Result<u16, &'static str> {
 pub fn parse_ipv4_port(text: &str) -> Option<(u32, u16)> {
     match text.rfind(":") {
         Some(pos) => match (ipv4_from_str(&text[..pos]), port_to_u16(&text[(pos + 1)..])) {
-            (Ok(v1), Ok(v2)) => Some((v1,v2)),
+            (Ok(v1), Ok(v2)) => Some((v1, v2)),
             _ => None,
         },
         None => None,
@@ -337,15 +340,15 @@ mod tests {
     #[test]
     fn should_parse_ip_from_u8_array() {
         //192.168.1.1 = 3232235777
-        assert_eq!(3232235777, ipv4_to_u32_bytes(&[192,168,1,1]).unwrap());
+        assert_eq!(3232235777, ipv4_to_u32_bytes(&[192, 168, 1, 1]).unwrap());
         //8.8.8.8 = 134744072
-        assert_eq!(134744072, ipv4_to_u32_bytes(&[8,8,8,8]).unwrap());
+        assert_eq!(134744072, ipv4_to_u32_bytes(&[8, 8, 8, 8]).unwrap());
         //10.127.222.21 = 176152085
-        assert_eq!(176152085, ipv4_to_u32_bytes(&[10,127,222,21]).unwrap());
+        assert_eq!(176152085, ipv4_to_u32_bytes(&[10, 127, 222, 21]).unwrap());
         //100.64.0.0 = 1681915904
-        assert_eq!(1681915904, ipv4_to_u32_bytes(&[100,64,0,0]).unwrap());
+        assert_eq!(1681915904, ipv4_to_u32_bytes(&[100, 64, 0, 0]).unwrap());
         //10.255.255.255 = 184549375
-        assert_eq!(184549375, ipv4_to_u32_bytes(&[10,255,255,255]).unwrap());
+        assert_eq!(184549375, ipv4_to_u32_bytes(&[10, 255, 255, 255]).unwrap());
     }
 
     #[test]

@@ -20,7 +20,7 @@ impl DatasetHolder {
         Self { datasets }
     }
 
-    pub fn insert(&mut self, dataset : SiemDataset) {
+    pub fn insert(&mut self, dataset: SiemDataset) {
         self.datasets.insert(dataset.dataset_type(), dataset);
     }
 

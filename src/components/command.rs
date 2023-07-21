@@ -1,8 +1,8 @@
 use serde::de::{MapAccess, Visitor};
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
 use std::collections::BTreeMap;
+use std::fmt::Debug;
 use std::marker::PhantomData;
-use std::{fmt::Debug};
 
 use super::task::{SiemTask, SiemTaskResult};
 use super::{
@@ -40,9 +40,7 @@ pub enum SiemFunctionType {
     START_TASK,
     GET_TASK_RESULT,
     /// Function name
-    OTHER(
-        LogString
-    ),
+    OTHER(LogString),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -96,6 +94,22 @@ pub struct SiemCommandHeader {
     pub comm_id: u64,
 }
 
+impl SiemCommandHeader {
+    pub fn new<S: Into<String>>(user: S, component: u64, command: u64) -> Self {
+        Self {
+            user: user.into(),
+            comp_id: component,
+            comm_id: command,
+        }
+    }
+    pub fn for_user<S: Into<String>>(user: S) -> Self {
+        Self {
+            user: user.into(),
+            ..Default::default()
+        }
+    }
+}
+
 /// Execute a command with parameters
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
@@ -134,10 +148,7 @@ pub enum SiemCommandCall {
     START_TASK(SiemTask),
     GET_TASK_RESULT(u64),
     /// Allows new components to extend the functionality of uSIEM: Function name, Parameters
-    OTHER(
-        LogString,
-        BTreeMap<LogString, LogString>,
-    ),
+    OTHER(LogString, BTreeMap<LogString, LogString>),
 }
 
 impl SiemCommandCall {
@@ -209,10 +220,7 @@ pub enum SiemCommandResponse {
     LOGIN_USER(CommandResult<LoggedOnUser>),
     START_TASK(CommandResult<u64>),
     GET_TASK_RESULT(CommandResult<SiemTaskResult>),
-    OTHER(
-        LogString,
-        CommandResult<BTreeMap<LogString, LogString>>,
-    ),
+    OTHER(LogString, CommandResult<BTreeMap<LogString, LogString>>),
     //TODO: Authentication command, to allow login using third party systems: LDAP...
 }
 
@@ -286,7 +294,7 @@ where
     }
 }
 // */
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct QueryInfo {
     /// The user that created the query pettition
     pub user: String,
@@ -310,10 +318,25 @@ pub struct QueryInfo {
     pub fields: Vec<String>,
 }
 
+impl QueryInfo {
+    pub fn new<S: Into<String>>(query: S) -> Self {
+        Self {
+            query: query.into(),
+            is_native: true,
+            from: 0,
+            to: i64::MAX,
+            limit: 128,
+            offset: 0,
+            ttl: 3_600_000,
+            ..Default::default()
+        }
+    }
+}
+
 #[cfg(test)]
 mod de_ser {
 
-    use crate::prelude::{DatasetDefinition, types::LogString};
+    use crate::prelude::{types::LogString, DatasetDefinition};
 
     use super::SiemCommandResponse;
 

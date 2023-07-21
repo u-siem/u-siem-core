@@ -1,4 +1,4 @@
-use std::io::Error as IoError;
+use std::{io::Error as IoError};
 
 use serde::{Deserialize, Serialize};
 
@@ -26,6 +26,7 @@ pub enum SiemError {
     Configuration(String),
     Messaging(MessagingError),
     Other(String),
+    Component(ComponentError)
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -49,6 +50,33 @@ pub enum MessagingError {
     Disconnected,
     TimeoutReached,
     Full,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[non_exhaustive]
+pub enum ComponentError {
+    StopRequested
+}
+
+impl From<MessagingError> for SiemError {
+    fn from(e: MessagingError) -> Self {
+        Self::Messaging(e)
+    }
+}
+impl From<ComponentError> for SiemError {
+    fn from(e: ComponentError) -> Self {
+        Self::Component(e)
+    }
+}
+impl From<StorageError> for SiemError {
+    fn from(e: StorageError) -> Self {
+        Self::Storage(e)
+    }
+}
+impl From<CommandExecutionError> for SiemError {
+    fn from(e: CommandExecutionError) -> Self {
+        Self::Command(e)
+    }
 }
 
 impl From<IoError> for SiemError {

@@ -5,11 +5,12 @@ pub mod ip_map;
 pub mod ip_map_list;
 pub mod ip_net;
 pub mod ip_set;
+pub mod rules;
 pub mod text_map;
 pub mod text_map_list;
 pub mod text_set;
-pub mod rules;
 
+use crate::prelude::types::LogString;
 use calendar::{CalendarSynDataset, UpdateCalendar};
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
 use ip_map::{IpMapSynDataset, UpdateIpMap};
@@ -18,7 +19,6 @@ use ip_net::{IpNetSynDataset, UpdateNetIp};
 use ip_set::{IpSetSynDataset, UpdateIpSet};
 use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
-use crate::prelude::types::LogString;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt;
@@ -603,5 +603,5 @@ pub enum UpdateDataset {
     Configuration(UpdateTextMap),
     Secrets(UpdateTextMap),
     HostVulnerable(UpdateTextMapList),
-    CorrelationRules(UpdateGeoIp)
+    CorrelationRules(UpdateGeoIp),
 }

@@ -1,13 +1,14 @@
-use crate::prelude::{SiemField, SiemIp, AlertSeverity, AlertAggregation};
+use crate::prelude::holder::DatasetHolder;
+use crate::prelude::{AlertAggregation, AlertSeverity, SiemField, SiemIp, SiemLog};
 
-use super::dataset::{ SiemDatasetType};
+use super::dataset::SiemDatasetType;
 use super::mitre::{MitreTactics, MitreTechniques};
-use regex::Regex;
 use crate::prelude::types::LogString;
+use regex::Regex;
+use serde::{de, Deserialize, Serialize, Serializer};
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::str::FromStr;
-use serde::{Serialize, Deserialize, Serializer, de};
 
 pub mod sigma;
 
@@ -19,44 +20,44 @@ pub struct SiemRule {
     /// A description of the rule to be showed in the UI
     pub description: LogString,
     /// tactics and techniques covered by this rule
-    pub mitre: Cow<'static,MitreInfo>,
+    pub mitre: Cow<'static, MitreInfo>,
     /// List of datasets needed by this rule
     pub needed_datasets: Vec<SiemDatasetType>,
     /// List of subrules that this rule is made of
-    pub subrules : Cow<'static,BTreeMap<LogString, SiemSubRule>>,
+    pub subrules: Cow<'static, BTreeMap<LogString, SiemSubRule>>,
     /// List of subrules that triggers this rule.
-    pub conditions : Cow<'static,Vec<Vec<LogString>>>,
+    pub conditions: Cow<'static, Vec<Vec<LogString>>>,
     /// Generates the content of the alert
-    pub alert : Cow<'static,AlertGenerator>
+    pub alert: Cow<'static, AlertGenerator>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct AlertGenerator {
-    pub content : Vec<AlertContent>,
-    pub severity : AlertSeverity,
-    pub tags : Vec<LogString>,
+    pub content: Vec<AlertContent>,
+    pub severity: AlertSeverity,
+    pub tags: Vec<LogString>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aggregation : Option<AlertAggregation>
+    pub aggregation: Option<AlertAggregation>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct MitreInfo {
-    pub tactics : Vec<MitreTactics>,
-    pub techniques : Vec<MitreTechniques>
+    pub tactics: Vec<MitreTactics>,
+    pub techniques: Vec<MitreTechniques>,
 }
 
-#[derive(Clone, Serialize, Deserialize,Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SiemSubRule {
-    pub conditions : Vec<RuleCondition>,
+    pub conditions: Vec<RuleCondition>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub rule_state : Option<RuleState>
+    pub rule_state: Option<RuleState>,
 }
 
-#[derive(Clone, Serialize, Deserialize,Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct RuleCondition {
-    pub field : LogString,
+    pub field: LogString,
     #[serde(flatten)]
-    pub operator : RuleOperator,
+    pub operator: RuleOperator,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -66,7 +67,7 @@ pub enum AlertContent {
     /// Content of a Log field
     Field(LogString),
     /// List of matched rules joined by a string. Ex ("\n", ","...)
-    MatchedRules(LogString)
+    MatchedRules(LogString),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -84,7 +85,10 @@ pub enum RuleOperator {
     LT(SiemField),
     GTE(SiemField),
     LTE(SiemField),
-    #[serde(serialize_with = "regex_to_string", deserialize_with = "string_to_regex")]
+    #[serde(
+        serialize_with = "regex_to_string",
+        deserialize_with = "string_to_regex"
+    )]
     Matches(Regex),
     SameNet((SiemIp, u8)),
     IsLocalIp(bool),
@@ -112,7 +116,7 @@ impl PartialEq for RuleOperator {
             (Self::GTE(v1), Self::GTE(v2)) => v1 == v2,
             (Self::LTE(v1), Self::LTE(v2)) => v1 == v2,
             (Self::Matches(v1), Self::Matches(v2)) => v1.as_str() == v2.as_str(),
-            (Self::SameNet((v1,v11)), Self::SameNet((v2,v22))) => v1 == v2 && v11 == v22,
+            (Self::SameNet((v1, v11)), Self::SameNet((v2, v22))) => v1 == v2 && v11 == v22,
             (Self::IsLocalIp(v1), Self::IsLocalIp(v2)) => v1 == v2,
             (Self::IsExternalIp(v1), Self::IsExternalIp(v2)) => v1 == v2,
             (Self::Exists(v1), Self::Exists(v2)) => v1 == v2,
@@ -121,7 +125,7 @@ impl PartialEq for RuleOperator {
             (Self::ExistsRuleState(v1), Self::ExistsRuleState(v2)) => v1 == v2,
             (Self::InCountry(v1), Self::InCountry(v2)) => v1 == v2,
             (Self::IsNull(v1), Self::IsNull(v2)) => v1 == v2,
-            _ => false
+            _ => false,
         }
     }
 }
@@ -143,11 +147,11 @@ where
 
     impl<'de> de::Visitor<'de> for RegexVisitor {
         type Value = Regex;
-    
+
         fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
             formatter.write_str("a string containing json data")
         }
-    
+
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
         where
             E: de::Error,
@@ -157,90 +161,152 @@ where
             Regex::from_str(v).map_err(E::custom)
         }
     }
-    
+
     // use our visitor to deserialize an `ActualValue`
     deserializer.deserialize_any(RegexVisitor)
 }
 
-
-
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct RuleState {
-    pub states : RuleStateValue
+    pub states: RuleStateValue,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum RuleStateValue {
     Text(LogString),
-    Field(LogString)
+    Field(LogString),
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AlertDictionary {
-    pub language_map : BTreeMap<LogString, BTreeMap<LogString, LogString>>
+    pub language_map: BTreeMap<LogString, BTreeMap<LogString, LogString>>,
 }
 impl AlertDictionary {
-    pub fn get_mappings_for(&self, language : &str) -> Option<&BTreeMap<LogString, LogString>> {
+    pub fn get_mappings_for(&self, language: &str) -> Option<&BTreeMap<LogString, LogString>> {
         self.language_map.get(language)
     }
 
-    pub fn get_mappings_for_id(&self, language : &str, id : &str) -> Option<&LogString> {
+    pub fn get_mappings_for_id(&self, language: &str, id: &str) -> Option<&LogString> {
         self.language_map.get(language).and_then(|v| v.get(id))
+    }
+}
+
+impl SiemRule {
+    pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetHolder) -> bool {
+        for (_name, rule) in self.subrules.as_ref() {
+            for condition in &rule.conditions {
+                if !condition.matches(log, datasets) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+}
+
+impl RuleCondition {
+    pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetHolder) -> bool {
+        let field = log.field(&self.field);
+        if field.is_none() {
+            match &self.operator {
+                RuleOperator::Exists(cond) => return !*cond,
+                RuleOperator::IsNull(cond) => return *cond,
+                _ => return false,
+            }
+        }
+        let field = field.unwrap();
+        match &self.operator {
+            RuleOperator::All(_) => todo!(),
+            RuleOperator::Any(_) => todo!(),
+            RuleOperator::Not(_) => todo!(),
+            RuleOperator::Equals(_) => todo!(),
+            RuleOperator::StartsWith(_) => todo!(),
+            RuleOperator::EndsWith(_) => todo!(),
+            RuleOperator::Contains(_) => todo!(),
+            RuleOperator::GT(_) => todo!(),
+            RuleOperator::LT(_) => todo!(),
+            RuleOperator::GTE(_) => todo!(),
+            RuleOperator::LTE(_) => todo!(),
+            RuleOperator::Matches(_) => todo!(),
+            RuleOperator::SameNet(_) => todo!(),
+            RuleOperator::IsLocalIp(_) => todo!(),
+            RuleOperator::IsExternalIp(_) => todo!(),
+            RuleOperator::Exists(cond) => *cond,
+            RuleOperator::IsNull(cond) => !*cond,
+            RuleOperator::B64(_) => todo!(),
+            RuleOperator::InDataset(_) => todo!(),
+            RuleOperator::ExistsRuleState(_) => todo!(),
+            RuleOperator::InCountry(_) => todo!(),
+        }
     }
 }
 
 #[test]
 fn should_be_serialized_and_deserialize() {
     let superrule = SiemRule {
-        id : LogString::Borrowed("id001"),
+        id: LogString::Borrowed("id001"),
         name: LogString::Borrowed("Rule001"),
         description: LogString::Borrowed("descripcion"),
-        mitre: Cow::Owned(MitreInfo { tactics: vec![MitreTactics::TA0001], techniques: vec![] }),
+        mitre: Cow::Owned(MitreInfo {
+            tactics: vec![MitreTactics::TA0001],
+            techniques: vec![],
+        }),
         needed_datasets: vec![SiemDatasetType::BlockIp],
         subrules: {
             let mut map = BTreeMap::new();
-            map.insert(LogString::Borrowed("rule_source_ip"), SiemSubRule { 
-                conditions: vec![
-                    RuleCondition {
-                        field : LogString::Borrowed("source.ip"),
-                        operator : RuleOperator::Not(Box::new(RuleOperator::Equals(SiemField::IP([192,168,1,1].into()))))
-                    }
-                ], 
-                rule_state: None 
-            });
-            map.insert(LogString::Borrowed("rule_destination_ip"), SiemSubRule { 
-                conditions: vec![
-                    RuleCondition {
-                        field : LogString::Borrowed("destination.ip"),
-                        operator : RuleOperator::All(vec![
+            map.insert(
+                LogString::Borrowed("rule_source_ip"),
+                SiemSubRule {
+                    conditions: vec![RuleCondition {
+                        field: LogString::Borrowed("source.ip"),
+                        operator: RuleOperator::Not(Box::new(RuleOperator::Equals(SiemField::IP(
+                            [192, 168, 1, 1].into(),
+                        )))),
+                    }],
+                    rule_state: None,
+                },
+            );
+            map.insert(
+                LogString::Borrowed("rule_destination_ip"),
+                SiemSubRule {
+                    conditions: vec![RuleCondition {
+                        field: LogString::Borrowed("destination.ip"),
+                        operator: RuleOperator::All(vec![
                             Box::new(RuleOperator::IsExternalIp(true)),
-                            Box::new(RuleOperator::InDataset(SiemDatasetType::BlockIp))
-                        ])
-                    }
-                ], 
-                rule_state: None 
-            });
+                            Box::new(RuleOperator::InDataset(SiemDatasetType::BlockIp)),
+                        ]),
+                    }],
+                    rule_state: None,
+                },
+            );
             Cow::Owned(map)
         },
-        conditions: Cow::Owned(vec![vec![LogString::Borrowed("rule_source_ip"), LogString::Borrowed("rule_destination_ip")]]),
+        conditions: Cow::Owned(vec![vec![
+            LogString::Borrowed("rule_source_ip"),
+            LogString::Borrowed("rule_destination_ip"),
+        ]]),
         alert: Cow::Owned(AlertGenerator {
-            content : vec![
-                AlertContent::Text(LogString::Borrowed("A local ip tried to connect to a a malicious IP: source.ip=")),
+            content: vec![
+                AlertContent::Text(LogString::Borrowed(
+                    "A local ip tried to connect to a a malicious IP: source.ip=",
+                )),
                 AlertContent::Field(LogString::Borrowed("source.ip")),
                 AlertContent::Text(LogString::Borrowed(", destination.ip=")),
                 AlertContent::Field(LogString::Borrowed("destination.ip")),
             ],
-            severity : AlertSeverity::HIGH,
-            tags : vec![LogString::Borrowed("external_attack")],
-            aggregation : None
-        })
+            severity: AlertSeverity::HIGH,
+            tags: vec![LogString::Borrowed("external_attack")],
+            aggregation: None,
+        }),
     };
     let json_txt = serde_json::to_string_pretty(&superrule).unwrap();
-    let _v : SiemRule = serde_json::from_str(&json_txt).unwrap();
+    let _v: SiemRule = serde_json::from_str(&json_txt).unwrap();
 
     let new_superrule = superrule.clone();
     match new_superrule.name {
-        Cow::Borrowed(_) => {},
-        _ => {unreachable!("Should not be owned")}
+        Cow::Borrowed(_) => {}
+        _ => {
+            unreachable!("Should not be owned")
+        }
     };
 }

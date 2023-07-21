@@ -1,7 +1,7 @@
 use super::super::super::events::field::SiemIp;
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -148,7 +148,6 @@ impl IpNetDataset {
 
 #[cfg(test)]
 mod tests {
-
 
     use super::*;
     #[test]

@@ -1,7 +1,7 @@
 use super::super::super::events::field::SiemIp;
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::vec::Vec;
@@ -99,11 +99,19 @@ mod tests {
         let mut dataset = IpMapListDataset::new();
         dataset.insert(
             SiemIp::from_ip_str("192.168.1.1").unwrap(),
-            vec![LogString::Borrowed("Local IP "), LogString::Borrowed("Remote IP")],
+            vec![
+                LogString::Borrowed("Local IP "),
+                LogString::Borrowed("Remote IP"),
+            ],
         );
         assert_eq!(
             dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
-            Some(&(vec![LogString::Borrowed("Local IP "), LogString::Borrowed("Remote IP")]))
+            Some(
+                &(vec![
+                    LogString::Borrowed("Local IP "),
+                    LogString::Borrowed("Remote IP")
+                ])
+            )
         );
     }
 }

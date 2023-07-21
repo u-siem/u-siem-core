@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::prelude::types::LogString;
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 pub mod auth;
 pub mod common;
@@ -11,9 +11,9 @@ pub mod firewall;
 pub mod intrusion;
 pub mod protocol;
 pub mod schema;
+pub mod tags;
 pub mod webproxy;
 pub mod webserver;
-pub mod tags;
 //use serde::ser::{Serializer, SerializeStruct};
 use auth::{AuthEvent, AuthLoginType};
 use dhcp::{DhcpEvent, DhcpRecordType};
@@ -143,14 +143,22 @@ impl<'a> SiemLog {
         let cw = origin.into();
         let ms = message.into();
         let mut fields = BTreeMap::new();
-        fields
-            .insert(LogString::Borrowed("message"), SiemField::Text(LogString::Owned(ms.to_string())));
-        fields
-            .insert(LogString::Borrowed("origin"), SiemField::Text(LogString::Owned(cw.to_string())));
-        fields
-            .insert(LogString::Borrowed("event_created"), SiemField::Date(received));
-        fields
-            .insert(LogString::Borrowed("event_received"), SiemField::Date(received));
+        fields.insert(
+            LogString::Borrowed("message"),
+            SiemField::Text(LogString::Owned(ms.to_string())),
+        );
+        fields.insert(
+            LogString::Borrowed("origin"),
+            SiemField::Text(LogString::Owned(cw.to_string())),
+        );
+        fields.insert(
+            LogString::Borrowed("event_created"),
+            SiemField::Date(received),
+        );
+        fields.insert(
+            LogString::Borrowed("event_received"),
+            SiemField::Date(received),
+        );
         SiemLog {
             message: ms,
             event_received: received,
@@ -164,7 +172,7 @@ impl<'a> SiemLog {
             tags: BTreeSet::default(),
             fields,
             event_created: received,
-            ip_fields : BTreeSet::new()
+            ip_fields: BTreeSet::new(),
         }
     }
 
@@ -182,8 +190,10 @@ impl<'a> SiemLog {
         S: Into<LogString>,
     {
         let tenant = tenant.into();
-        self.fields
-            .insert(LogString::Borrowed("tenant"), SiemField::Text(tenant.clone()));
+        self.fields.insert(
+            LogString::Borrowed("tenant"),
+            SiemField::Text(tenant.clone()),
+        );
         self.tenant = tenant;
     }
     pub fn product(&'a self) -> &'a str {
@@ -194,8 +204,10 @@ impl<'a> SiemLog {
         S: Into<LogString>,
     {
         let product = product.into();
-        self.fields
-            .insert(LogString::Borrowed("product"), SiemField::Text(product.clone()));
+        self.fields.insert(
+            LogString::Borrowed("product"),
+            SiemField::Text(product.clone()),
+        );
         self.product = product;
     }
     pub fn service(&'a self) -> &'a str {
@@ -207,8 +219,10 @@ impl<'a> SiemLog {
         S: Into<LogString>,
     {
         let service = service.into();
-        self.fields
-            .insert(LogString::Borrowed("service"), SiemField::Text(service.clone()));
+        self.fields.insert(
+            LogString::Borrowed("service"),
+            SiemField::Text(service.clone()),
+        );
         self.service = service;
     }
     pub fn category(&'a self) -> &'a str {
@@ -219,8 +233,10 @@ impl<'a> SiemLog {
         S: Into<LogString>,
     {
         let category = category.into();
-        self.fields
-            .insert(LogString::Borrowed("category"), SiemField::Text(category.clone()));
+        self.fields.insert(
+            LogString::Borrowed("category"),
+            SiemField::Text(category.clone()),
+        );
         self.category = category;
     }
     pub fn vendor(&'a self) -> &'a str {
@@ -231,8 +247,10 @@ impl<'a> SiemLog {
         S: Into<LogString>,
     {
         let vendor = vendor.into();
-        self.fields
-            .insert(LogString::Borrowed("vendor"), SiemField::Text(vendor.clone()));
+        self.fields.insert(
+            LogString::Borrowed("vendor"),
+            SiemField::Text(vendor.clone()),
+        );
         self.vendor = vendor;
     }
     pub fn event_received(&'a self) -> i64 {
@@ -279,8 +297,7 @@ impl<'a> SiemLog {
         if let SiemField::IP(_) = &field_value {
             self.ip_fields.insert(field_name.clone());
         }
-        self.fields
-            .insert(field_name, field_value);
+        self.fields.insert(field_name, field_value);
     }
     pub fn has_field(&self, field_name: &str) -> bool {
         self.fields.contains_key(field_name)
@@ -686,38 +703,37 @@ impl<'a> SiemLog {
     }
     pub fn fields(&self) -> EventIter<'_> {
         EventIter {
-            children : self.fields.iter()
+            children: self.fields.iter(),
         }
     }
     pub fn iter(&self) -> EventIter<'_> {
         EventIter {
-            children : self.fields.iter()
+            children: self.fields.iter(),
         }
     }
     pub fn iter_mut(&mut self) -> EventIterMut<'_> {
         EventIterMut {
-            children : self.fields.iter_mut()
+            children: self.fields.iter_mut(),
         }
     }
     pub fn ip_fields(&self) -> EventFieldIter<'_> {
         EventFieldIter {
-            names : self.ip_fields.iter(),
-            fields : &self.fields
+            names: self.ip_fields.iter(),
+            fields: &self.fields,
         }
     }
-
 }
 
-pub struct EventIter<'a>{
-    children : std::collections::btree_map::Iter<'a,LogString, SiemField>
+pub struct EventIter<'a> {
+    children: std::collections::btree_map::Iter<'a, LogString, SiemField>,
 }
-pub struct EventFieldIter<'a>{
-    names : std::collections::btree_set::Iter<'a,LogString>,
-    fields : &'a BTreeMap<LogString, SiemField>
+pub struct EventFieldIter<'a> {
+    names: std::collections::btree_set::Iter<'a, LogString>,
+    fields: &'a BTreeMap<LogString, SiemField>,
 }
 
-pub struct EventIterMut<'a>{
-    children : std::collections::btree_map::IterMut<'a,LogString, SiemField>
+pub struct EventIterMut<'a> {
+    children: std::collections::btree_map::IterMut<'a, LogString, SiemField>,
 }
 
 impl<'a> Iterator for EventIter<'a> {
@@ -740,7 +756,7 @@ impl<'a> Iterator for EventFieldIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let field = self.names.next()?;
         let value = self.fields.get(field)?;
-        Some((field,value))
+        Some((field, value))
     }
 }
 
@@ -765,7 +781,10 @@ mod tests {
             out_interface: LogString::Borrowed("out123"),
             network_protocol: NetworkProtocol::TCP,
         }));
-        log.add_field("event.dataset", SiemField::Text(LogString::Borrowed("filterlog")));
+        log.add_field(
+            "event.dataset",
+            SiemField::Text(LogString::Borrowed("filterlog")),
+        );
         match log.field("event.dataset") {
             Some(val) => match val {
                 SiemField::Text(val) => {

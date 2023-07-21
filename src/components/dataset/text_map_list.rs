@@ -1,6 +1,6 @@
+use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;
-use crate::prelude::types::LogString;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::vec::Vec;
@@ -74,18 +74,25 @@ impl TextMapListDataset {
 #[cfg(test)]
 mod tests {
 
-
     use super::*;
     #[test]
     fn should_find_data_in_dataset() {
         let mut dataset = TextMapListDataset::new();
         dataset.insert(
             LogString::Borrowed("192.168.1.1"),
-            vec![LogString::Borrowed("Local IP "), LogString::Borrowed("Remote IP")],
+            vec![
+                LogString::Borrowed("Local IP "),
+                LogString::Borrowed("Remote IP"),
+            ],
         );
         assert_eq!(
             dataset.get("192.168.1.1"),
-            Some(&(vec![LogString::Borrowed("Local IP "), LogString::Borrowed("Remote IP")]))
+            Some(
+                &(vec![
+                    LogString::Borrowed("Local IP "),
+                    LogString::Borrowed("Remote IP")
+                ])
+            )
         );
     }
 }
