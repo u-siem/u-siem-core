@@ -38,3 +38,19 @@ pub fn initialize_component_logger(msngr: KernelMessager) {
     // Wait for local_key_cell_methods
     //COMPONENT_LOGGER.replace(msngr);
 }
+
+/// Use for fast initialization of components during testing. With component ID "1234" and name "Dummy"
+pub fn testing_component_logger_dummy() -> crossbeam_channel::Receiver<crate::prelude::SiemMessage> {
+    let (sender, receiver) = crossbeam_channel::unbounded();
+    let msngr = KernelMessager::new(1234, "Dummy".to_string(), sender);
+    initialize_component_logger(msngr);
+    receiver
+}
+
+/// Use for fast initialization of components during testing
+pub fn testing_component_logger(id : u64, name: &str) -> crossbeam_channel::Receiver<crate::prelude::SiemMessage> {
+    let (sender, receiver) = crossbeam_channel::unbounded();
+    let msngr = KernelMessager::new(id, name.to_string(), sender);
+    initialize_component_logger(msngr);
+    receiver
+}

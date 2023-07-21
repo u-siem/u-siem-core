@@ -15,6 +15,8 @@ pub mod prelude {
     pub use crate::components::{
         mitre, mitre::*,
         rule, rule::*,
+        storage,
+        storage::*,
         alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
         dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, parsing,
         parsing::*, SiemComponent, SiemDatasetManager, SiemRuleEngine,

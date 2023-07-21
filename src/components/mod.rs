@@ -3,7 +3,6 @@ use crate::prelude::SiemResult;
 use crossbeam_channel::{Receiver, Sender};
 
 use self::dataset::holder::DatasetHolder;
-use self::kernel_message::KernelMessager;
 
 use super::events::SiemLog;
 use common::{SiemComponentCapabilities, SiemMessage};
@@ -30,10 +29,6 @@ pub mod task;
 pub mod use_case;
 
 pub trait SiemComponent: Send {
-    fn id(&self) -> u64 {
-        return 0;
-    }
-    fn set_id(&mut self, id: u64);
     fn name(&self) -> &'static str {
         return &"SiemComponent";
     }
@@ -41,9 +36,6 @@ pub trait SiemComponent: Send {
     fn local_channel(&self) -> Sender<SiemMessage>;
     /// Sets the channel used to receive/send logs. It's the kernel who sets the channel
     fn set_log_channel(&mut self, sender: Sender<SiemLog>, receiver: Receiver<SiemLog>);
-
-    /// Sets the channel to communicate with the kernel.
-    fn set_kernel_sender(&mut self, sender: KernelMessager);
 
     /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
     fn run(&mut self) -> SiemResult<()>;
@@ -62,9 +54,6 @@ pub trait SiemComponent: Send {
 }
 
 pub trait SiemDatasetManager: Send {
-    fn id(&self) -> u64 {
-        return 0;
-    }
     fn set_id(&mut self, id: u64);
 
     fn name(&self) -> &str {
@@ -72,9 +61,6 @@ pub trait SiemDatasetManager: Send {
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;
-
-    /// Sets the channel to communicate with the kernel.
-    fn set_kernel_sender(&mut self, sender: KernelMessager);
 
     /// Execute the logic of this component in an infinite loop. Must be stopped using Commands sent using the channel.
     fn run(&mut self) -> SiemResult<()>;
