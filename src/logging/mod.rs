@@ -29,6 +29,7 @@ thread_local! {
     pub static COMPONENT_LOGGER : RefCell<KernelMessager> = RefCell::new(KernelMessager::default());
 }
 
+/// Initializes the channel to communicate with the Kernel for the current thread/component.
 pub fn initialize_component_logger(msngr: KernelMessager) {
     let _ = COMPONENT_LOGGER.with(|v| {
         let mut brw = v.borrow_mut();

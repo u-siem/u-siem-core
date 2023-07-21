@@ -9,7 +9,7 @@ use crate::components::{
 };
 
 /// Simplify the process of testing components.
-/// This lets you execute some actions like send SiemMessages before stopping a component
+/// Allows executing some actions like send SiemMessages before stopping a component
 pub fn do_before_stoping_component<F>(
     component: &Box<dyn SiemComponent>,
     action: F,

@@ -1,7 +1,10 @@
 use std::time::Duration;
 
 use crossbeam_channel::Sender;
-use usiem::prelude::{kernel_message::KernelMessager, NotificationLevel, SiemMessage};
+use usiem::prelude::{
+    kernel_message::KernelMessager, NotificationLevel, SiemCommandCall, SiemCommandHeader,
+    SiemMessage,
+};
 
 #[cfg(not(lib_build))]
 #[macro_use]
@@ -35,6 +38,60 @@ fn test_all_logging() {
                 assert!(ntf.timestamp > 0);
             }
             _ => unreachable!("Cannot be other thing"),
+        }
+    }
+}
+
+#[test]
+fn kernel_message_sending_should_work() {
+    let (sender, receiver) = crossbeam_channel::bounded(10);
+    initialize_component_logger(sender.clone());
+    send_message!(SiemMessage::Command(
+        SiemCommandHeader {
+            comm_id: 1,
+            comp_id: 2,
+            user: format!("Dummy")
+        },
+        usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+    ))
+    .expect("Must work");
+    try_send_message!(SiemMessage::Command(
+        SiemCommandHeader {
+            comm_id: 1,
+            comp_id: 2,
+            user: format!("Dummy")
+        },
+        usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+    ))
+    .expect("Must work");
+    send_message_timeout!(
+        SiemMessage::Command(
+            SiemCommandHeader {
+                comm_id: 1,
+                comp_id: 2,
+                user: format!("Dummy")
+            },
+            usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+        ),
+        Duration::from_millis(1_000)
+    )
+    .expect("Must work");
+    for _ in 0..3 {
+        let msg = receiver
+        .recv_timeout(Duration::from_millis(1000))
+        .expect("Should send a message");
+        match msg {
+            SiemMessage::Command(hdr, cmd) => {
+                assert_eq!(1, hdr.comm_id);
+                assert_eq!(2, hdr.comp_id);
+                assert_eq!("Dummy", &hdr.user);
+                if let SiemCommandCall::STOP_COMPONENT(name) = cmd {
+                    assert_eq!("Dummy", name);
+                } else {
+                    panic!("Must not happen");
+                }
+            }
+            _ => panic!("Must not happen"),
         }
     }
 }

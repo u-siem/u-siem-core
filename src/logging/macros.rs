@@ -42,3 +42,32 @@ macro_rules! log {
         }
     });
 }
+
+/// Send a message to the kernel
+#[macro_export(local_inner_macros)]
+macro_rules! send_message {
+    ($arg:expr) => {
+        $crate::logging::COMPONENT_LOGGER.with(|v| {
+            let msngr = v.borrow();
+            msngr.send($arg)
+        })
+    }
+}
+#[macro_export(local_inner_macros)]
+macro_rules! send_message_timeout {
+    ($msg:expr, $timeout:expr) => {
+        $crate::logging::COMPONENT_LOGGER.with(|v| {
+            let msngr = v.borrow();
+            msngr.send_timeout($msg, $timeout)
+        })
+    }
+}
+#[macro_export(local_inner_macros)]
+macro_rules! try_send_message {
+    ($msg:expr) => {
+        $crate::logging::COMPONENT_LOGGER.with(|v| {
+            let msngr = v.borrow();
+            msngr.try_send($msg)
+        })
+    }
+}

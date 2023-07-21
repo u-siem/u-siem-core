@@ -28,6 +28,7 @@ pub enum SiemMessage {
     TaskResult(SiemCommandHeader, SiemTaskResult),
 }
 
+/// A internal event that occur in a SIEM component such as problems, errors or just information on current operations.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Notification {
     pub timestamp: i64,
@@ -48,6 +49,7 @@ pub enum NotificationLevel {
     Trace,
 }
 
+/// What is supported by a component: commands that accepts, datasets that uses, exported metrics...
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemComponentCapabilities {
     name: LogString,
