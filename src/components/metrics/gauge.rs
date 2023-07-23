@@ -100,19 +100,19 @@ impl Gauge {
         self.dec_by(1.0);
     }
     pub fn inc_by(&self, v : f64) {
-        self.metric.fetch_add(normalize_f64(v), std::sync::atomic::Ordering::Relaxed);
+        self.metric.fetch_add(normalize_f64(v), std::sync::atomic::Ordering::SeqCst);
     }
     pub fn set(&self, v : f64) {
-        self.metric.store(normalize_f64(v), std::sync::atomic::Ordering::Relaxed);
+        self.metric.store(normalize_f64(v), std::sync::atomic::Ordering::SeqCst);
     }
     pub fn dec_by(&self, v : f64) {
-        self.metric.fetch_sub(normalize_f64(v), std::sync::atomic::Ordering::Relaxed);
+        self.metric.fetch_sub(normalize_f64(v), std::sync::atomic::Ordering::SeqCst);
     }
     pub fn get(&self) -> f64 {
         normalize_i64(self.metric.load(std::sync::atomic::Ordering::Relaxed))
     }
     pub fn reset(&self) {
-        self.metric.store(0, std::sync::atomic::Ordering::Relaxed);
+        self.metric.store(0, std::sync::atomic::Ordering::SeqCst);
     }
     
 }

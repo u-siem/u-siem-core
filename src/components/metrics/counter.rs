@@ -100,7 +100,7 @@ impl Counter {
         self.inc_by(1);
     }
     pub fn inc_by(&self, v : i64) {
-        self.metric.fetch_add(v, std::sync::atomic::Ordering::Relaxed);
+        self.metric.fetch_add(v, std::sync::atomic::Ordering::SeqCst);
     }
     pub fn get(&self) -> i64 {
         self.metric.load(std::sync::atomic::Ordering::Relaxed)

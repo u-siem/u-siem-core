@@ -58,7 +58,7 @@ impl HistogramBucket {
             if value > observation.le {
                 break;
             }
-            observation.value.fetch_add(1, Ordering::Relaxed);
+            observation.value.fetch_add(1, Ordering::SeqCst);
         }
     }
     pub fn get_count(&self, le: f64) -> Option<u64> {
@@ -92,6 +92,9 @@ impl HistogramVec {
         Self { metrics }
     }
     pub fn with_labels(&self, labels: &[(&str, &str)]) -> Option<&Histogram> {
+        if labels.len() == 0 {
+            return None
+        }
         'cnt: for hist in &self.metrics {
             for ((name1, value1), (name2, value2)) in hist.labels.iter().zip(labels.iter()) {
                 if name1 != name2 || value1 != value2 {
@@ -118,8 +121,8 @@ impl Histogram {
     }
 
     pub fn observe(&self, value: f64) {
-        self.count.fetch_add(1, Ordering::Relaxed);
-        self.sum.fetch_add(normalize_f64(value), Ordering::Relaxed);
+        self.count.fetch_add(1, Ordering::SeqCst);
+        self.sum.fetch_add(normalize_f64(value), Ordering::SeqCst);
         self.counters.observe(value);
     }
     pub fn get_sample_count(&self) -> u64 {
