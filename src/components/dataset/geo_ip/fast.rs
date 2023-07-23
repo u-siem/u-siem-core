@@ -1,9 +1,10 @@
-use super::super::super::events::field::SiemIp;
-use crate::prelude::types::LogString;
+use crate::prelude::SiemIp;
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::sync::Arc;
+
+use super::GeoIpInfo;
 
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
 #[derive(Serialize, Debug)]
@@ -12,16 +13,7 @@ pub enum UpdateGeoIp {
     Remove((SiemIp, u8)),
     Replace(GeoIpDataset),
 }
-#[derive(Serialize, Debug, Default)]
-pub struct GeoIpInfo {
-    pub country: LogString,
-    pub country_iso: LogString,
-    pub city: LogString,
-    pub latitude: f32,
-    pub longitude: f32,
-    pub isp: LogString, // More important than country in my opinion because Geolocalization is very imprecise.
-    pub asn: u32,
-}
+
 #[derive(Debug, Clone)]
 pub struct GeoIpSynDataset {
     dataset: Arc<GeoIpDataset>,
@@ -150,6 +142,8 @@ impl GeoIpDataset {
 #[cfg(test)]
 mod tests {
 
+    use crate::prelude::types::LogString;
+
     use super::*;
     #[test]
     fn geo_ip_should_find_ip() {
@@ -163,13 +157,13 @@ mod tests {
             asn: 1,
         };
         let mut dataset = GeoIpDataset::new();
-        dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap(), 24, info);
+        dataset.insert(SiemIp::from_ip_str("192.168.1.0").unwrap(), 24, info);
         assert_eq!(
+            "LocalCity",
             &dataset
                 .get(&SiemIp::from_ip_str("192.168.1.1").unwrap())
                 .unwrap()
-                .city[..],
-            &(&LogString::Borrowed("LocalCity"))[..]
+                .city[..]
         );
     }
 }

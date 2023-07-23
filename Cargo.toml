@@ -9,6 +9,10 @@ keywords = ["SIEM", "security", "logs"]
 categories = ["parsing"]
 edition = "2021"
 
+[features]
+default = []
+slow_geoip = ["dep:sled", "dep:cached"]
+
 [lib]
 name = "usiem"
 path = "src/lib.rs"
@@ -25,6 +29,8 @@ crossbeam-channel = { version = "0.5" }
 chrono = "0.4"
 dyn-clone = "1.0"
 regex = "1"
+sled = {version = "0.34.7",  optional = true }
+cached = { version = "0.44.0", default-features = false, features = ["proc_macro"], optional = true}
 
 
 [dev-dependencies]

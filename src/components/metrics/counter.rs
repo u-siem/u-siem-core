@@ -1,4 +1,4 @@
-use std::{sync::{atomic::AtomicI64, Arc}};
+use std::sync::{atomic::AtomicI64, Arc};
 
 use serde::{Serialize, Serializer, ser::{SerializeSeq, SerializeStruct}};
 
@@ -99,12 +99,15 @@ impl Counter {
     pub fn inc(&self){
         self.inc_by(1);
     }
+    /// Increase counter by a value
     pub fn inc_by(&self, v : i64) {
         self.metric.fetch_add(v, std::sync::atomic::Ordering::SeqCst);
     }
+    /// Obtain the value
     pub fn get(&self) -> i64 {
         self.metric.load(std::sync::atomic::Ordering::Relaxed)
     }
+    /// Sets the counter to zero
     pub fn reset(&self) {
         self.metric.store(0, std::sync::atomic::Ordering::Relaxed);
     }

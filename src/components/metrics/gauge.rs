@@ -1,4 +1,4 @@
-use std::{sync::{atomic::AtomicI64, Arc}};
+use std::sync::{atomic::AtomicI64, Arc};
 
 use serde::{Serialize, Serializer, ser::{SerializeSeq, SerializeStruct}};
 

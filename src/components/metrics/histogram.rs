@@ -13,7 +13,7 @@ use super::prometheus::Encoder;
 pub const BASIC_LE_CALCULATOR: [f64; 10] =
     [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0];
 
-pub const HISTOGRAM_MODIFIER: i64 = 10_000;
+pub const HISTOGRAM_MODIFIER: i64 = 100_000;
 
 #[derive(Debug, Clone)]
 pub struct HistogramVec {
@@ -56,9 +56,10 @@ impl HistogramBucket {
     pub fn observe(&self, value: f64) {
         for observation in &self.observations {
             if value > observation.le {
-                break;
+                continue;
             }
             observation.value.fetch_add(1, Ordering::SeqCst);
+            
         }
     }
     pub fn get_count(&self, le: f64) -> Option<u64> {
@@ -91,6 +92,7 @@ impl HistogramVec {
         }
         Self { metrics }
     }
+    /// Obtains a histogram with the specified labels
     pub fn with_labels(&self, labels: &[(&str, &str)]) -> Option<&Histogram> {
         if labels.len() == 0 {
             return None
@@ -108,9 +110,11 @@ impl HistogramVec {
 }
 
 impl Histogram {
+    /// Creates a new Histogram with static labels and the default le params: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
     pub fn new(labels: Vec<(&'static str, &'static str)>) -> Self {
         Self::with_le(labels, &BASIC_LE_CALCULATOR[..])
     }
+    /// Creates a new Histogram with static labels and a custom LE
     pub fn with_le(labels: Vec<(&'static str, &'static str)>, le: &[f64]) -> Self {
         Self {
             sum: Arc::new(AtomicI64::new(0)),
@@ -119,15 +123,17 @@ impl Histogram {
             labels,
         }
     }
-
+    /// Observe a value
     pub fn observe(&self, value: f64) {
         self.count.fetch_add(1, Ordering::SeqCst);
         self.sum.fetch_add(normalize_f64(value), Ordering::SeqCst);
         self.counters.observe(value);
     }
+    /// Get the number of samples
     pub fn get_sample_count(&self) -> u64 {
         self.count.load(Ordering::Relaxed)
     }
+    /// Get the acumulated sample value
     pub fn get_sample_sum(&self) -> f64 {
         normalize_i64(self.sum.load(Ordering::Relaxed))
     }
@@ -141,6 +147,19 @@ impl Encoder for HistogramVec {
         description: &str,
         help: bool,
     ) -> Result<(), std::fmt::Error> {
+        if self.metrics.len() == 0 {
+            return Ok(())
+        }
+        if help {
+            f.write_str("# HELP ")?;
+            f.write_str(name)?;
+            f.write_str(" ")?;
+            f.write_str(description)?;
+            f.write_str("\n")?;
+        }
+        f.write_str("# TYPE ")?;
+        f.write_str(name)?;
+        f.write_str(" histogram \n")?;
         for counter in &self.metrics {
             counter.encode(f, name, description, help)?;
         }
@@ -153,23 +172,13 @@ impl Encoder for Histogram {
         &self,
         f: &mut W,
         name: &str,
-        description: &str,
-        help: bool,
+        _description: &str,
+        _help: bool,
     ) -> Result<(), std::fmt::Error> {
         let count = self.get_sample_count();
         if count == 0 {
             return Ok(());
         }
-        if help {
-            f.write_str("# HELP ")?;
-            f.write_str(name)?;
-            f.write_str(" ")?;
-            f.write_str(description)?;
-            f.write_str("\n")?;
-        }
-        f.write_str("# TYPE ")?;
-        f.write_str(name)?;
-        f.write_str(" histogram \n")?;
         for observation in &self.counters.observations {
             f.write_str(name)?;
             f.write_str("_bucket{")?;
