@@ -6,7 +6,6 @@ pub mod testing;
 pub mod utilities;
 pub extern crate chrono;
 pub extern crate crossbeam_channel;
-pub extern crate lazy_static;
 pub extern crate regex;
 pub extern crate serde;
 pub extern crate serde_json;

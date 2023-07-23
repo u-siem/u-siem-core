@@ -205,7 +205,7 @@ impl SiemRule {
 }
 
 impl RuleCondition {
-    pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetHolder) -> bool {
+    pub fn matches(&self, log: &mut SiemLog, _datasets: &DatasetHolder) -> bool {
         let field = log.field(&self.field);
         if field.is_none() {
             match &self.operator {
@@ -214,7 +214,7 @@ impl RuleCondition {
                 _ => return false,
             }
         }
-        let field = field.unwrap();
+        let _field = field.unwrap();
         match &self.operator {
             RuleOperator::All(_) => todo!(),
             RuleOperator::Any(_) => todo!(),

@@ -30,12 +30,7 @@ You can see a more updated document here: https://github.com/u-siem/parser-bench
                                                             |                               |
                                                             |   |----------|       |--------------|       |----------|           
                                                             --> | RuleNode | ----> | AlertingNode | ----> | SoarNode |
-                                                            |   |----------|       |--------------|       |----------|
-                                                            |                             |
-                                                            |                             |
-                                                            |   |------------|            |
-                                                            --->|BehavourNode| ---------->|
-                                                                |------------| 
+                                                                |----------|       |--------------|       |----------|
 ```
 Note: It has changed quite a lot and is still changing.
 
@@ -62,7 +57,7 @@ It adds information about the IP, if its in a blocklist, if its a AmazonWebServi
 Consults feeds or databases like AbuseIP/Virus total to know if the IP is malicios or not, the same with domains and Hashes. It then updates the appropiated Dataset with the info to enrich future logs.
 
 ### IndexingNode
-Send logs to index in the database (elasticsearch) and queries them when asked.
+Send logs to index in the database (elasticsearch/SQLite/Postgres...) and queries them when asked.
 
 ### RuleNode
 Set conditions for logs and fires alerts when the conditions matches.
@@ -77,9 +72,6 @@ Do actions automatically, like blocking IPs, domains...
 OpnSense supports blocking IPs with a simple API-REST call, the same for Cortex XDR.
 For PaloAlto: https://panos.pan.dev/docs/apis/panos_dag_qs
 Work in progress: define a custom trait that can be used with a common component as to simplify design. So we only need to import a library that defines the actions to be done (like an API call) and works in any custom SOAR component.
-
-### BehavourNode
-This component is intended to sent events to a custom processing pipeline of your own. It can do anything you like.
 
 An idea: Apply multiple simple rules (like DarkTrace) does to calculate the threat score associated with the event. That score is added to the total score of a user in a period of time (Slicing Window). It will be implemented in redis wit a ScoreSet of users-scores in periods of 15 min with each removed after 24 hours by default.
 

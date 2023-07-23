@@ -1,4 +1,8 @@
+use std::sync::OnceLock;
+
+use crate::prelude::{SiemResult, SiemError};
 use crate::prelude::types::LogString;
+use regex::{Regex, RegexBuilder};
 use serde::ser::{SerializeStruct, Serializer};
 use serde::Serialize;
 
@@ -21,11 +25,14 @@ pub static LOGS_INDEXING_TIME: &'static str = "logs_indexing_time";
 pub static PROCESSED_BYTES_INPUT: &'static str = "processed_bytes_input";
 pub static PROCESSED_BYTES_INDEXER: &'static str = "processed_bytes_indexer";
 
+static VALID_NAME_REGEX : OnceLock<Regex> = OnceLock::new();
+static VALID_DESCRIPTION_REGEX : OnceLock<Regex> = OnceLock::new();
+
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemMetricDefinition {
-    pub metric: SiemMetric,
-    pub name: LogString,
-    pub description: LogString
+    metric: SiemMetric,
+    name: LogString,
+    description: LogString
 }
 
 /// Metrics to be registered in the kernel.
@@ -38,6 +45,32 @@ pub enum SiemMetric {
     Histogram(HistogramVec)
 }
 
+impl SiemMetricDefinition {
+    pub fn new<S : Into<LogString>>(name : S, description : S, metric : SiemMetric) -> SiemResult<Self> {
+        let name = name.into();
+        let description = description.into();
+        if !valid_name(&name) {
+            return Err(SiemError::Configuration(format!("Invalid Metric name {}", name)))
+        }
+        if !valid_description(&description) {
+            return Err(SiemError::Configuration(format!("Invalid Metric description {}", description)))
+        }
+        Ok(Self {
+            name,
+            description,
+            metric
+        })
+    }
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+    pub fn metric(&self) -> &SiemMetric {
+        &self.metric
+    }
+}
 
 impl Serialize for SiemMetric {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -65,6 +98,23 @@ impl Serialize for SiemMetric {
         }
         state.end()
     }
+}
+
+pub fn valid_name(txt : &str) -> bool {
+    let regex = VALID_NAME_REGEX.get_or_init(|| {
+        RegexBuilder::new("^[a-z][a-z0-9_]+[a-z]$")
+        .case_insensitive(false)
+        .build().unwrap()
+    });
+    regex.is_match(txt)
+}
+pub fn valid_description(txt : &str) -> bool {
+    let regex = VALID_DESCRIPTION_REGEX.get_or_init(|| {
+        RegexBuilder::new(r"^[\w\s]+$")
+        .case_insensitive(false)
+        .build().unwrap()
+    });
+    regex.is_match(txt)
 }
 
 pub fn label_combinations(labels : &[(&'static str, &[&'static str])]) -> Vec<Vec<(&'static str, &'static str)>> {
@@ -140,4 +190,18 @@ fn should_generate_all_label_combinations() {
     assert_eq!(18, combinations.len());
     assert_eq!(&vec![("name", "a"), ("v1", "d"), ("v2", "g")],combinations.get(0).unwrap());
 
+}
+
+#[test]
+fn should_validate_names() {
+    assert!(valid_name("this_is_a_valid_name"));
+    assert!(!valid_name("this_is_NOT_a_valid_name"));
+    assert!(!valid_name("this is NOT a valid name"));
+}
+
+#[test]
+fn should_validate_description() {
+    assert!(valid_description("this_is_a_valid_description"));
+    assert!(valid_description("This is a valid description"));
+    assert!(valid_description("this is NOT\na valid description"));
 }

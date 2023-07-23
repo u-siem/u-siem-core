@@ -1,4 +1,4 @@
-use std::{io::Error as IoError};
+use std::io::Error as IoError;
 
 use serde::{Deserialize, Serialize};
 
