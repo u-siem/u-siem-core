@@ -24,6 +24,12 @@ This will only work effectively when the instance of uSIEM is for a single clien
 #### About BlockLists
 The blocklists are intended to be used internally by the SIEM not directly by an operator. So, if we want to add an element in a block list, we first need to define in a component the appropiate command, like FILTER_IP and define the behaviour for that command, normally it will be the components that manages the datasets, because it knows how to handle the dataset in the DDBB.
 
+### Slow GeoIP
+Instead of having the full GeoIP database in memory, we can use the `slow_geoip` to have the GeoIP dataset in a Sled database on disk.
+
+We can get one million requests on the slow dataset in 14.2673 seconds => 0.0142673 ms/req with a loading time of 31.714024 the first time.
+For the fast version we get 0.45017052 seconds => 0.00045017052 ms/req 32 times faster, but also it requires 13 seconds to load the dataset in memory with each change.
+
 ## TODO List
 
 - [x] Block list email sender

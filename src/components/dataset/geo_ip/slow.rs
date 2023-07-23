@@ -57,12 +57,8 @@ impl Serialize for SlowGeoIpDataset {
     }
 }
 impl SlowGeoIpDataset {
-    pub fn new() -> Self {
-        let path = match std::env::var("SLOW_GEO_IP_LOCATION") {
-            Ok(v) => v,
-            Err(_) => format!("./slow_geo_ip"),
-        };
-        let tree = sled::open(&path).expect("open");
+    pub fn new(path : &str) -> Self {
+        let tree = sled::open(path).expect("open");
         return Self { tree };
     }
     pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
@@ -119,13 +115,14 @@ impl SlowGeoIpDataset {
 #[cfg(test)]
 mod tests {
 
+    use sled::IVec;
+
     use crate::prelude::types::LogString;
 
     use super::*;
     #[test]
     fn geo_ip_should_find_ip() {
         let tmp = std::env::temp_dir().join("slow_geo_ip").to_string_lossy().to_string();
-        std::env::set_var("SLOW_GEO_IP_LOCATION", &tmp[..]);
         let info = GeoIpInfo {
             city: LogString::Borrowed("LocalCity"),
             country: LogString::Borrowed("LocalCountry"),
@@ -135,7 +132,7 @@ mod tests {
             longitude: 0.2,
             asn: 1,
         };
-        let mut dataset = SlowGeoIpDataset::new();
+        let mut dataset = SlowGeoIpDataset::new(&tmp);
         dataset.insert(SiemIp::from_ip_str("192.168.1.0").unwrap(), 24, info);
         assert_eq!(
             "LocalCity",
@@ -144,5 +141,23 @@ mod tests {
                 .unwrap()
                 .city[..]
         );
+    }
+
+    #[test]
+    fn should_serialize_and_deserialize() {
+        let info = GeoIpInfo {
+            city: LogString::Borrowed("LocalCity"),
+            country: LogString::Borrowed("LocalCountry"),
+            country_iso: LogString::Borrowed("LC"),
+            isp: LogString::Borrowed("ISP"),
+            latitude: 0.1,
+            longitude: 0.2,
+            asn: 1,
+        };
+        let arr : IVec= info.clone().into();
+        let info2 :GeoIpInfo = arr.into();
+        assert_eq!("LocalCity", info2.city);
+        assert_eq!(info.asn, info2.asn);
+        println!("{:?}", info2);
     }
 }

@@ -22,23 +22,14 @@ pub struct GeoIpInfo {
 #[cfg(feature="slow_geoip")]
 impl Into<IVec> for GeoIpInfo {
     fn into(self) -> IVec {
-        IVec::from(any_as_u8_slice(&self))
+        IVec::from(serde_json::to_string(&self).unwrap().as_bytes())
     }
 }
 #[cfg(feature="slow_geoip")]
 impl From<IVec> for GeoIpInfo {
     fn from(value: IVec) -> Self {
-        let s: GeoIpInfo = unsafe { std::ptr::read(value.as_ptr() as *const _) };
+        let s: GeoIpInfo = serde_json::from_slice(&value).unwrap();
         s
-    }
-}
-#[cfg(feature="slow_geoip")]
-fn any_as_u8_slice<T: Sized>(p: &T) -> &[u8] {
-    unsafe {
-        ::core::slice::from_raw_parts(
-            (p as *const T) as *const u8,
-            ::core::mem::size_of::<T>(),
-        )
     }
 }
 #[cfg(not(feature="slow_geoip"))]

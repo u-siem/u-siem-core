@@ -16,6 +16,7 @@ pub mod prelude {
         rule, rule::*,
         storage,
         storage::*,
+        task,
         alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
         dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, parsing,
         parsing::*, SiemComponent, SiemDatasetManager, SiemRuleEngine,
