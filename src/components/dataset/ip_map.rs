@@ -20,6 +20,11 @@ impl IpMapSynDataset {
     pub fn new(dataset: Arc<IpMapDataset>, comm: Sender<UpdateIpMap>) -> IpMapSynDataset {
         return IpMapSynDataset { dataset, comm };
     }
+    pub fn empty() -> Self {
+        let (sender, _) = crossbeam_channel::bounded(1);
+
+        return Self { dataset : Arc::new(IpMapDataset::new()), comm : sender };
+    }
     /// Used to add IP with custom information like tags.
     pub fn insert(&self, ip: SiemIp, data: LogString) {
         // Todo: improve with local cache to send retries

@@ -1,6 +1,6 @@
 [package]
 name = "u-siem"
-version = "0.5.4"
+version = "0.5.5"
 authors = ["Samuel Garcés <samuel.garces@protonmail.com>"]
 license = "MIT"
 description = "A framework for building custom SIEMs"
@@ -11,7 +11,7 @@ edition = "2021"
 
 [features]
 default = []
-slow_geoip = ["dep:sled", "dep:cached"]
+slow_geoip = ["dep:sled"]
 
 [lib]
 name = "usiem"
@@ -30,7 +30,6 @@ chrono = "0.4"
 dyn-clone = "1.0"
 regex = "1"
 sled = {version = "0.34.7",  optional = true }
-cached = { version = "0.44.0", default-features = false, features = ["proc_macro"], optional = true}
 
 
 [dev-dependencies]

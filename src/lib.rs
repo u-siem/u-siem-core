@@ -16,6 +16,8 @@ pub mod prelude {
         rule, rule::*,
         storage,
         storage::*,
+        metrics::*,
+        metrics,
         task,
         alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
         dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, parsing,

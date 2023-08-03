@@ -23,6 +23,11 @@ impl TextMapListSynDataset {
     ) -> TextMapListSynDataset {
         return TextMapListSynDataset { dataset, comm };
     }
+    pub fn empty() -> Self {
+        let (sender, _) = crossbeam_channel::bounded(1);
+
+        return Self { dataset : Arc::new(TextMapListDataset::new()), comm : sender };
+    }
     pub fn insert(&self, key: LogString, data: Vec<LogString>) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateTextMapList::Add((key, data))) {

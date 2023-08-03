@@ -49,6 +49,9 @@ impl CounterVec {
     /// ```
     pub fn with_labels(&self, labels: &[(&str, &str)]) -> Option<&Counter> {
         'cnt: for counter in &self.metrics {
+            if counter.labels.len() != labels.len() {
+                continue;
+            }
             for ((name1, value1), (name2, value2)) in counter.labels.iter().zip(labels.iter()) {
                 if name1 != name2 || value1 != value2 {
                     continue 'cnt

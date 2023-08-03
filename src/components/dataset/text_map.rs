@@ -18,6 +18,11 @@ impl TextMapSynDataset {
     pub fn new(dataset: Arc<TextMapDataset>, comm: Sender<UpdateTextMap>) -> TextMapSynDataset {
         return TextMapSynDataset { dataset, comm };
     }
+    pub fn empty() -> Self {
+        let (sender, _) = crossbeam_channel::bounded(1);
+
+        return Self { dataset : Arc::new(TextMapDataset::new()), comm : sender };
+    }
     pub fn insert<S>(&self, key: S, data: S)
     where
         S: Into<LogString>,

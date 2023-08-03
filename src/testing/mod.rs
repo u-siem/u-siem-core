@@ -7,6 +7,7 @@ use crate::components::{
     common::SiemMessage,
     SiemComponent,
 };
+pub mod parsers;
 
 /// Simplify the process of testing components.
 /// Allows executing some actions like send SiemMessages before stopping a component

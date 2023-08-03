@@ -18,6 +18,11 @@ impl TextSetSynDataset {
     pub fn new(dataset: Arc<TextSetDataset>, comm: Sender<UpdateTextSet>) -> TextSetSynDataset {
         return TextSetSynDataset { dataset, comm };
     }
+    pub fn empty() -> Self {
+        let (sender, _) = crossbeam_channel::bounded(1);
+
+        return Self { dataset : Arc::new(TextSetDataset::new()), comm : sender };
+    }
     pub fn insert<S>(&self, val: S)
     where
         S: Into<LogString>,

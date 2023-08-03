@@ -28,6 +28,18 @@ pub static PROCESSED_BYTES_INDEXER: &'static str = "processed_bytes_indexer";
 static VALID_NAME_REGEX : OnceLock<Regex> = OnceLock::new();
 static VALID_DESCRIPTION_REGEX : OnceLock<Regex> = OnceLock::new();
 
+/// Metrics used by the components. Must have valid names and description following the prometheus format.
+/// 
+/// # Example
+/// 
+/// ```
+/// use usiem::components::metrics::SiemMetricDefinition;
+/// use usiem::components::metrics::counter::CounterVec;
+/// SiemMetricDefinition::new("basic_event_counter",  "Events processed by the SIEM", CounterVec::new(&[
+///    &[("parser","Firewall"), ("v","1")],
+///    &[("parser","Linux"), ("v","1")]
+/// ]).into()).unwrap();
+/// ```
 #[derive(Serialize, Debug, Clone)]
 pub struct SiemMetricDefinition {
     metric: SiemMetric,
@@ -36,11 +48,12 @@ pub struct SiemMetricDefinition {
 }
 
 /// Metrics to be registered in the kernel.
+/// All metrics labels are static, connot be created dinamically.
+/// Supported metrics are: Counter, Gauge and Histogram
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SiemMetric {
     Counter(CounterVec),
-    /// Atomic reference and a multiplier
     Gauge(GaugeVec),
     Histogram(HistogramVec)
 }
@@ -61,12 +74,15 @@ impl SiemMetricDefinition {
             metric
         })
     }
+    /// Metric name. ALways in prometheus format
     pub fn name(&self) -> &str {
         &self.name
     }
+    /// Metric description. ALways in prometheus format
     pub fn description(&self) -> &str {
         &self.description
     }
+    /// Metric: Counter, Gauge, Histogram
     pub fn metric(&self) -> &SiemMetric {
         &self.metric
     }
@@ -117,6 +133,7 @@ pub fn valid_description(txt : &str) -> bool {
     regex.is_match(txt)
 }
 
+/// Generate all posible combinations of static labels to initialize the metrics. Remember: dynamic labels are not supported yet.
 pub fn label_combinations(labels : &[(&'static str, &[&'static str])]) -> Vec<Vec<(&'static str, &'static str)>> {
         let mut combinations = Vec::with_capacity(64);
         let mut counters = Vec::with_capacity(16);
@@ -158,6 +175,104 @@ pub fn label_combinations(labels : &[(&'static str, &[&'static str])]) -> Vec<Ve
         posible_tag_names
 }
 
+impl From<GaugeVec> for SiemMetric {
+    fn from(value: GaugeVec) -> Self {
+        SiemMetric::Gauge(value)
+    }
+}
+impl From<&GaugeVec> for SiemMetric {
+    fn from(value: &GaugeVec) -> Self {
+        SiemMetric::Gauge(value.clone())
+    }
+}
+impl TryInto<GaugeVec> for SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<GaugeVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Gauge Metric"))),
+            SiemMetric::Gauge(v) => Ok(v),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Gauge Metric"))),
+        }
+    }
+}
+impl TryInto<GaugeVec> for &SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<GaugeVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Gauge Metric"))),
+            SiemMetric::Gauge(v) => Ok(v.clone()),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Gauge Metric"))),
+        }
+    }
+}
+
+impl From<CounterVec> for SiemMetric {
+    fn from(value: CounterVec) -> Self {
+        SiemMetric::Counter(value)
+    }
+}
+impl From<&CounterVec> for SiemMetric {
+    fn from(value: &CounterVec) -> Self {
+        SiemMetric::Counter(value.clone())
+    }
+}
+impl TryInto<CounterVec> for SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<CounterVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(v) => Ok(v),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Counter Metric"))),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Counter Metric"))),
+        }
+    }
+}
+impl TryInto<CounterVec> for &SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<CounterVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(v) => Ok(v.clone()),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Counter Metric"))),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Counter Metric"))),
+        }
+    }
+}
+
+impl From<HistogramVec> for SiemMetric {
+    fn from(value: HistogramVec) -> Self {
+        SiemMetric::Histogram(value)
+    }
+}
+impl From<&HistogramVec> for SiemMetric {
+    fn from(value: &HistogramVec) -> Self {
+        SiemMetric::Histogram(value.clone())
+    }
+}
+impl TryInto<HistogramVec> for SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<HistogramVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Histogram Metric"))),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Histogram Metric"))),
+            SiemMetric::Histogram(v) => Ok(v)
+        }
+    }
+}
+impl TryInto<HistogramVec> for &SiemMetric {
+    type Error = SiemError;
+
+    fn try_into(self) -> Result<HistogramVec, Self::Error> {
+        match self {
+            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Histogram Metric"))),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Histogram Metric"))),
+            SiemMetric::Histogram(v) => Ok(v.clone())
+        }
+    }
+}
 
 #[test]
 fn should_generate_all_label_combinations() {

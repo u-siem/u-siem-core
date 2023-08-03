@@ -19,10 +19,11 @@ It also let us define custom datasets:
 * CustomTextList: Key-Value maps where the value is a list of strings.
 ...
 
-This will only work effectively when the instance of uSIEM is for a single client. In multi tenant services, will be needed dedicated instances for each tenant, this will simplify the calculation of the cost too and simplify the development of the SIEM in our side.
+### Multi-Tenant
+The datasets don't support multiple tenants. For that reason a cluster of uSIEM nodes must be dedicated to each client exclusivly, it also helps to calculate the cost for each SOC client.
 
 #### About BlockLists
-The blocklists are intended to be used internally by the SIEM not directly by an operator. So, if we want to add an element in a block list, we first need to define in a component the appropiate command, like FILTER_IP and define the behaviour for that command, normally it will be the components that manages the datasets, because it knows how to handle the dataset in the DDBB.
+The blocklists are intended to be used internally by the SIEM not directly by an operator. So, to add an element to the block list, a component must implement the appropiate command, like FILTER_IP.
 
 ### Slow GeoIP
 Instead of having the full GeoIP database in memory, we can use the `slow_geoip` to have the GeoIP dataset in a Sled database on disk.

@@ -1,5 +1,5 @@
 # u-siem-core
-[![Documentation](https://docs.rs/u-siem/badge.svg)](https://docs.rs/u-siem) ![crates.io](https://img.shields.io/crates/v/u-siem.svg)
+[![Documentation](https://docs.rs/u-siem/badge.svg)](https://docs.rs/u-siem) ![crates.io](https://img.shields.io/crates/v/u-siem.svg) ![workflow](https://github.com/u-siem/u-siem-core/actions/workflows/rust.yml/badge.svg)
 
 Framework definitions that allow building a custom SIEM. Code you own SIEM like you code your own web page.
 

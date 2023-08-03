@@ -14,11 +14,11 @@ pub trait LogParser: DynClone + Send {
     fn parse_log(&self, log: SiemLog, datasets: &DatasetHolder)
         -> Result<SiemLog, LogParsingError>;
     /// Name of the parser
-    fn name(&self) -> &str;
+    fn name(&self) -> &'static str;
     /// Description of the parser
-    fn description(&self) -> &str;
+    fn description(&self) -> &'static str;
     /// Get parser schema
-    fn schema(&self) -> &'static FieldSchema;
+    fn schema(&self) -> & FieldSchema;
     /// Get a log generator to test this parser
     fn generator(&self) -> Box<dyn LogGenerator>;
 }
@@ -36,16 +36,16 @@ pub trait MultilineLogParser: DynClone + Send {
         datasets: &DatasetHolder,
     ) -> Result<Option<SiemLog>, LogParsingError>;
     /// Name of the parser
-    fn name(&self) -> &str;
+    fn name(&self) -> &'static str;
     /// Description of the parser
-    fn description(&self) -> &str;
+    fn description(&self) -> &'static str;
     /// The connection with the origin has been closed. We must preserve the logs stored inside this parser
     /// so another node can use them to parse the logs of the same machine.
     fn cleaning(&mut self) -> Vec<SiemLog>;
     /// Return those logs that would not be used by the parser, or are older as to reduce the memmory usage.
     fn unused(&mut self) -> Vec<SiemLog>;
     /// Get parser schema
-    fn schema(&self) -> &'static FieldSchema;
+    fn schema(&self) -> & FieldSchema;
 }
 
 clone_trait_object!(MultilineLogParser);
@@ -61,6 +61,8 @@ pub enum LogParsingError {
     NotImplemented(SiemLog),
     /// The log has change format the parser cant process it.
     FormatError(SiemLog, String),
+    /// Log was discarded. It does not have utility or there are storage limitations.
+    Discard
 }
 
 pub trait LogGenerator {

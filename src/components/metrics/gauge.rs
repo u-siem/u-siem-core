@@ -49,6 +49,9 @@ impl GaugeVec {
     /// ```
     pub fn with_labels(&self, labels: &[(&str, &str)]) -> Option<&Gauge> {
         'cnt: for gauge in &self.metrics {
+            if gauge.labels.len() != labels.len() {
+                continue;
+            }
             for ((name1, value1), (name2, value2)) in gauge.labels.iter().zip(labels.iter()) {
                 if name1 != name2 || value1 != value2 {
                     continue 'cnt

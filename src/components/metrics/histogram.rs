@@ -94,10 +94,10 @@ impl HistogramVec {
     }
     /// Obtains a histogram with the specified labels
     pub fn with_labels(&self, labels: &[(&str, &str)]) -> Option<&Histogram> {
-        if labels.len() == 0 {
-            return None
-        }
         'cnt: for hist in &self.metrics {
+            if hist.labels.len() != labels.len() {
+                continue;
+            }
             for ((name1, value1), (name2, value2)) in hist.labels.iter().zip(labels.iter()) {
                 if name1 != name2 || value1 != value2 {
                     continue 'cnt;

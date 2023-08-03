@@ -20,6 +20,11 @@ impl IpNetSynDataset {
     pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> IpNetSynDataset {
         return IpNetSynDataset { dataset, comm };
     }
+    pub fn empty() -> IpNetSynDataset {
+        let (sender, _) = crossbeam_channel::bounded(1);
+
+        return IpNetSynDataset { dataset : Arc::new(IpNetDataset::new()), comm : sender };
+    }
     pub fn insert(&self, ip: SiemIp, net: u8, data: LogString) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateNetIp::Add((ip, net, data))) {
