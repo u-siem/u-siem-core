@@ -138,3 +138,4 @@ pub enum WebProxyRuleCategory {
 - [x] Enforced storage schema for logs. Each source extracts multiple fields with different names. In elastic its not recomended to have more than 1000 fields. Also, it must allow renaming of fields because ECS uses dots in the field names but the majority of databases cant.
 - [ ] GDPR included for logs: An analyst does not need to know information about users, such as the websites they visit or the emails they receive. Integrated into the Storage Schema, like the url related fields must be stored encrypted for WebProxy events or the email.subject, email.files or email.source.user.name for Mail events.
 - [ ] Mantaince calendar. Used to disable alerting of events related to device configurations, like FortiSIEM does.
+- [x] Internacionalization of texts

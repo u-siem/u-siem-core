@@ -69,7 +69,14 @@ pub struct UseCaseDefinition {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct LoginUser {
+#[non_exhaustive]
+pub enum LoginUser {
+    Password(LoginUserPass),
+    ApiKey(String)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoginUserPass {
     pub username: String,
     pub password: String,
 }

@@ -9,6 +9,7 @@ pub mod rules;
 pub mod text_map;
 pub mod text_map_list;
 pub mod text_set;
+pub mod i18n;
 
 use crate::prelude::types::LogString;
 use calendar::{CalendarSynDataset, UpdateCalendar};
@@ -25,6 +26,7 @@ use std::fmt;
 use text_map::{TextMapSynDataset, UpdateTextMap};
 use text_map_list::{TextMapListSynDataset, UpdateTextMapList};
 use text_set::{TextSetSynDataset, UpdateTextSet};
+use i18n::{UpdateI18n, I18nSynDataset};
 
 /// Commonly used datasets. They are filled with the information extracted form logs, from the CMDB, from user commands or from repetitive Task like GeoIP. 
 /// Dataset are used, but not exclusivally, in the enrichment phase.
@@ -84,6 +86,8 @@ pub enum SiemDataset {
     MantainceCalendar(CalendarSynDataset),
     /// Configuration of components. Allows modifications of component parameters in real time.
     Configuration(TextMapSynDataset),
+    /// Internacionalization of SIEM texts
+    I18n(I18nSynDataset),
     /// Secret store. A component will only be able to access his own secrets.
     Secrets((LogString, TextMapSynDataset)),
 }
@@ -661,6 +665,8 @@ pub enum SiemDatasetType {
     MantainceCalendar,
     Configuration,
     Secrets(LogString),
+    /// Internacionalization
+    I18n
 }
 
 impl SiemDataset {
@@ -693,7 +699,8 @@ impl SiemDataset {
             SiemDataset::CustomTextList((name, _)) => SiemDatasetType::CustomTextList(name.clone()),
             SiemDataset::CustomMapTextList((name, _)) => {
                 SiemDatasetType::CustomMapTextList(name.clone())
-            }
+            },
+            SiemDataset::I18n(_) => SiemDatasetType::I18n,
             SiemDataset::Secrets((name, _)) => SiemDatasetType::Secrets(name.clone()),
         }
     }
@@ -750,6 +757,7 @@ impl Serialize for SiemDataset {
             SiemDataset::MantainceCalendar(_) => "MantainceCalendar",
             SiemDataset::Configuration(_) => "Configuration",
             SiemDataset::HostVulnerable(_) => "HostVulnerable",
+            SiemDataset::I18n(_) => "I18n",
             SiemDataset::CustomMapIpNet((name, _)) => {
                 state.serialize_field("name", name)?;
                 "CustomMapIpNet"
@@ -812,4 +820,5 @@ pub enum UpdateDataset {
     Secrets(UpdateTextMap),
     HostVulnerable(UpdateTextMapList),
     CorrelationRules(UpdateGeoIp),
+    I18n(UpdateI18n)
 }
