@@ -139,3 +139,4 @@ pub enum WebProxyRuleCategory {
 - [ ] GDPR included for logs: An analyst does not need to know information about users, such as the websites they visit or the emails they receive. Integrated into the Storage Schema, like the url related fields must be stored encrypted for WebProxy events or the email.subject, email.files or email.source.user.name for Mail events.
 - [ ] Mantaince calendar. Used to disable alerting of events related to device configurations, like FortiSIEM does.
 - [x] Internacionalization of texts
+- [x] User login and third party integration
