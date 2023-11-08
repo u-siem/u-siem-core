@@ -24,9 +24,28 @@ pub struct InternalField {
 
 impl Into<InternalField> for SiemField{
     fn into(self) -> InternalField {
-        InternalField {
+        let mut ifield = InternalField {
             original : self,
             ..Default::default()
+        };
+        match &ifield.original {
+            SiemField::F64(v) => {
+                ifield.nf64 = Box::new(PreStoredField::Some(*v));
+            },
+            SiemField::I64(v) => {
+                ifield.ni64 = Box::new(PreStoredField::Some(*v));
+            },
+            SiemField::Date(v) => {
+                ifield.ni64 = Box::new(PreStoredField::Some(*v));
+            },
+            SiemField::U64(v) => {
+                ifield.nu64 = Box::new(PreStoredField::Some(*v));
+            },
+            SiemField::IP(v) => {
+                ifield.ip = Box::new(PreStoredField::Some(*v));
+            },
+            _ => {}
         }
+        ifield
     }
 }

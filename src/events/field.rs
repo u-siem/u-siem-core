@@ -312,6 +312,84 @@ impl<'a> TryInto<SiemIp> for &'a SiemField {
     }
 }
 
+impl From<&'static str> for SiemField {
+    fn from(v : &'static str) -> SiemField {
+        SiemField::Text(LogString::Borrowed(v))
+    }
+}
+impl From<&String> for SiemField {
+    fn from(v : &String) -> SiemField {
+        SiemField::Text(LogString::Owned(v.to_string()))
+    }
+}
+impl From<String> for SiemField {
+    fn from(v : String) -> SiemField {
+        SiemField::Text(LogString::Owned(v))
+    }
+}
+impl From<LogString> for SiemField {
+    fn from(v : LogString) -> SiemField {
+        SiemField::Text(v)
+    }
+}
+impl From<&LogString> for SiemField {
+    fn from(v : &LogString) -> SiemField {
+        SiemField::Text(v.clone())
+    }
+}
+
+impl From<&u64> for SiemField {
+    fn from(v : &u64) -> SiemField {
+        SiemField::U64(*v)
+    }
+}
+impl From<u64> for SiemField {
+    fn from(v : u64) -> SiemField {
+        SiemField::U64(v)
+    }
+}
+impl From<&i64> for SiemField {
+    fn from(v : &i64) -> SiemField {
+        SiemField::I64(*v)
+    }
+}
+impl From<i64> for SiemField {
+    fn from(v : i64) -> SiemField {
+        SiemField::I64(v)
+    }
+}
+
+impl From<&f64> for SiemField {
+    fn from(v : &f64) -> SiemField {
+        SiemField::F64(*v)
+    }
+}
+impl From<f64> for SiemField {
+    fn from(v : f64) -> SiemField {
+        SiemField::F64(v)
+    }
+}
+impl From<SiemIp> for SiemField {
+    fn from(v : SiemIp) -> SiemField {
+        SiemField::IP(v)
+    }
+}
+impl From<&SiemIp> for SiemField {
+    fn from(v : &SiemIp) -> SiemField {
+        SiemField::IP(*v)
+    }
+}
+impl From<Vec<LogString>> for SiemField {
+    fn from(v : Vec<LogString>) -> SiemField {
+        SiemField::Array(v)
+    }
+}
+impl From<&Vec<LogString>> for SiemField {
+    fn from(v : &Vec<LogString>) -> SiemField {
+        SiemField::Array(v.clone())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::prelude::SiemIp;

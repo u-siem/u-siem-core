@@ -272,6 +272,7 @@ impl<'a> SiemLog {
             fields: &self.fields,
         }
     }
+    /// Obtains the casted value of the field into i64 and caches it
     pub fn i64_field(&'a mut self, field_name: &str) -> Option<i64> {
         let field = self.fields.get_mut(field_name)?;
         match field.ni64.as_ref() {
@@ -290,7 +291,7 @@ impl<'a> SiemLog {
             _ => None
         }
     }
-
+    /// Obtains the casted value of the field into f64 and caches it
     pub fn f64_field(&'a mut self, field_name: &str) -> Option<f64> {
         let field = self.fields.get_mut(field_name)?;
         match field.nf64.as_ref() {
@@ -309,6 +310,7 @@ impl<'a> SiemLog {
             _ => None
         }
     }
+    /// Obtains the casted value of the field into u64 and caches it
     pub fn u64_field(&'a mut self, field_name: &str) -> Option<u64> {
         let field = self.fields.get_mut(field_name)?;
         match field.nu64.as_ref() {
@@ -327,6 +329,7 @@ impl<'a> SiemLog {
             _ => None
         }
     }
+    /// Obtains the casted value of the field into IP and caches it
     pub fn ip_field(&'a mut self, field_name: &str) -> Option<SiemIp> {
         let field = self.fields.get_mut(field_name)?;
         match field.ip.as_ref() {
@@ -345,7 +348,7 @@ impl<'a> SiemLog {
             _ => None
         }
     }
-
+    /// Obtains the casted value of the field into LogString and caches it
     pub fn txt_field(&'a mut self, field_name: &str) -> Option<&LogString> {
 
         let mut has_value = false;
@@ -375,6 +378,7 @@ impl<'a> SiemLog {
             _ => None
         }
     }
+    /// Obtains the casted value of the field into Vec<LogString> and caches it
     pub fn array_field(&'a mut self, field_name: &str) -> Option<&Vec<LogString>> {
 
         let mut has_value = false;
@@ -474,5 +478,40 @@ mod tests {
         );
         let val : &str = log.field("event.dataset").unwrap().try_into().unwrap();
         assert_eq!("filterlog", val);
+    }
+
+    #[test]
+    fn casting_between_fields() {
+        let mut log = SiemLog::new("", 0, "");
+        let (name, value) = ("field_1", "value_1");
+        log.add_field(name, value.clone().into());
+        assert_eq!(value, log.txt_field(name).unwrap());
+
+        let (name, value) = ("field_1", 100u64);
+        log.add_field(name, value.clone().into());
+        assert_eq!(value as u64, log.u64_field(name).unwrap());
+        assert_eq!(value as i64, log.i64_field(name).unwrap());
+        assert_eq!(value as f64, log.f64_field(name).unwrap());
+
+        let (name, value) = ("field_1", -200i64);
+        log.add_field(name, value.clone().into());
+        assert_eq!(value as u64, log.u64_field(name).unwrap());
+        assert_eq!(value as i64, log.i64_field(name).unwrap());
+        assert_eq!(value as f64, log.f64_field(name).unwrap());
+
+        let (name, value) = ("field_1", 300.512f64);
+        log.add_field(name, value.clone().into());
+        assert_eq!(value as u64, log.u64_field(name).unwrap());
+        assert_eq!(value as i64, log.i64_field(name).unwrap());
+        assert_eq!(value as f64, log.f64_field(name).unwrap());
+
+        let (name, value) = ("field_1", SiemIp::V4(1234));
+        log.add_field(name, value.clone().into());
+        assert_eq!(value, log.ip_field(name).unwrap());
+
+        let (name, value) : (&'static str, Vec<LogString>) = ("field_1", vec!["value_001".into(), "value_002".into()]);
+        log.add_field(name, value.clone().into());
+        assert_eq!(&value, log.array_field(name).unwrap());
+
     }
 }
