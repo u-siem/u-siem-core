@@ -1,6 +1,7 @@
+use crate::prelude::{SiemLog, SiemField};
 use crate::prelude::types::LogString;
 
-use super::field::SiemIp;
+use super::{ip::SiemIp, field_dictionary::*};
 use super::protocol::NetworkProtocol;
 use serde::{Deserialize, Serialize};
 
@@ -83,5 +84,49 @@ impl std::fmt::Display for FirewallOutcome {
         write!(f, "{:?}", self)
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
+    }
+}
+
+impl Into<SiemLog> for FirewallEvent {
+    fn into(self) -> SiemLog {
+        let mut log = SiemLog::new("", 0, "");
+        log.add_field(
+            SOURCE_IP,
+            SiemField::IP(self.source_ip),
+        );
+        log.add_field(
+            DESTINATION_IP,
+            SiemField::IP(self.destination_ip),
+        );
+        log.add_field(
+            SOURCE_PORT,
+            SiemField::U64(self.source_port as u64),
+        );
+        log.add_field(
+            DESTINATION_PORT,
+            SiemField::U64(self.destination_port as u64),
+        );
+        log.add_field(
+            EVENT_OUTCOME,
+            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+        );
+        log.add_field(
+            IN_INTERFACE,
+            SiemField::Text(LogString::Owned(self.in_interface.into_owned())),
+        );
+        log.add_field(
+            OUT_INTERFACE,
+            SiemField::Text(LogString::Owned(self.out_interface.into_owned())),
+        );
+        log.add_field(SOURCE_BYTES, SiemField::U64(self.out_bytes as u64));
+        log.add_field(
+            DESTINATION_BYTES,
+            SiemField::U64(self.in_bytes as u64),
+        );
+        log.add_field(
+            NETWORK_TRANSPORT,
+            SiemField::Text(LogString::Owned(self.network_protocol.to_string())),
+        );
+        log
     }
 }

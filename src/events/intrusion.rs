@@ -1,6 +1,6 @@
-use super::field::SiemIp;
+use super::{ip::SiemIp, field_dictionary::*};
 use super::protocol::NetworkProtocol;
-use crate::prelude::types::LogString;
+use crate::prelude::{types::LogString, SiemLog, SiemField};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -12,9 +12,11 @@ pub struct IntrusionEvent {
     pub source_port: u16,
     pub destination_port: u16,
     pub network_protocol: NetworkProtocol,
-    pub outcome: IntrusionOutcome, //Allowed, Deny...
+    pub outcome: IntrusionOutcome,
     pub rule_name: LogString,
-    pub rule_category: IntrusionCategory, //Allowed, Deny...
+    /// Type of attack detected
+    pub rule_category: IntrusionCategory,
+    /// Rule ID/position in the firewall table
     pub rule_id: u32,
 }
 
@@ -129,5 +131,45 @@ impl std::fmt::Display for IntrusionCategory {
         write!(f, "{:?}", self)
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
+    }
+}
+
+impl Into<SiemLog> for IntrusionEvent {
+    fn into(self) -> SiemLog {
+        let mut log = SiemLog::new("", 0, "");
+        log.add_field(
+            SOURCE_IP,
+            SiemField::IP(self.source_ip),
+        );
+        log.add_field(
+            SOURCE_PORT,
+            SiemField::U64(self.source_port as u64),
+        );
+        log.add_field(
+            DESTINATION_IP,
+            SiemField::IP(self.destination_ip),
+        );
+        log.add_field(
+            DESTINATION_PORT,
+            SiemField::U64(self.destination_port as u64),
+        );
+        log.add_field(
+            EVENT_OUTCOME,
+            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+        );
+        log.add_field(
+            NETWORK_PROTOCOL,
+            SiemField::Text(LogString::Owned(self.network_protocol.to_string())),
+        );
+        log.add_field(
+            RULE_CATEGORY,
+            SiemField::from_str(self.rule_category.to_string()),
+        );
+        log.add_field(
+            RULE_NAME,
+            SiemField::Text(self.rule_name),
+        );
+        log.add_field(RULE_ID, SiemField::U64(self.rule_id as u64));
+        log
     }
 }

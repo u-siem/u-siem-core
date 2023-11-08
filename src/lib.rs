@@ -28,6 +28,7 @@ pub mod prelude {
     pub use crate::events::{
         auth::*, common::*, dhcp::*, dns::*, field::*, firewall::*, intrusion::*, protocol::*,
         schema::*, webproxy::*, webserver::*, *,
+        ip::SiemIp
     };
     pub use crate::utilities::*;
     pub use crate::{debug, error, info, log, warn};

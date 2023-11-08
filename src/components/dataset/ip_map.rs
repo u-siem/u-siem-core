@@ -1,4 +1,4 @@
-use super::super::super::events::field::SiemIp;
+use crate::prelude::SiemIp;
 use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;

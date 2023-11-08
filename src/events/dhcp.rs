@@ -1,6 +1,6 @@
-use crate::prelude::types::LogString;
+use crate::prelude::{types::LogString, SiemField, SiemLog, mac::mac_u128_to_str};
 
-use super::field::SiemIp;
+use super::{ip::SiemIp, field_dictionary::*};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -55,5 +55,43 @@ impl DhcpRecordType {
             DhcpRecordType::Assign => LogString::Borrowed("Assign"),
             DhcpRecordType::Release => LogString::Borrowed("Release"),
         }
+    }
+}
+
+impl Into<SiemLog> for DhcpEvent {
+    fn into(self) -> SiemLog {
+        let mut log = SiemLog::new("", 0, "");
+        log.add_field(
+            "host.hostname",
+            SiemField::Text(LogString::Owned(self.hostname().to_string())),
+        );
+        log.add_field(
+            "server.hostname",
+            SiemField::Text(self.hostname),
+        );
+        log.add_field(
+            "client.hostname",
+            SiemField::Text(self.source_hostname),
+        );
+        log.add_field("client.ip", SiemField::IP(self.source_ip.clone()));
+        log.add_field(
+            "client.mac",
+            SiemField::Text(LogString::Owned(mac_u128_to_str(self.source_mac))),
+        );
+        log.add_field(
+            DHCP_RECORD_TYPE,
+            SiemField::from_str(self.record_type.to_string()),
+        );
+        match self.record_type {
+            DhcpRecordType::Assign => {}
+            DhcpRecordType::Release => {}
+            DhcpRecordType::Request => {
+                log.add_field(
+                    "self.requested_ip",
+                    SiemField::IP(self.source_ip),
+                );
+            }
+        };
+        log
     }
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::events::field::SiemIp;
+use crate::events::ip::SiemIp;
 
 use super::{
     common::UserRole,

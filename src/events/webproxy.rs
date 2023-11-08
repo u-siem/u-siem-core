@@ -1,5 +1,7 @@
 use super::common::{HttpMethod, WebProtocol};
-use super::field::SiemIp;
+use super::field_dictionary::*;
+use super::ip::SiemIp;
+use crate::prelude::{SiemLog, SiemField};
 use crate::prelude::types::LogString;
 use serde::{Deserialize, Serialize};
 
@@ -178,5 +180,80 @@ impl std::fmt::Display for WebProxyRuleCategory {
         write!(f, "{:?}", self)
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
+    }
+}
+
+
+impl Into<SiemLog> for WebProxyEvent {
+    fn into(self) -> SiemLog {
+        let mut log = SiemLog::new("", 0, "");
+        log.add_field(
+            SOURCE_IP,
+            SiemField::IP(self.source_ip),
+        );
+        log.add_field(
+            DESTINATION_IP,
+            SiemField::IP(self.destination_ip),
+        );
+        log.add_field(
+            DESTINATION_PORT,
+            SiemField::U64(self.destination_port as u64),
+        );
+        log.add_field(
+            EVENT_OUTCOME,
+            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+        );
+        log.add_field(SOURCE_BYTES, SiemField::U64(self.out_bytes as u64));
+        log.add_field(
+            DESTINATION_BYTES,
+            SiemField::U64(self.in_bytes as u64),
+        );
+        log.add_field(
+            NETWORK_PROTOCOL,
+            SiemField::Text(LogString::Owned(self.protocol.to_string())),
+        );
+        log.add_field(
+            HTTP_RESPONSE_STATUS_CODE,
+            SiemField::U64(self.http_code as u64),
+        );
+        log.add_field(
+            HTTP_REQUEST_METHOD,
+            SiemField::Text(LogString::Owned(self.http_method.to_string())),
+        );
+        log.add_field(
+            URL_FULL,
+            SiemField::Text(self.url),
+        );
+        log.add_field(
+            URL_DOMAIN,
+            SiemField::Text(self.domain),
+        );
+        log.add_field(
+            USER_NAME,
+            SiemField::User(self.user_name.to_string()),
+        );
+        log.add_field(
+            HTTP_RESPONSE_MIME_TYPE,
+            SiemField::Text(self.mime_type),
+        );
+        match self.rule_category {
+            Some(rule_category) => {
+                log.add_field(
+                    RULE_CATEGORY,
+                    SiemField::Text(LogString::Owned(rule_category.to_string())),
+                );
+            }
+            None => {}
+        }
+        match self.rule_name {
+            Some(rule_name) => {
+                log.add_field(
+                    RULE_NAME,
+                    SiemField::Text(LogString::Owned(rule_name.to_string())),
+                );
+            }
+            None => {}
+        }
+        log
     }
 }

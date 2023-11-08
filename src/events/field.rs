@@ -1,15 +1,18 @@
-use crate::prelude::ip_utils::{is_local_ipv4, is_local_ipv6};
+use crate::prelude::SiemIp;
 use crate::prelude::types::LogString;
-
-use super::super::utilities::ip_utils::{ipv4_from_str, ipv4_to_str, ipv6_from_str, ipv6_to_str};
+use chrono::NaiveDateTime;
+use chrono::SecondsFormat;
 use serde::Serialize;
-use serde::{ser::Serializer, Deserialize};
+use serde::Deserialize;
 use std::fmt::Display;
+use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(untagged)]
 #[non_exhaustive]
 pub enum SiemField {
+    #[default]
+    Null,
     /// A basic String field
     Text(LogString),
     /// IPv4 or IPv6
@@ -28,8 +31,6 @@ pub enum SiemField {
     /// Can be multiple AssetsID associated with the same event because multiple virtual
     /// machines can be running in the same asset.
     AssetID(String),
-    /// unsigned number with 32 bits
-    U32(u32),
     /// unsigned number with 64 bits
     U64(u64),
     /// signed number with 64 bits
@@ -39,14 +40,7 @@ pub enum SiemField {
     ///A date in a decimal number format with 64 bits
     Date(i64),
     Array(Vec<LogString>),
-}
-impl SiemField {
-    pub fn from_str<S>(val: S) -> SiemField
-    where
-        S: Into<LogString>,
-    {
-        SiemField::Text(val.into())
-    }
+    Path(PathBuf)
 }
 
 /// Genetares a User field content. Format: "user_domain|user_name".
@@ -64,12 +58,15 @@ impl Display for SiemField {
             SiemField::Domain(txt) => write!(f, "{}", txt.to_string()),
             SiemField::User(txt) => write!(f, "{}", txt.to_string()),
             SiemField::AssetID(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::U32(txt) => write!(f, "{}", txt.to_string()),
             SiemField::U64(txt) => write!(f, "{}", txt.to_string()),
             SiemField::I64(txt) => write!(f, "{}", txt.to_string()),
             SiemField::F64(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::Date(txt) => write!(f, "{}", txt.to_string()),
+            SiemField::Date(ts_millis) => {
+                let dt = NaiveDateTime::from_timestamp_millis(*ts_millis).unwrap_or_default();
+                write!(f, "{}", dt.and_utc().to_rfc3339_opts(SecondsFormat::Millis, true))
+            },
             SiemField::Array(v) => write!(f, "[{}]", v.join(",")),
+            _ => write!(f, "")
         }
     }
 }
@@ -109,144 +106,216 @@ impl PartialEq for SiemField {
     }
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub enum SiemIp {
-    V4(u32),
-    V6(u128),
+impl std::hash::Hash for SiemField {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            SiemField::Text(v) => v.hash(state),
+            SiemField::IP(v) => v.hash(state),
+            SiemField::Domain(v) => v.hash(state),
+            SiemField::User(v) => v.hash(state),
+            SiemField::AssetID(v) => v.hash(state),
+            SiemField::U64(v) => v.hash(state),
+            SiemField::I64(v) => v.hash(state),
+            SiemField::F64(v) => (*v as u64).hash(state),
+            SiemField::Date(v) => v.hash(state),
+            SiemField::Array(v) => v.hash(state),
+            _ => {}
+        }
+    }
 }
-impl PartialEq for SiemIp {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (SiemIp::V4(v1), SiemIp::V4(v2)) => v1 == v2,
-            (SiemIp::V6(v1), SiemIp::V6(v2)) => v1 == v2,
-            //TODO: IPv4 in IPV6
+impl SiemField {
+    pub fn from_str<S>(val: S) -> SiemField
+    where
+        S: Into<LogString>,
+    {
+        SiemField::Text(val.into())
+    }
+
+    pub fn eq_ignore_ascii_case(&self, other : &Self) -> bool {
+        let self_txt : &str = match self.try_into() {
+            Ok(v) => v,
+            Err(_) => return false
+        };
+        match other {
+            SiemField::Text(v) => v.eq_ignore_ascii_case(self_txt),
+            SiemField::User(v) => v.eq_ignore_ascii_case(self_txt),
+            SiemField::Domain(v) => v.eq_ignore_ascii_case(self_txt),
+            SiemField::AssetID(v) => v.eq_ignore_ascii_case(self_txt),
+            _ => false
+        }
+    }
+    pub fn eq_ignore_ascii_case_str(&self, other : &str) -> bool {
+        let self_txt : &str = match self.try_into() {
+            Ok(v) => v,
+            Err(_) => return false
+        };
+        other.eq_ignore_ascii_case(self_txt)
+    }
+    pub fn contains_str(&self, txt: &str) -> bool {
+        match self {
+            SiemField::Text(v) => v.contains(txt),
+            SiemField::User(v) => v.contains(txt),
+            SiemField::Domain(v) => v.contains(txt),
+            SiemField::AssetID(v) => v.contains(&v[..]),
             _ => false,
         }
     }
-}
-
-impl SiemIp {
-    pub fn is_local(&self) -> bool {
+    pub fn contains(&self, other : &Self) -> bool {
+        match other {
+            SiemField::Text(v) => self.contains_str(&v[..]),
+            SiemField::User(v) => self.contains_str(&v[..]),
+            SiemField::Domain(v) => self.contains_str(&v[..]),
+            SiemField::AssetID(v) => self.contains_str(&v[..]),
+            _ => false
+        }
+    }
+    pub fn is_text(&self) -> bool {
         match self {
-            SiemIp::V4(ip) => is_local_ipv4(*ip),
-            SiemIp::V6(ip) => is_local_ipv6(*ip),
+            SiemField::Array(_) => true,
+            SiemField::Text(_) => true,
+            SiemField::User(_) => true,
+            SiemField::Path(_) => true,
+            SiemField::AssetID(_) => true,
+            SiemField::Domain(_) => true,
+            _ =>false
         }
     }
-    pub fn equals(&self, val: &str) -> bool {
+    pub fn is_numeric(&self) -> bool {
         match self {
-            SiemIp::V4(ip1) => match ipv4_from_str(val) {
-                Ok(ip2) => return *ip1 == ip2,
-                Err(_) => false,
-            },
-            SiemIp::V6(ip1) => match ipv6_from_str(val) {
-                Ok(ip2) => return *ip1 == ip2,
-                Err(_) => false,
-            },
-        }
-    }
-    pub fn from_ip_str(val: &str) -> Result<SiemIp, LogString> {
-        match ipv4_from_str(&val) {
-            Ok(val) => Ok(SiemIp::V4(val)),
-            Err(_) => match ipv6_from_str(&val) {
-                Ok(val) => Ok(SiemIp::V6(val)),
-                Err(_) => Err(LogString::Borrowed("Invalid IP value")),
-            },
+            SiemField::U64(_) => true,
+            SiemField::I64(_) => true,
+            SiemField::F64(_) => true,
+            _ => false
         }
     }
 }
-impl Serialize for SiemIp {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&(&self.to_string())[..])
-    }
-}
 
-impl From<[u32; 4]> for SiemIp {
-    fn from(v: [u32; 4]) -> Self {
-        Self::V4(
-            ((v[0] & 0xff) << 24) + ((v[1] & 0xff) << 16) + ((v[2] & 0xff) << 8) + (v[3] & 0xff),
-        )
-    }
-}
-impl From<[u32; 16]> for SiemIp {
-    fn from(v: [u32; 16]) -> Self {
-        Self::V6(
-            ((v[0] as u128 & 0xffu128) << 120)
-                + ((v[1] as u128 & 0xffu128) << 112)
-                + ((v[2] as u128 & 0xffu128) << 104)
-                + ((v[3] as u128 & 0xffu128) << 96)
-                + ((v[4] as u128 & 0xffu128) << 88)
-                + ((v[5] as u128 & 0xffu128) << 80)
-                + ((v[6] as u128 & 0xffu128) << 72)
-                + ((v[7] as u128 & 0xffu128) << 64)
-                + ((v[8] as u128 & 0xffu128) << 56)
-                + ((v[9] as u128 & 0xffu128) << 48)
-                + ((v[10] as u128 & 0xffu128) << 40)
-                + ((v[11] as u128 & 0xffu128) << 32)
-                + ((v[12] as u128 & 0xffu128) << 24)
-                + ((v[13] as u128 & 0xffu128) << 16)
-                + ((v[14] as u128 & 0xffu128) << 8)
-                + (v[15] as u128 & 0xffu128),
-        )
-    }
-}
-impl From<&u32> for SiemIp {
-    fn from(v: &u32) -> Self {
-        Self::V4(*v)
-    }
-}
-impl From<u32> for SiemIp {
-    fn from(v: u32) -> Self {
-        Self::V4(v)
-    }
-}
-impl From<&u128> for SiemIp {
-    fn from(v: &u128) -> Self {
-        Self::V6(*v)
-    }
-}
-impl From<u128> for SiemIp {
-    fn from(v: u128) -> Self {
-        Self::V6(v)
-    }
-}
-
-impl<'a> TryFrom<&'a SiemField> for &'a SiemIp {
+impl<'a> TryInto<&'a str> for &'a SiemField {
     type Error = &'static str;
 
-    fn try_from(value: &SiemField) -> Result<&SiemIp, Self::Error> {
-        match value {
-            SiemField::IP(ip) => Ok(ip),
-            _ => Err("Not an IP"),
+    fn try_into(self) -> Result<&'a str, Self::Error> {
+        match self {
+            SiemField::Text(v) => Ok(&v[..]),
+            SiemField::Domain(v) => Ok(&v[..]),
+            SiemField::User(v) => Ok(&v[..]),
+            SiemField::AssetID(v) => Ok(&v[..]),
+            _ => Err("Invalid text type")
         }
     }
 }
 
-impl TryFrom<SiemField> for SiemIp {
+impl<'a> TryInto<LogString> for &'a SiemField {
     type Error = &'static str;
 
-    fn try_from(value: SiemField) -> Result<Self, Self::Error> {
-        match value {
-            SiemField::IP(ip) => Ok(ip),
-            _ => Err("Not an IP"),
+    fn try_into(self) -> Result<LogString, Self::Error> {
+        match self {
+            SiemField::Text(v) => Ok(v.clone()),
+            SiemField::Domain(v) => Ok(LogString::Owned(v.to_string())),
+            SiemField::User(v) => Ok(LogString::Owned(v.to_string())),
+            SiemField::AssetID(v) => Ok(LogString::Owned(v.to_string())),
+            _ => Err("Invalid type")
+        }
+    }
+}
+impl<'a> TryInto<&'a LogString> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<&'a LogString, Self::Error> {
+        match self {
+            SiemField::Text(v) => Ok(v),
+            _ => Err("Invalid type")
         }
     }
 }
 
-impl Display for SiemIp {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let ip = match self {
-            SiemIp::V4(ip1) => ipv4_to_str(*ip1),
-            SiemIp::V6(ip1) => ipv6_to_str(*ip1),
+impl<'a> TryInto<&'a Vec<LogString>> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<&'a Vec<LogString>, Self::Error> {
+        match self {
+            SiemField::Array(v) => Ok(v),
+            _ => Err("Invalid type")
+        }
+    }
+}
+
+impl<'a> TryInto<Vec<LogString>> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<Vec<LogString>, Self::Error> {
+        let value = match self {
+            SiemField::Array(v) => return Ok(v.clone()),
+            SiemField::AssetID(v) => LogString::Owned(v.clone()),
+            SiemField::Text(v) => v.clone(),
+            SiemField::Domain(v) => LogString::Owned(v.clone()),
+            SiemField::User(v) => LogString::Owned(v.clone()),
+            SiemField::I64(v) => LogString::Owned(v.to_string()),
+            SiemField::F64(v) => LogString::Owned(v.to_string()),
+            SiemField::U64(v) => LogString::Owned(v.to_string()),
+            SiemField::Date(v) => LogString::Owned(v.to_string()),
+            SiemField::IP(v) => LogString::Owned(v.to_string()),
+            SiemField::Null => LogString::Borrowed(""),
+            SiemField::Path(v) => LogString::Owned(v.to_string_lossy().to_string()),
         };
-        write!(f, "{}", ip)
+        Ok(vec![value])
+    }
+}
+
+impl<'a> TryInto<u64> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<u64, Self::Error> {
+        Ok(match self {
+            SiemField::F64(v) => *v as u64,
+            SiemField::I64(v) => *v as u64,
+            SiemField::U64(v) => *v,
+            SiemField::Date(v) => *v as u64,
+            _ => return Err("Invalid type")
+        })
+    }
+}
+impl<'a> TryInto<i64> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<i64, Self::Error> {
+        Ok(match self {
+            SiemField::F64(v) => *v as i64,
+            SiemField::I64(v) => *v as i64,
+            SiemField::U64(v) => *v as i64,
+            SiemField::Date(v) => *v as i64,
+            _ => return Err("Invalid type")
+        })
+    }
+}
+impl<'a> TryInto<f64> for &'a SiemField {
+    type Error = &'static str;
+
+    fn try_into(self) -> Result<f64, Self::Error> {
+        Ok(match self {
+            SiemField::F64(v) => *v as f64,
+            SiemField::I64(v) => *v as f64,
+            SiemField::U64(v) => *v as f64,
+            SiemField::Date(v) => *v as f64,
+            _ => return Err("Invalid type")
+        })
+    }
+}
+
+impl<'a> TryInto<SiemIp> for &'a SiemField {
+    type Error = &'static str;
+    fn try_into(self) -> Result<SiemIp, Self::Error> {
+        Ok(match self {
+            SiemField::Text(v) => SiemIp::from_ip_str(&v).map_err(|_e| "Invalud ip format")?,
+            SiemField::IP(v) => v.clone(),
+            _ => return Err("Type cannot be converted to Ip")
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::prelude::SiemIp;
+
     use super::*;
     #[test]
     fn test_equals_between_fields() {
@@ -257,7 +326,7 @@ mod tests {
         let field_ip = SiemField::IP(SiemIp::V4(0));
         assert_eq!(field_text, field_ip);
         let field_text = SiemField::Text(LogString::Borrowed("123"));
-        let field_ip = SiemField::U32(123);
+        let field_ip = SiemField::U64(123);
         assert_eq!(field_text, field_ip);
         let field_ip = SiemField::U64(123);
         assert_eq!(field_text, field_ip);
@@ -272,30 +341,7 @@ mod tests {
         let field_text = SiemField::Text(LogString::Borrowed("-1234"));
         let field_ip = SiemField::I64(-1234);
         assert_eq!(field_text, field_ip);
-        let field_text = SiemField::Text(LogString::Borrowed("-1234"));
-        let field_ip = SiemField::Date(-1234);
-        assert_eq!(field_text, field_ip);
-    }
-    #[test]
-    fn test_equals_between_ips() {
-        assert_eq!(SiemIp::V4(111), SiemIp::V4(111));
-        assert_eq!(SiemIp::V6(111), SiemIp::V6(111));
-        assert_eq!(Some(SiemIp::V6(111)), Some(SiemIp::V6(111)));
-    }
-    #[test]
-    fn test_serialize_ip_field() {
-        assert_eq!(SiemIp::V4(111).to_string(), "0.0.0.111");
-    }
-
-    #[test]
-    fn from_u32_vec() {
-        let ip: SiemIp = [192, 168, 1, 1].into();
-        assert_eq!(ip.to_string(), "192.168.1.1");
-    }
-
-    #[test]
-    fn from_u128_vec() {
-        let ip: SiemIp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1].into();
-        assert_eq!(ip.to_string(), "::1");
+        let date = SiemField::Date(0);
+        assert_eq!("1970-01-01T00:00:00.000Z", date.to_string());
     }
 }
