@@ -11,7 +11,7 @@ use usiem::prelude::{
 extern crate usiem;
 
 fn initialize_component_logger(sender: Sender<SiemMessage>) {
-    let mut msngr = KernelMessager::new(123, format!("Component001"), sender);
+    let mut msngr = KernelMessager::new(123, "Component001".to_string(), sender);
     msngr.set_level(NotificationLevel::Trace);
     usiem::logging::initialize_component_logger(msngr);
 }
@@ -50,18 +50,18 @@ fn kernel_message_sending_should_work() {
         SiemCommandHeader {
             comm_id: 1,
             comp_id: 2,
-            user: format!("Dummy")
+            user: "Dummy".to_string()
         },
-        usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+        usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
     ))
     .expect("Must work");
     try_send_message!(SiemMessage::Command(
         SiemCommandHeader {
             comm_id: 1,
             comp_id: 2,
-            user: format!("Dummy")
+            user: "Dummy".to_string()
         },
-        usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+        usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
     ))
     .expect("Must work");
     send_message_timeout!(
@@ -69,17 +69,17 @@ fn kernel_message_sending_should_work() {
             SiemCommandHeader {
                 comm_id: 1,
                 comp_id: 2,
-                user: format!("Dummy")
+                user: "Dummy".to_string()
             },
-            usiem::prelude::SiemCommandCall::STOP_COMPONENT(format!("Dummy"))
+            usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
         ),
         Duration::from_millis(1_000)
     )
     .expect("Must work");
     for _ in 0..3 {
         let msg = receiver
-        .recv_timeout(Duration::from_millis(1000))
-        .expect("Should send a message");
+            .recv_timeout(Duration::from_millis(1000))
+            .expect("Should send a message");
         match msg {
             SiemMessage::Command(hdr, cmd) => {
                 assert_eq!(1, hdr.comm_id);

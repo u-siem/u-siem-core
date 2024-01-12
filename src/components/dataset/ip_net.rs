@@ -1,5 +1,5 @@
-use crate::prelude::SiemIp;
 use crate::prelude::types::LogString;
+use crate::prelude::SiemIp;
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -17,52 +17,45 @@ pub struct IpNetSynDataset {
     comm: Sender<UpdateNetIp>,
 }
 impl IpNetSynDataset {
-    pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> IpNetSynDataset {
-        return IpNetSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<IpNetDataset>, comm: Sender<UpdateNetIp>) -> Self {
+        Self { dataset, comm }
     }
-    pub fn empty() -> IpNetSynDataset {
+    pub fn empty() -> Self {
         let (sender, _) = crossbeam_channel::bounded(1);
-
-        return IpNetSynDataset { dataset : Arc::new(IpNetDataset::new()), comm : sender };
+        Self {
+            dataset: Arc::new(IpNetDataset::new()),
+            comm: sender,
+        }
     }
     pub fn insert(&self, ip: SiemIp, net: u8, data: LogString) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Add((ip, net, data))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateNetIp::Add((ip, net, data)));
     }
     pub fn remove(&self, ip: SiemIp, net: u8) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Remove((ip, net))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateNetIp::Remove((ip, net)));
     }
     pub fn update(&self, data: IpNetDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateNetIp::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateNetIp::Replace(data));
     }
     pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct IpNetDataset {
     data4: BTreeMap<u32, BTreeMap<u32, LogString>>,
     data6: BTreeMap<u32, BTreeMap<u128, LogString>>,
 }
 
 impl IpNetDataset {
-    pub fn new() -> IpNetDataset {
-        return IpNetDataset {
+    pub fn new() -> Self {
+        Self {
             data4: BTreeMap::new(),
             data6: BTreeMap::new(),
-        };
+        }
     }
     pub fn insert<S>(&mut self, ip: SiemIp, net: u8, data: S)
     where
@@ -72,11 +65,8 @@ impl IpNetDataset {
             SiemIp::V4(ip) => {
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
                 if self.data4.contains_key(&(net as u32)) {
-                    match self.data4.get_mut(&(net as u32)) {
-                        Some(dataset) => {
-                            dataset.insert(ip_net, data.into());
-                        }
-                        None => {}
+                    if let Some(dataset) = self.data4.get_mut(&(net as u32)) {
+                        dataset.insert(ip_net, data.into());
                     };
                 } else {
                     let mut new_net = BTreeMap::new();
@@ -87,11 +77,8 @@ impl IpNetDataset {
             SiemIp::V6(ip) => {
                 let ip_net = ip & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
                 if self.data6.contains_key(&(net as u32)) {
-                    match self.data6.get_mut(&(net as u32)) {
-                        Some(dataset) => {
-                            dataset.insert(ip_net, data.into());
-                        }
-                        None => {}
+                    if let Some(dataset) = self.data6.get_mut(&(net as u32)) {
+                        dataset.insert(ip_net, data.into());
                     };
                 } else {
                     let mut new_net = BTreeMap::new();

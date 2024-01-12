@@ -30,7 +30,7 @@ pub mod use_case;
 
 pub trait SiemComponent: Send {
     fn name(&self) -> &'static str {
-        return &"SiemComponent";
+        "SiemComponent"
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;
@@ -57,7 +57,7 @@ pub trait SiemDatasetManager: Send {
     fn set_id(&mut self, id: u64);
 
     fn name(&self) -> &str {
-        return &"SiemDatasetManager";
+        "SiemDatasetManager"
     }
     /// Get the channel to this component
     fn local_channel(&self) -> Sender<SiemMessage>;

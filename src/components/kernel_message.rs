@@ -64,7 +64,7 @@ impl KernelMessager {
                 timestamp: Utc::now().timestamp_millis(),
                 component_name: LogString::Owned(self.component_name.clone()),
                 log: LogString::Owned(log),
-                level: level,
+                level,
             }));
     }
     pub fn log(&self, log: String, level: NotificationLevel) {

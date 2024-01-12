@@ -1,4 +1,4 @@
-use crate::prelude::{types::LogString, SiemLog, SiemField, SiemIp};
+use crate::prelude::{types::LogString, SiemField, SiemIp, SiemLog};
 use serde::{Deserialize, Serialize};
 
 use super::field_dictionary::*;
@@ -182,48 +182,26 @@ impl std::fmt::Display for LoginOutcome {
     }
 }
 
-
-impl Into<SiemLog> for AuthEvent {
-    fn into(self) -> SiemLog {
+impl From<AuthEvent> for SiemLog {
+    fn from(val: AuthEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
-        log.add_field(
-            "host.hostname",
-            SiemField::Text(self.hostname),
-        );
+        log.add_field("host.hostname", SiemField::Text(val.hostname));
         log.add_field(
             EVENT_OUTCOME,
-            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+            SiemField::Text(LogString::Owned(val.outcome.to_string())),
         );
-        match self.login_type {
+        match val.login_type {
             AuthLoginType::Local(evnt) => {
-                log.add_field(
-                    USER_NAME,
-                    SiemField::User(evnt.user_name.to_string()),
-                );
-                log.add_field(
-                    USER_DOMAIN,
-                    SiemField::Domain(evnt.domain.to_string()),
-                );
+                log.add_field(USER_NAME, SiemField::User(evnt.user_name.to_string()));
+                log.add_field(USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
             }
             AuthLoginType::Remote(evnt) => {
-                log.add_field(
-                    USER_NAME,
-                    SiemField::User(evnt.user_name.to_string()),
-                );
-                log.add_field(
-                    USER_DOMAIN,
-                    SiemField::Domain(evnt.domain.to_string()),
-                );
-                match SiemIp::from_ip_str(&evnt.source_address) {
-                    Ok(ip) => {
-                        log.add_field(SOURCE_IP, SiemField::IP(ip));
-                    }
-                    Err(_) => {}
+                log.add_field(USER_NAME, SiemField::User(evnt.user_name.to_string()));
+                log.add_field(USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
+                if let Ok(ip) = SiemIp::from_ip_str(&evnt.source_address) {
+                    log.add_field(SOURCE_IP, SiemField::IP(ip));
                 };
-                log.add_field(
-                    "source.address",
-                    SiemField::Text(evnt.source_address),
-                );
+                log.add_field("source.address", SiemField::Text(evnt.source_address));
             }
             AuthLoginType::Upgrade(evnt) => {
                 log.add_field(
@@ -240,20 +218,11 @@ impl Into<SiemLog> for AuthEvent {
                 );
             }
             AuthLoginType::Validation(evnt) => {
-                log.add_field(
-                    USER_NAME,
-                    SiemField::User(evnt.user_name.to_string()),
-                );
-                match SiemIp::from_ip_str(&evnt.source_address) {
-                    Ok(ip) => {
-                        log.add_field("source.ip", SiemField::IP(ip));
-                    }
-                    Err(_) => {}
+                log.add_field(USER_NAME, SiemField::User(evnt.user_name.to_string()));
+                if let Ok(ip) = SiemIp::from_ip_str(&evnt.source_address) {
+                    log.add_field("source.ip", SiemField::IP(ip));
                 };
-                log.add_field(
-                    "source.address",
-                    SiemField::Text(evnt.source_address),
-                );
+                log.add_field("source.address", SiemField::Text(evnt.source_address));
             }
             AuthLoginType::Delegation(evnt) => {
                 log.add_field(

@@ -18,7 +18,7 @@ pub trait LogParser: DynClone + Send {
     /// Description of the parser
     fn description(&self) -> &'static str;
     /// Get parser schema
-    fn schema(&self) -> & FieldSchema;
+    fn schema(&self) -> &FieldSchema;
     /// Get a log generator to test this parser
     fn generator(&self) -> Box<dyn LogGenerator>;
 }
@@ -45,7 +45,7 @@ pub trait MultilineLogParser: DynClone + Send {
     /// Return those logs that would not be used by the parser, or are older as to reduce the memmory usage.
     fn unused(&mut self) -> Vec<SiemLog>;
     /// Get parser schema
-    fn schema(&self) -> & FieldSchema;
+    fn schema(&self) -> &FieldSchema;
 }
 
 clone_trait_object!(MultilineLogParser);
@@ -62,7 +62,7 @@ pub enum LogParsingError {
     /// The log has change format the parser cant process it.
     FormatError(SiemLog, String),
     /// Log was discarded. It does not have utility or there are storage limitations.
-    Discard
+    Discard,
 }
 
 pub trait LogGenerator {
@@ -102,7 +102,7 @@ impl Default for GeneratorConfig {
             }),
             public_networks: Default::default(),
             local_networks: vec![([192, 168, 1, 1].into(), 32)],
-            domain: format!("Contoso"),
+            domain: "Contoso".into(),
             hostname_generator: Box::new(|| {
                 let nanos = SystemTime::now()
                     .duration_since(UNIX_EPOCH)

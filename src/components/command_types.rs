@@ -72,7 +72,7 @@ pub struct UseCaseDefinition {
 #[non_exhaustive]
 pub enum LoginUser {
     Password(LoginUserPass),
-    ApiKey(String)
+    ApiKey(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

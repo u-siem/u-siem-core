@@ -1,10 +1,10 @@
-#[cfg(not(feature="slow_geoip"))]
+#[cfg(not(feature = "slow_geoip"))]
 mod fast;
-#[cfg(feature="slow_geoip")]
+#[cfg(feature = "slow_geoip")]
 mod slow;
 
-use serde::{Serialize, Deserialize};
-#[cfg(feature="slow_geoip")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "slow_geoip")]
 use sled::IVec;
 
 use crate::prelude::types::LogString;
@@ -19,21 +19,24 @@ pub struct GeoIpInfo {
     pub isp: LogString, // More important than country in my opinion because Geolocalization is very imprecise.
     pub asn: u32,
 }
-#[cfg(feature="slow_geoip")]
+#[cfg(feature = "slow_geoip")]
 impl Into<IVec> for GeoIpInfo {
     fn into(self) -> IVec {
         IVec::from(serde_json::to_string(&self).unwrap().as_bytes())
     }
 }
-#[cfg(feature="slow_geoip")]
+#[cfg(feature = "slow_geoip")]
 impl From<IVec> for GeoIpInfo {
     fn from(value: IVec) -> Self {
         let s: GeoIpInfo = serde_json::from_slice(&value).unwrap();
         s
     }
 }
-#[cfg(not(feature="slow_geoip"))]
+#[cfg(not(feature = "slow_geoip"))]
 pub use fast::{GeoIpDataset, GeoIpSynDataset, UpdateGeoIp};
 
-#[cfg(feature="slow_geoip")]
-pub use slow::{SlowGeoIpDataset as GeoIpDataset, SlowGeoIpSynDataset as GeoIpSynDataset, UpdateSlowGeoIp as UpdateGeoIp};
+#[cfg(feature = "slow_geoip")]
+pub use slow::{
+    SlowGeoIpDataset as GeoIpDataset, SlowGeoIpSynDataset as GeoIpSynDataset,
+    UpdateSlowGeoIp as UpdateGeoIp,
+};

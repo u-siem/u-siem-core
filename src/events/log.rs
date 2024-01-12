@@ -35,10 +35,7 @@ impl<'a> SiemLog {
             LogString::Borrowed("message"),
             SiemField::Text(LogString::Owned(ms)).into(),
         );
-        fields.insert(
-            LogString::Borrowed("origin"),
-            SiemField::Text(cw).into(),
-        );
+        fields.insert(LogString::Borrowed("origin"), SiemField::Text(cw).into());
         fields.insert(
             LogString::Borrowed("event.created"),
             SiemField::Date(received).into(),
@@ -50,65 +47,52 @@ impl<'a> SiemLog {
         SiemLog {
             tags: BTreeSet::default(),
             fields,
-            ip_fields: BTreeSet::new()
+            ip_fields: BTreeSet::new(),
         }
     }
 
     pub fn message(&'a self) -> &'a str {
         match self.field("message") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
-    pub fn set_message(&mut self, msg : String) {
-        self.fields.insert(LogString::Borrowed("message"), SiemField::Text(LogString::Owned(msg)).into());
+    pub fn set_message(&mut self, msg: String) {
+        self.fields.insert(
+            LogString::Borrowed("message"),
+            SiemField::Text(LogString::Owned(msg)).into(),
+        );
     }
     pub fn origin(&'a self) -> &'a str {
         match self.field("origin") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
-    pub fn set_origin(&mut self, msg : LogString) {
-        self.fields.insert(LogString::Borrowed("origin"), SiemField::Text(msg).into());
+    pub fn set_origin(&mut self, msg: LogString) {
+        self.fields
+            .insert(LogString::Borrowed("origin"), SiemField::Text(msg).into());
     }
     pub fn tenant(&'a self) -> &'a str {
         match self.field("tenant") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
     pub fn set_tenant<S>(&mut self, tenant: S)
     where
         S: Into<LogString>,
     {
-        self.fields.insert(LogString::Borrowed("tenant"), SiemField::Text(tenant.into()).into());
+        self.fields.insert(
+            LogString::Borrowed("tenant"),
+            SiemField::Text(tenant.into()).into(),
+        );
     }
     /// Name of the product for wich the log belongs. Ex: ASA
     pub fn product(&'a self) -> &'a str {
         match self.field("product") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
     pub fn set_product<S>(&mut self, product: S)
@@ -124,13 +108,8 @@ impl<'a> SiemLog {
     /// Subset of the product logs. Like a OS that can have multiple programs running inside generating multiple logs.
     pub fn service(&'a self) -> &'a str {
         match self.field("service") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
 
@@ -147,13 +126,8 @@ impl<'a> SiemLog {
     /// Category of the device: Firewall, web, antivirus
     pub fn category(&'a self) -> &'a str {
         match self.field("category") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
+            Some(SiemField::Text(v)) => v,
+            _ => "",
         }
     }
     pub fn set_category<S>(&mut self, category: S)
@@ -168,15 +142,12 @@ impl<'a> SiemLog {
     }
     /// Company that created the product. Ex: Cisco
     pub fn vendor(&'a self) -> &'a str {
-        match self.field("vendor") {
-            Some(v) => {
-                match v {
-                    SiemField::Text(v) => v,
-                    _ => ""
-                }
-            },
-            None => ""
-        }
+        self.field("vendor")
+            .map(|v| match v {
+                SiemField::Text(v) => v,
+                _ => "",
+            })
+            .unwrap_or("")
     }
     pub fn set_vendor<S>(&mut self, vendor: S)
     where
@@ -191,30 +162,22 @@ impl<'a> SiemLog {
     /// Timestamp at witch the log arrived in milliseconds since UNIX
     pub fn event_received(&'a self) -> i64 {
         match self.field("event.received") {
-            Some(v) => {
-                match v {
-                    SiemField::Date(v) => *v,
-                    _ => 0
-                }
-            },
-            None => 0
+            Some(SiemField::Date(v)) => *v,
+            _ => 0,
         }
     }
     /// Timestamp at witch the log was generated. The clocks at origin must be correctly configured.
     pub fn event_created(&'a self) -> i64 {
         match self.field("event.created") {
-            Some(v) => {
-                match v {
-                    SiemField::Date(v) => *v,
-                    _ => 0
-                }
-            },
-            None => 0
+            Some(SiemField::Date(v)) => *v,
+            _ => 0,
         }
     }
     pub fn set_event_created(&mut self, date: i64) {
-        self.fields
-            .insert(LogString::Borrowed("event.created"), SiemField::I64(date).into());
+        self.fields.insert(
+            LogString::Borrowed("event.created"),
+            SiemField::I64(date).into(),
+        );
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
@@ -223,10 +186,13 @@ impl<'a> SiemLog {
         self.tags.insert(LogString::Owned(tag.to_lowercase()));
         self.fields.insert(
             LogString::Borrowed("tags"),
-            SiemField::Array(self.tags
-                .iter()
-                .map(|x| LogString::Owned(x.to_lowercase()))
-                .collect::<Vec<LogString>>()).into(),
+            SiemField::Array(
+                self.tags
+                    .iter()
+                    .map(|x| LogString::Owned(x.to_lowercase()))
+                    .collect::<Vec<LogString>>(),
+            )
+            .into(),
         );
     }
     pub fn tags(&'a self) -> &'a BTreeSet<LogString> {
@@ -277,18 +243,18 @@ impl<'a> SiemLog {
         let field = self.fields.get_mut(field_name)?;
         match field.ni64.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
-            super::ifield::PreStoredField::Some(v) => return Some(*v)
+            super::ifield::PreStoredField::None => {}
+            super::ifield::PreStoredField::Some(v) => return Some(*v),
         };
-        let i64field : Option<i64> = (&field.original).try_into().ok();
+        let i64field: Option<i64> = (&field.original).try_into().ok();
         let pfield = match i64field {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.ni64 = Box::new(pfield);
         match field.ni64.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None
+            _ => None,
         }
     }
     /// Obtains the casted value of the field into f64 and caches it
@@ -296,18 +262,18 @@ impl<'a> SiemLog {
         let field = self.fields.get_mut(field_name)?;
         match field.nf64.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
-            super::ifield::PreStoredField::Some(v) => return Some(*v)
+            super::ifield::PreStoredField::None => {}
+            super::ifield::PreStoredField::Some(v) => return Some(*v),
         };
-        let i64field : Option<f64> = (&field.original).try_into().ok();
+        let i64field: Option<f64> = (&field.original).try_into().ok();
         let pfield = match i64field {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.nf64 = Box::new(pfield);
         match field.nf64.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None
+            _ => None,
         }
     }
     /// Obtains the casted value of the field into u64 and caches it
@@ -315,18 +281,18 @@ impl<'a> SiemLog {
         let field = self.fields.get_mut(field_name)?;
         match field.nu64.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
-            super::ifield::PreStoredField::Some(v) => return Some(*v)
+            super::ifield::PreStoredField::None => {}
+            super::ifield::PreStoredField::Some(v) => return Some(*v),
         };
-        let i64field : Option<u64> = (&field.original).try_into().ok();
+        let i64field: Option<u64> = (&field.original).try_into().ok();
         let pfield = match i64field {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.nu64 = Box::new(pfield);
         match field.nu64.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None
+            _ => None,
         }
     }
     /// Obtains the casted value of the field into IP and caches it
@@ -334,29 +300,28 @@ impl<'a> SiemLog {
         let field = self.fields.get_mut(field_name)?;
         match field.ip.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
-            super::ifield::PreStoredField::Some(v) => return Some(*v)
+            super::ifield::PreStoredField::None => {}
+            super::ifield::PreStoredField::Some(v) => return Some(*v),
         };
-        let i64field : Option<SiemIp> = (&field.original).try_into().ok();
+        let i64field: Option<SiemIp> = (&field.original).try_into().ok();
         let pfield = match i64field {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.ip = Box::new(pfield);
         match field.ip.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None
+            _ => None,
         }
     }
     /// Obtains the casted value of the field into LogString and caches it
     pub fn txt_field(&'a mut self, field_name: &str) -> Option<&LogString> {
-
         let mut has_value = false;
 
         let field = self.fields.get_mut(field_name)?;
         match field.text.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
+            super::ifield::PreStoredField::None => {}
             super::ifield::PreStoredField::Some(_) => {
                 has_value = true;
             }
@@ -364,29 +329,28 @@ impl<'a> SiemLog {
         if has_value {
             match field.text.as_ref() {
                 super::ifield::PreStoredField::Some(v) => return Some(v),
-                _ => return None
+                _ => return None,
             }
         }
-        let txtfield : Option<LogString> = (&field.original).try_into().ok();
+        let txtfield: Option<LogString> = (&field.original).try_into().ok();
         let pfield = match txtfield {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.text = Box::new(pfield);
         match field.text.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(v),
-            _ => None
+            _ => None,
         }
     }
     /// Obtains the casted value of the field into Vec<LogString> and caches it
     pub fn array_field(&'a mut self, field_name: &str) -> Option<&Vec<LogString>> {
-
         let mut has_value = false;
 
         let field = self.fields.get_mut(field_name)?;
         match field.array.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {},
+            super::ifield::PreStoredField::None => {}
             super::ifield::PreStoredField::Some(_) => {
                 has_value = true;
             }
@@ -394,21 +358,20 @@ impl<'a> SiemLog {
         if has_value {
             match field.array.as_ref() {
                 super::ifield::PreStoredField::Some(v) => return Some(v),
-                _ => return None
+                _ => return None,
             }
         }
-        let txtfield : Option<Vec<LogString>> = (&field.original).try_into().ok();
+        let txtfield: Option<Vec<LogString>> = (&field.original).try_into().ok();
         let pfield = match txtfield {
             Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid
+            None => super::ifield::PreStoredField::Invalid,
         };
         field.array = Box::new(pfield);
         match field.array.as_ref() {
             super::ifield::PreStoredField::Some(v) => Some(v),
-            _ => None
+            _ => None,
         }
     }
-
 }
 
 pub struct EventIter<'a> {
@@ -451,9 +414,9 @@ impl<'a> Iterator for EventFieldIter<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::{FirewallEvent, SiemIp, FirewallOutcome, NetworkProtocol};
-    use crate::prelude::event::SiemEvent;
     use super::*;
+    use crate::prelude::event::SiemEvent;
+    use crate::prelude::{FirewallEvent, FirewallOutcome, NetworkProtocol, SiemIp};
 
     #[test]
     fn check_log() {
@@ -469,14 +432,14 @@ mod tests {
             out_interface: LogString::Borrowed("out123"),
             network_protocol: NetworkProtocol::TCP,
         });
-        let mut log : SiemLog = event.into();
+        let mut log: SiemLog = event.into();
         log.set_message("<134>Aug 23 20:30:25 OPNsense.localdomain filterlog[21853]: 82,,,0,igb0,match,pass,out,4,0x0,,62,25678,0,DF,17,udp,60,192.168.1.8,8.8.8.8,5074,53,40".to_string());
         log.set_origin("localhost".into());
         log.add_field(
             "event.dataset",
             SiemField::Text(LogString::Borrowed("filterlog")),
         );
-        let val : &str = log.field("event.dataset").unwrap().try_into().unwrap();
+        let val: &str = log.field("event.dataset").unwrap().try_into().unwrap();
         assert_eq!("filterlog", val);
     }
 
@@ -484,17 +447,17 @@ mod tests {
     fn casting_between_fields() {
         let mut log = SiemLog::new("", 0, "");
         let (name, value) = ("field_1", "value_1");
-        log.add_field(name, value.clone().into());
+        log.add_field(name, value.into());
         assert_eq!(value, log.txt_field(name).unwrap());
 
         let (name, value) = ("field_1", 100u64);
-        log.add_field(name, value.clone().into());
+        log.add_field(name, value.into());
         assert_eq!(value as u64, log.u64_field(name).unwrap());
         assert_eq!(value as i64, log.i64_field(name).unwrap());
         assert_eq!(value as f64, log.f64_field(name).unwrap());
 
         let (name, value) = ("field_1", -200i64);
-        log.add_field(name, value.clone().into());
+        log.add_field(name, value.into());
         assert_eq!(value as u64, log.u64_field(name).unwrap());
         assert_eq!(value as i64, log.i64_field(name).unwrap());
         assert_eq!(value as f64, log.f64_field(name).unwrap());
@@ -509,9 +472,9 @@ mod tests {
         log.add_field(name, value.clone().into());
         assert_eq!(value, log.ip_field(name).unwrap());
 
-        let (name, value) : (&'static str, Vec<LogString>) = ("field_1", vec!["value_001".into(), "value_002".into()]);
+        let (name, value): (&'static str, Vec<LogString>) =
+            ("field_1", vec!["value_001".into(), "value_002".into()]);
         log.add_field(name, value.clone().into());
         assert_eq!(&value, log.array_field(name).unwrap());
-
     }
 }

@@ -1,6 +1,6 @@
-use crate::prelude::{types::LogString, SiemField, SiemLog, mac::mac_u128_to_str};
+use crate::prelude::{mac::mac_u128_to_str, types::LogString, SiemField, SiemLog};
 
-use super::{ip::SiemIp, field_dictionary::*};
+use super::{field_dictionary::*, ip::SiemIp};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -58,38 +58,26 @@ impl DhcpRecordType {
     }
 }
 
-impl Into<SiemLog> for DhcpEvent {
-    fn into(self) -> SiemLog {
+impl From<DhcpEvent> for SiemLog {
+    fn from(val: DhcpEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
         log.add_field(
             "host.hostname",
-            SiemField::Text(LogString::Owned(self.hostname().to_string())),
+            SiemField::Text(LogString::Owned(val.hostname().to_string())),
         );
-        log.add_field(
-            "server.hostname",
-            SiemField::Text(self.hostname),
-        );
-        log.add_field(
-            "client.hostname",
-            SiemField::Text(self.source_hostname),
-        );
-        log.add_field("client.ip", SiemField::IP(self.source_ip.clone()));
+        log.add_field("server.hostname", SiemField::Text(val.hostname));
+        log.add_field("client.hostname", SiemField::Text(val.source_hostname));
+        log.add_field("client.ip", SiemField::IP(val.source_ip));
         log.add_field(
             "client.mac",
-            SiemField::Text(LogString::Owned(mac_u128_to_str(self.source_mac))),
+            SiemField::Text(LogString::Owned(mac_u128_to_str(val.source_mac))),
         );
-        log.add_field(
-            DHCP_RECORD_TYPE,
-            SiemField::from_str(self.record_type.to_string()),
-        );
-        match self.record_type {
+        log.add_field(DHCP_RECORD_TYPE, val.record_type.to_string().into());
+        match val.record_type {
             DhcpRecordType::Assign => {}
             DhcpRecordType::Release => {}
             DhcpRecordType::Request => {
-                log.add_field(
-                    "self.requested_ip",
-                    SiemField::IP(self.source_ip),
-                );
+                log.add_field("requested_ip", SiemField::IP(val.source_ip));
             }
         };
         log

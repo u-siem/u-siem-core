@@ -26,7 +26,7 @@ pub enum SiemError {
     Configuration(String),
     Messaging(MessagingError),
     Other(String),
-    Component(ComponentError)
+    Component(ComponentError),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -55,7 +55,7 @@ pub enum MessagingError {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[non_exhaustive]
 pub enum ComponentError {
-    StopRequested
+    StopRequested,
 }
 
 impl From<MessagingError> for SiemError {

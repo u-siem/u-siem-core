@@ -34,10 +34,10 @@ pub enum MitreTactics {
     /// Reconnaissance: The adversary is trying to gather information they can use to plan future operations.
     /// https://attack.mitre.org/tactics/TA0043
     TA0043,
-    /// Resource: Development 	The adversary is trying to establish resources they can use to support operations.
+    /// Resource: Development The adversary is trying to establish resources they can use to support operations.
     /// https://attack.mitre.org/tactics/TA0042
     TA0042,
-    /// Initial: Access 	The adversary is trying to get into your network.
+    /// Initial: Access The adversary is trying to get into your network.
     /// https://attack.mitre.org/tactics/TA0001
     TA0001,
     /// Execution: The adversary is trying to run malicious code.
@@ -46,25 +46,25 @@ pub enum MitreTactics {
     /// Persistence: The adversary is trying to maintain their foothold.
     /// https://attack.mitre.org/tactics/TA0003
     TA0003,
-    /// Privilege: Escalation 	The adversary is trying to gain higher-level permissions.
+    /// Privilege: Escalation The adversary is trying to gain higher-level permissions.
     /// https://attack.mitre.org/tactics/TA0004
     TA0004,
-    /// Defense: Evasion 	The adversary is trying to avoid being detected.
+    /// Defense: Evasion The adversary is trying to avoid being detected.
     /// https://attack.mitre.org/tactics/TA0005
     TA0005,
-    /// Credential: Access 	The adversary is trying to steal account names and passwords.
+    /// Credential: Access The adversary is trying to steal account names and passwords.
     /// https://attack.mitre.org/tactics/TA0006
     TA0006,
     /// Discovery: The adversary is trying to figure out your environment.
     /// https://attack.mitre.org/tactics/TA0007
     TA0007,
-    /// Lateral: Movement 	The adversary is trying to move through your environment.
+    /// Lateral: Movement The adversary is trying to move through your environment.
     /// https://attack.mitre.org/tactics/TA0008
     TA0008,
     /// Collection: The adversary is trying to gather data of interest to their goal.
     /// https://attack.mitre.org/tactics/TA0009
     TA0009,
-    /// Command: and Control 	The adversary is trying to communicate with compromised systems to control them.
+    /// Command: and Control The adversary is trying to communicate with compromised systems to control them.
     /// https://attack.mitre.org/tactics/TA0011
     TA0011,
     /// Exfiltration: The adversary is trying to steal data.
@@ -73,7 +73,7 @@ pub enum MitreTactics {
     /// Impact: The adversary is trying to manipulate, interrupt, or destroy your systems and data.
     /// https://attack.mitre.org/tactics/TA0040
     TA0040,
-    /// Initial: Access 	The adversary is trying to get into your device.
+    /// Initial: Access The adversary is trying to get into your device.
     /// https://attack.mitre.org/tactics/TA0027
     TA0027,
     /// Execution: The adversary is trying to run malicious code.
@@ -82,25 +82,25 @@ pub enum MitreTactics {
     /// Persistence: The adversary is trying to maintain their foothold.
     /// https://attack.mitre.org/tactics/TA0028
     TA0028,
-    /// Privilege: Escalation 	The adversary is trying to gain higher-level permissions.
+    /// Privilege: Escalation The adversary is trying to gain higher-level permissions.
     /// https://attack.mitre.org/tactics/TA0029
     TA0029,
-    /// Defense: Evasion 	The adversary is trying to avoid being detected.
+    /// Defense: Evasion The adversary is trying to avoid being detected.
     /// https://attack.mitre.org/tactics/TA0030
     TA0030,
-    /// Credential: Access 	The adversary is trying to steal account names, passwords, or other secrets that enable access to resources.
+    /// Credential: Access The adversary is trying to steal account names, passwords, or other secrets that enable access to resources.
     /// https://attack.mitre.org/tactics/TA0031
     TA0031,
     /// Discovery: The adversary is trying to figure out your environment.
     /// https://attack.mitre.org/tactics/TA0032
     TA0032,
-    /// Lateral: Movement 	The adversary is trying to move through your environment.
+    /// Lateral: Movement The adversary is trying to move through your environment.
     /// https://attack.mitre.org/tactics/TA0033
     TA0033,
     /// Collection: The adversary is trying to gather data of interest to their goal.
     /// https://attack.mitre.org/tactics/TA0035
     TA0035,
-    /// Command: and Control 	The adversary is trying to communicate with compromised devices to control them.
+    /// Command: and Control The adversary is trying to communicate with compromised devices to control them.
     /// https://attack.mitre.org/tactics/TA0037
     TA0037,
     /// Exfiltration: The adversary is trying to steal data.
@@ -109,10 +109,10 @@ pub enum MitreTactics {
     /// Impact: The adversary is trying to manipulate, interrupt, or destroy your devices and data.
     /// https://attack.mitre.org/tactics/TA0034
     TA0034,
-    /// Network: Effects 	The adversary is trying to intercept or manipulate network traffic to or from a device.
+    /// Network: Effects The adversary is trying to intercept or manipulate network traffic to or from a device.
     /// https://attack.mitre.org/tactics/TA0038
     TA0038,
-    /// Remote: Service Effects 	The adversary is trying to control or monitor the device using remote services.
+    /// Remote: Service Effects The adversary is trying to control or monitor the device using remote services.
     /// https://attack.mitre.org/tactics/TA0039
     TA0039,
 }

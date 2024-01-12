@@ -15,58 +15,48 @@ pub struct TextMapSynDataset {
     comm: Sender<UpdateTextMap>,
 }
 impl TextMapSynDataset {
-    pub fn new(dataset: Arc<TextMapDataset>, comm: Sender<UpdateTextMap>) -> TextMapSynDataset {
-        return TextMapSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<TextMapDataset>, comm: Sender<UpdateTextMap>) -> Self {
+        Self { dataset, comm }
     }
     pub fn empty() -> Self {
         let (sender, _) = crossbeam_channel::bounded(1);
-
-        return Self { dataset : Arc::new(TextMapDataset::new()), comm : sender };
+        Self {
+            dataset: Arc::new(TextMapDataset::new()),
+            comm: sender,
+        }
     }
     pub fn insert<S>(&self, key: S, data: S)
     where
         S: Into<LogString>,
     {
-        match self
+        let _ = self
             .comm
-            .try_send(UpdateTextMap::Add((key.into(), data.into())))
-        {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+            .try_send(UpdateTextMap::Add((key.into(), data.into())));
     }
     pub fn remove<S>(&self, key: S)
     where
         S: Into<LogString>,
     {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMap::Remove(key.into())) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateTextMap::Remove(key.into()));
     }
     pub fn update(&self, data: TextMapDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMap::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateTextMap::Replace(data));
     }
     pub fn get(&self, key: &str) -> Option<&LogString> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct TextMapDataset {
     data: BTreeMap<LogString, LogString>,
 }
 
 impl TextMapDataset {
     pub fn new() -> TextMapDataset {
-        return TextMapDataset {
-            data: BTreeMap::new(),
-        };
+        Self::default()
     }
     pub fn insert<S>(&mut self, key: S, data: S)
     where

@@ -12,23 +12,16 @@ pub extern crate serde_json;
 
 pub mod prelude {
     pub use crate::components::{
-        mitre, mitre::*,
-        rule, rule::*,
-        storage,
-        storage::*,
-        metrics::*,
-        metrics,
-        task,
         alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
-        dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, parsing,
-        parsing::*, SiemComponent, SiemDatasetManager, SiemRuleEngine,
+        dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, metrics,
+        metrics::*, mitre, mitre::*, parsing, parsing::*, rule, rule::*, storage, storage::*, task,
+        SiemComponent, SiemDatasetManager, SiemRuleEngine,
     };
 
     pub use crate::err::*;
     pub use crate::events::{
-        auth::*, common::*, dhcp::*, dns::*, field::*, firewall::*, intrusion::*, protocol::*,
-        schema::*, webproxy::*, webserver::*, *,
-        ip::SiemIp
+        auth::*, common::*, dhcp::*, dns::*, field::*, firewall::*, intrusion::*, ip::SiemIp,
+        protocol::*, schema::*, webproxy::*, webserver::*, *,
     };
     pub use crate::utilities::*;
     pub use crate::{debug, error, info, log, warn};

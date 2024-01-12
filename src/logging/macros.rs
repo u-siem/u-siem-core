@@ -51,7 +51,7 @@ macro_rules! send_message {
             let msngr = v.borrow();
             msngr.send($arg)
         })
-    }
+    };
 }
 #[macro_export(local_inner_macros)]
 macro_rules! send_message_timeout {
@@ -60,7 +60,7 @@ macro_rules! send_message_timeout {
             let msngr = v.borrow();
             msngr.send_timeout($msg, $timeout)
         })
-    }
+    };
 }
 #[macro_export(local_inner_macros)]
 macro_rules! try_send_message {
@@ -69,5 +69,5 @@ macro_rules! try_send_message {
             let msngr = v.borrow();
             msngr.try_send($msg)
         })
-    }
+    };
 }

@@ -20,52 +20,40 @@ pub struct GeoIpSynDataset {
     comm: Sender<UpdateGeoIp>,
 }
 impl GeoIpSynDataset {
-    pub fn new(dataset: Arc<GeoIpDataset>, comm: Sender<UpdateGeoIp>) -> GeoIpSynDataset {
-        return GeoIpSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<GeoIpDataset>, comm: Sender<UpdateGeoIp>) -> Self {
+        Self { dataset, comm }
     }
     pub fn full_update(&self, dataset: GeoIpDataset) {
-        match self.comm.send(UpdateGeoIp::Replace(dataset)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.send(UpdateGeoIp::Replace(dataset));
     }
 
     /// This method must not be used with this dataset, because no source will give you accurate data to update this dataset. Maybe some firewalls, but updating the dataset with each log information is not a good idea.
     pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateGeoIp::Add((ip, net, data))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateGeoIp::Add((ip, net, data)));
     }
     pub fn get(&self, ip: &SiemIp) -> Option<&GeoIpInfo> {
         // Todo improve with cached added IPs
         self.dataset.get(ip)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct GeoIpDataset {
     data4: BTreeMap<u32, BTreeMap<u32, GeoIpInfo>>,
     data6: BTreeMap<u32, BTreeMap<u128, GeoIpInfo>>,
 }
 
 impl GeoIpDataset {
-    pub fn new() -> GeoIpDataset {
-        return GeoIpDataset {
-            data4: BTreeMap::new(),
-            data6: BTreeMap::new(),
-        };
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
         match ip {
             SiemIp::V4(ip) => {
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
                 if self.data4.contains_key(&(net as u32)) {
-                    match self.data4.get_mut(&(net as u32)) {
-                        Some(dataset) => {
-                            dataset.insert(ip_net, data);
-                        }
-                        None => {}
+                    if let Some(dataset) = self.data4.get_mut(&(net as u32)) {
+                        dataset.insert(ip_net, data);
                     };
                 } else {
                     let mut new_net = BTreeMap::new();
@@ -76,11 +64,8 @@ impl GeoIpDataset {
             SiemIp::V6(ip) => {
                 let ip_net = ip & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
                 if self.data6.contains_key(&(net as u32)) {
-                    match self.data6.get_mut(&(net as u32)) {
-                        Some(dataset) => {
-                            dataset.insert(ip_net, data);
-                        }
-                        None => {}
+                    if let Some(dataset) = self.data6.get_mut(&(net as u32)) {
+                        dataset.insert(ip_net, data);
                     };
                 } else {
                     let mut new_net = BTreeMap::new();

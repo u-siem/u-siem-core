@@ -1,9 +1,9 @@
-use crate::prelude::SiemIp;
 use crate::prelude::types::LogString;
+use crate::prelude::SiemIp;
 use chrono::NaiveDateTime;
 use chrono::SecondsFormat;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::fmt::Display;
 use std::path::PathBuf;
 
@@ -40,7 +40,7 @@ pub enum SiemField {
     ///A date in a decimal number format with 64 bits
     Date(i64),
     Array(Vec<LogString>),
-    Path(PathBuf)
+    Path(PathBuf),
 }
 
 /// Genetares a User field content. Format: "user_domain|user_name".
@@ -53,20 +53,24 @@ pub fn generate_user_id(user_name: &str, user_domain: &str) -> String {
 impl Display for SiemField {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            SiemField::Text(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::IP(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::Domain(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::User(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::AssetID(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::U64(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::I64(txt) => write!(f, "{}", txt.to_string()),
-            SiemField::F64(txt) => write!(f, "{}", txt.to_string()),
+            SiemField::Text(txt) => write!(f, "{}", txt),
+            SiemField::IP(txt) => write!(f, "{}", txt),
+            SiemField::Domain(txt) => write!(f, "{}", txt),
+            SiemField::User(txt) => write!(f, "{}", txt),
+            SiemField::AssetID(txt) => write!(f, "{}", txt),
+            SiemField::U64(txt) => write!(f, "{}", txt),
+            SiemField::I64(txt) => write!(f, "{}", txt),
+            SiemField::F64(txt) => write!(f, "{}", txt),
             SiemField::Date(ts_millis) => {
                 let dt = NaiveDateTime::from_timestamp_millis(*ts_millis).unwrap_or_default();
-                write!(f, "{}", dt.and_utc().to_rfc3339_opts(SecondsFormat::Millis, true))
-            },
+                write!(
+                    f,
+                    "{}",
+                    dt.and_utc().to_rfc3339_opts(SecondsFormat::Millis, true)
+                )
+            }
             SiemField::Array(v) => write!(f, "[{}]", v.join(",")),
-            _ => write!(f, "")
+            _ => write!(f, ""),
         }
     }
 }
@@ -75,21 +79,21 @@ impl PartialEq for SiemField {
     fn eq(&self, other: &Self) -> bool {
         match self {
             SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => match other {
-                SiemField::Text(txt) => &v[..] == *txt,
-                SiemField::IP(ip) => &v[..] == ip.to_string(),
-                SiemField::User(txt) => &v[..] == *txt,
-                SiemField::Domain(txt) => &v[..] == *txt,
-                SiemField::AssetID(txt) => &v[..] == *txt,
+                SiemField::Text(txt) => v[..] == *txt,
+                SiemField::IP(ip) => v[..] == ip.to_string(),
+                SiemField::User(txt) => v[..] == *txt,
+                SiemField::Domain(txt) => v[..] == *txt,
+                SiemField::AssetID(txt) => v[..] == *txt,
                 _ => false,
             },
             SiemField::Text(txt) => match other {
-                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => &v[..] == *txt,
+                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => v[..] == *txt,
                 SiemField::IP(ip) => *txt == ip.to_string(),
                 _ => *txt == other.to_string(),
             },
             SiemField::IP(ip) => match other {
                 SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => {
-                    &v[..] == ip.to_string()
+                    v[..] == ip.to_string()
                 }
                 SiemField::Text(txt) => ip.to_string() == *txt,
                 SiemField::IP(ip2) => ip == ip2,
@@ -123,31 +127,32 @@ impl std::hash::Hash for SiemField {
         }
     }
 }
+
 impl SiemField {
-    pub fn from_str<S>(val: S) -> SiemField
+    pub fn from_str_slice<S>(val: S) -> SiemField
     where
         S: Into<LogString>,
     {
         SiemField::Text(val.into())
     }
 
-    pub fn eq_ignore_ascii_case(&self, other : &Self) -> bool {
-        let self_txt : &str = match self.try_into() {
+    pub fn eq_ignore_ascii_case(&self, other: &Self) -> bool {
+        let self_txt: &str = match self.try_into() {
             Ok(v) => v,
-            Err(_) => return false
+            Err(_) => return false,
         };
         match other {
             SiemField::Text(v) => v.eq_ignore_ascii_case(self_txt),
             SiemField::User(v) => v.eq_ignore_ascii_case(self_txt),
             SiemField::Domain(v) => v.eq_ignore_ascii_case(self_txt),
             SiemField::AssetID(v) => v.eq_ignore_ascii_case(self_txt),
-            _ => false
+            _ => false,
         }
     }
-    pub fn eq_ignore_ascii_case_str(&self, other : &str) -> bool {
-        let self_txt : &str = match self.try_into() {
+    pub fn eq_ignore_ascii_case_str(&self, other: &str) -> bool {
+        let self_txt: &str = match self.try_into() {
             Ok(v) => v,
-            Err(_) => return false
+            Err(_) => return false,
         };
         other.eq_ignore_ascii_case(self_txt)
     }
@@ -160,33 +165,31 @@ impl SiemField {
             _ => false,
         }
     }
-    pub fn contains(&self, other : &Self) -> bool {
+    pub fn contains(&self, other: &Self) -> bool {
         match other {
             SiemField::Text(v) => self.contains_str(&v[..]),
             SiemField::User(v) => self.contains_str(&v[..]),
             SiemField::Domain(v) => self.contains_str(&v[..]),
             SiemField::AssetID(v) => self.contains_str(&v[..]),
-            _ => false
+            _ => false,
         }
     }
     pub fn is_text(&self) -> bool {
-        match self {
-            SiemField::Array(_) => true,
-            SiemField::Text(_) => true,
-            SiemField::User(_) => true,
-            SiemField::Path(_) => true,
-            SiemField::AssetID(_) => true,
-            SiemField::Domain(_) => true,
-            _ =>false
-        }
+        matches!(
+            self,
+            SiemField::Array(_)
+                | SiemField::Text(_)
+                | SiemField::User(_)
+                | SiemField::Path(_)
+                | SiemField::AssetID(_)
+                | SiemField::Domain(_)
+        )
     }
     pub fn is_numeric(&self) -> bool {
-        match self {
-            SiemField::U64(_) => true,
-            SiemField::I64(_) => true,
-            SiemField::F64(_) => true,
-            _ => false
-        }
+        matches!(
+            self,
+            SiemField::U64(_) | SiemField::I64(_) | SiemField::F64(_)
+        )
     }
 }
 
@@ -199,7 +202,7 @@ impl<'a> TryInto<&'a str> for &'a SiemField {
             SiemField::Domain(v) => Ok(&v[..]),
             SiemField::User(v) => Ok(&v[..]),
             SiemField::AssetID(v) => Ok(&v[..]),
-            _ => Err("Invalid text type")
+            _ => Err("Invalid text type"),
         }
     }
 }
@@ -213,7 +216,7 @@ impl<'a> TryInto<LogString> for &'a SiemField {
             SiemField::Domain(v) => Ok(LogString::Owned(v.to_string())),
             SiemField::User(v) => Ok(LogString::Owned(v.to_string())),
             SiemField::AssetID(v) => Ok(LogString::Owned(v.to_string())),
-            _ => Err("Invalid type")
+            _ => Err("Invalid type"),
         }
     }
 }
@@ -223,7 +226,7 @@ impl<'a> TryInto<&'a LogString> for &'a SiemField {
     fn try_into(self) -> Result<&'a LogString, Self::Error> {
         match self {
             SiemField::Text(v) => Ok(v),
-            _ => Err("Invalid type")
+            _ => Err("Invalid type"),
         }
     }
 }
@@ -234,7 +237,7 @@ impl<'a> TryInto<&'a Vec<LogString>> for &'a SiemField {
     fn try_into(self) -> Result<&'a Vec<LogString>, Self::Error> {
         match self {
             SiemField::Array(v) => Ok(v),
-            _ => Err("Invalid type")
+            _ => Err("Invalid type"),
         }
     }
 }
@@ -270,7 +273,7 @@ impl<'a> TryInto<u64> for &'a SiemField {
             SiemField::I64(v) => *v as u64,
             SiemField::U64(v) => *v,
             SiemField::Date(v) => *v as u64,
-            _ => return Err("Invalid type")
+            _ => return Err("Invalid type"),
         })
     }
 }
@@ -280,10 +283,10 @@ impl<'a> TryInto<i64> for &'a SiemField {
     fn try_into(self) -> Result<i64, Self::Error> {
         Ok(match self {
             SiemField::F64(v) => *v as i64,
-            SiemField::I64(v) => *v as i64,
+            SiemField::I64(v) => *v,
             SiemField::U64(v) => *v as i64,
-            SiemField::Date(v) => *v as i64,
-            _ => return Err("Invalid type")
+            SiemField::Date(v) => *v,
+            _ => return Err("Invalid type"),
         })
     }
 }
@@ -292,11 +295,11 @@ impl<'a> TryInto<f64> for &'a SiemField {
 
     fn try_into(self) -> Result<f64, Self::Error> {
         Ok(match self {
-            SiemField::F64(v) => *v as f64,
+            SiemField::F64(v) => *v,
             SiemField::I64(v) => *v as f64,
             SiemField::U64(v) => *v as f64,
             SiemField::Date(v) => *v as f64,
-            _ => return Err("Invalid type")
+            _ => return Err("Invalid type"),
         })
     }
 }
@@ -305,87 +308,87 @@ impl<'a> TryInto<SiemIp> for &'a SiemField {
     type Error = &'static str;
     fn try_into(self) -> Result<SiemIp, Self::Error> {
         Ok(match self {
-            SiemField::Text(v) => SiemIp::from_ip_str(&v).map_err(|_e| "Invalud ip format")?,
-            SiemField::IP(v) => v.clone(),
-            _ => return Err("Type cannot be converted to Ip")
+            SiemField::Text(v) => SiemIp::from_ip_str(v).map_err(|_e| "Invalud ip format")?,
+            SiemField::IP(v) => *v,
+            _ => return Err("Type cannot be converted to Ip"),
         })
     }
 }
 
 impl From<&'static str> for SiemField {
-    fn from(v : &'static str) -> SiemField {
+    fn from(v: &'static str) -> SiemField {
         SiemField::Text(LogString::Borrowed(v))
     }
 }
 impl From<&String> for SiemField {
-    fn from(v : &String) -> SiemField {
+    fn from(v: &String) -> SiemField {
         SiemField::Text(LogString::Owned(v.to_string()))
     }
 }
 impl From<String> for SiemField {
-    fn from(v : String) -> SiemField {
+    fn from(v: String) -> SiemField {
         SiemField::Text(LogString::Owned(v))
     }
 }
 impl From<LogString> for SiemField {
-    fn from(v : LogString) -> SiemField {
+    fn from(v: LogString) -> SiemField {
         SiemField::Text(v)
     }
 }
 impl From<&LogString> for SiemField {
-    fn from(v : &LogString) -> SiemField {
+    fn from(v: &LogString) -> SiemField {
         SiemField::Text(v.clone())
     }
 }
 
 impl From<&u64> for SiemField {
-    fn from(v : &u64) -> SiemField {
+    fn from(v: &u64) -> SiemField {
         SiemField::U64(*v)
     }
 }
 impl From<u64> for SiemField {
-    fn from(v : u64) -> SiemField {
+    fn from(v: u64) -> SiemField {
         SiemField::U64(v)
     }
 }
 impl From<&i64> for SiemField {
-    fn from(v : &i64) -> SiemField {
+    fn from(v: &i64) -> SiemField {
         SiemField::I64(*v)
     }
 }
 impl From<i64> for SiemField {
-    fn from(v : i64) -> SiemField {
+    fn from(v: i64) -> SiemField {
         SiemField::I64(v)
     }
 }
 
 impl From<&f64> for SiemField {
-    fn from(v : &f64) -> SiemField {
+    fn from(v: &f64) -> SiemField {
         SiemField::F64(*v)
     }
 }
 impl From<f64> for SiemField {
-    fn from(v : f64) -> SiemField {
+    fn from(v: f64) -> SiemField {
         SiemField::F64(v)
     }
 }
 impl From<SiemIp> for SiemField {
-    fn from(v : SiemIp) -> SiemField {
+    fn from(v: SiemIp) -> SiemField {
         SiemField::IP(v)
     }
 }
 impl From<&SiemIp> for SiemField {
-    fn from(v : &SiemIp) -> SiemField {
+    fn from(v: &SiemIp) -> SiemField {
         SiemField::IP(*v)
     }
 }
 impl From<Vec<LogString>> for SiemField {
-    fn from(v : Vec<LogString>) -> SiemField {
+    fn from(v: Vec<LogString>) -> SiemField {
         SiemField::Array(v)
     }
 }
 impl From<&Vec<LogString>> for SiemField {
-    fn from(v : &Vec<LogString>) -> SiemField {
+    fn from(v: &Vec<LogString>) -> SiemField {
         SiemField::Array(v.clone())
     }
 }

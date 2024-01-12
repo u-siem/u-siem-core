@@ -101,7 +101,7 @@ impl Clone for TaskDefinition {
             description: self.description.clone(),
             min_permission: self.min_permission.clone(),
             fire_mode: self.fire_mode.clone(),
-            max_duration: self.max_duration.clone(),
+            max_duration: self.max_duration,
             builder: self.builder,
         }
     }
@@ -168,7 +168,7 @@ impl<'de> Visitor<'de> for TaskDefinitionVisitor {
             |task: SiemTask, _datasets: &DatasetHolder| {
                 Ok(Box::pin(async move {
                     SiemTaskResult {
-                        data: Some(Ok(format!("OK"))),
+                        data: Some(Ok("OK".into())),
                         id: task.id,
                     }
                 }))

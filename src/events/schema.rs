@@ -16,6 +16,12 @@ pub struct FieldSchema {
     pub gdpr: Option<GdprProtection>,
 }
 
+impl Default for FieldSchema {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FieldSchema {
     pub fn new() -> FieldSchema {
         let mut basic_fields = BTreeMap::new();
@@ -64,17 +70,12 @@ impl FieldSchema {
         for (name, element) in &schema.fields {
             match element {
                 FieldType::TextOptions(list_val, _doc) => match self.fields.get_mut(name) {
-                    Some(alredy_val) => match alredy_val {
-                        FieldType::TextOptions(alredy_val, _doc2) => {
-                            for (vl_1, vl_2) in list_val {
-                                alredy_val.insert(vl_1, vl_2);
-                            }
+                    Some(FieldType::TextOptions(alredy_val, _doc2)) => {
+                        for (vl_1, vl_2) in list_val {
+                            alredy_val.insert(vl_1, vl_2);
                         }
-                        _ => {
-                            self.fields.insert(name, element.clone());
-                        }
-                    },
-                    None => {
+                    }
+                    _ => {
                         self.fields.insert(name, element.clone());
                     }
                 },

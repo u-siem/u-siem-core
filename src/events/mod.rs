@@ -1,22 +1,22 @@
-pub mod event;
-pub mod log;
 pub mod auth;
 pub mod common;
 pub mod dhcp;
 pub mod dns;
+pub mod event;
 pub mod field;
 pub mod field_dictionary;
 pub mod firewall;
+pub mod ifield;
 pub mod intrusion;
+pub mod ip;
+pub mod log;
+pub mod path;
 pub mod protocol;
 pub mod schema;
 pub mod tags;
 pub mod webproxy;
 pub mod webserver;
-pub mod ip;
-pub mod ifield;
-pub mod path;
 
-pub use log::{SiemLog, EventIter, EventFieldIter, EventIterMut};
 pub use event::SiemEvent;
 pub use ip::SiemIp;
+pub use log::{EventFieldIter, EventIter, EventIterMut, SiemLog};

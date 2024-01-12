@@ -1,7 +1,7 @@
 use std::sync::OnceLock;
 
-use crate::prelude::{SiemResult, SiemError};
 use crate::prelude::types::LogString;
+use crate::prelude::{SiemError, SiemResult};
 use regex::{Regex, RegexBuilder};
 use serde::ser::{SerializeStruct, Serializer};
 use serde::Serialize;
@@ -9,29 +9,29 @@ use serde::Serialize;
 use self::counter::CounterVec;
 use self::gauge::GaugeVec;
 use self::histogram::HistogramVec;
-pub mod prometheus;
-pub mod summary;
 pub mod counter;
 pub mod gauge;
 pub mod histogram;
+pub mod prometheus;
+pub mod summary;
 
-pub static CONNECTED_AGENTS: &'static str = "connected_agents";
-pub static PROCESSING_LOGS_INPUT: &'static str = "processing_logs_input";
-pub static PROCESSING_LOGS_PARSER: &'static str = "processing_logs_parser";
-pub static LOGS_PARSING_TIME: &'static str = "logs_parsing_time";
-pub static PROCESSING_LOGS_ENCHANCER: &'static str = "processing_logs_enchancer";
-pub static PROCESSING_LOGS_INDEXER: &'static str = "processing_logs_indexer";
-pub static LOGS_INDEXING_TIME: &'static str = "logs_indexing_time";
-pub static PROCESSED_BYTES_INPUT: &'static str = "processed_bytes_input";
-pub static PROCESSED_BYTES_INDEXER: &'static str = "processed_bytes_indexer";
+pub static CONNECTED_AGENTS: &str = "connected_agents";
+pub static PROCESSING_LOGS_INPUT: &str = "processing_logs_input";
+pub static PROCESSING_LOGS_PARSER: &str = "processing_logs_parser";
+pub static LOGS_PARSING_TIME: &str = "logs_parsing_time";
+pub static PROCESSING_LOGS_ENCHANCER: &str = "processing_logs_enchancer";
+pub static PROCESSING_LOGS_INDEXER: &str = "processing_logs_indexer";
+pub static LOGS_INDEXING_TIME: &str = "logs_indexing_time";
+pub static PROCESSED_BYTES_INPUT: &str = "processed_bytes_input";
+pub static PROCESSED_BYTES_INDEXER: &str = "processed_bytes_indexer";
 
-static VALID_NAME_REGEX : OnceLock<Regex> = OnceLock::new();
-static VALID_DESCRIPTION_REGEX : OnceLock<Regex> = OnceLock::new();
+static VALID_NAME_REGEX: OnceLock<Regex> = OnceLock::new();
+static VALID_DESCRIPTION_REGEX: OnceLock<Regex> = OnceLock::new();
 
 /// Metrics used by the components. Must have valid names and description following the prometheus format.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```
 /// use usiem::components::metrics::SiemMetricDefinition;
 /// use usiem::components::metrics::counter::CounterVec;
@@ -44,7 +44,7 @@ static VALID_DESCRIPTION_REGEX : OnceLock<Regex> = OnceLock::new();
 pub struct SiemMetricDefinition {
     metric: SiemMetric,
     name: LogString,
-    description: LogString
+    description: LogString,
 }
 
 /// Metrics to be registered in the kernel.
@@ -55,23 +55,33 @@ pub struct SiemMetricDefinition {
 pub enum SiemMetric {
     Counter(CounterVec),
     Gauge(GaugeVec),
-    Histogram(HistogramVec)
+    Histogram(HistogramVec),
 }
 
 impl SiemMetricDefinition {
-    pub fn new<S : Into<LogString>>(name : S, description : S, metric : SiemMetric) -> SiemResult<Self> {
+    pub fn new<S: Into<LogString>>(
+        name: S,
+        description: S,
+        metric: SiemMetric,
+    ) -> SiemResult<Self> {
         let name = name.into();
         let description = description.into();
         if !valid_name(&name) {
-            return Err(SiemError::Configuration(format!("Invalid Metric name {}", name)))
+            return Err(SiemError::Configuration(format!(
+                "Invalid Metric name {}",
+                name
+            )));
         }
         if !valid_description(&description) {
-            return Err(SiemError::Configuration(format!("Invalid Metric description {}", description)))
+            return Err(SiemError::Configuration(format!(
+                "Invalid Metric description {}",
+                description
+            )));
         }
         Ok(Self {
             name,
             description,
-            metric
+            metric,
         })
     }
     /// Metric name. ALways in prometheus format
@@ -102,11 +112,11 @@ impl Serialize for SiemMetric {
             SiemMetric::Gauge(gauge) => {
                 state.serialize_field("metric_type", "Gauge")?;
                 state.serialize_field("values", gauge)?;
-            } 
+            }
             SiemMetric::Histogram(hst) => {
                 state.serialize_field("type", "Histogram")?;
                 state.serialize_field("value", hst)?;
-            }/*
+            } /*
               SiemMetric::Summary(smr) => {
                   state.serialize_field("type", "Summary")?;
                   state.serialize_field("value", smr)?;
@@ -116,63 +126,68 @@ impl Serialize for SiemMetric {
     }
 }
 
-pub fn valid_name(txt : &str) -> bool {
+pub fn valid_name(txt: &str) -> bool {
     let regex = VALID_NAME_REGEX.get_or_init(|| {
         RegexBuilder::new("^[a-z][a-z0-9_]+[a-z]$")
-        .case_insensitive(false)
-        .build().unwrap()
+            .case_insensitive(false)
+            .build()
+            .unwrap()
     });
     regex.is_match(txt)
 }
-pub fn valid_description(txt : &str) -> bool {
+pub fn valid_description(txt: &str) -> bool {
     let regex = VALID_DESCRIPTION_REGEX.get_or_init(|| {
         RegexBuilder::new(r"^[\w\s]+$")
-        .case_insensitive(false)
-        .build().unwrap()
+            .case_insensitive(false)
+            .build()
+            .unwrap()
     });
     regex.is_match(txt)
 }
 
 /// Generate all posible combinations of static labels to initialize the metrics. Remember: dynamic labels are not supported yet.
-pub fn label_combinations(labels : &[(&'static str, &[&'static str])]) -> Vec<Vec<(&'static str, &'static str)>> {
-        let mut combinations = Vec::with_capacity(64);
-        let mut counters = Vec::with_capacity(16);
-        let mut posible_combinations = 1;
-        let mut labels_v = Vec::with_capacity(32);
-        labels.iter().for_each(|(tag, values)| {
-            let tag_values: Vec<(&'static str, &'static str)> = values.iter().map(|v| (*tag, *v)).collect();
-            labels_v.push(*tag);
-            posible_combinations *= tag_values.len();
-            combinations.push(tag_values);
-            counters.push(0);
-        });
+pub fn label_combinations(
+    labels: &[(&'static str, &[&'static str])],
+) -> Vec<Vec<(&'static str, &'static str)>> {
+    let mut combinations = Vec::with_capacity(64);
+    let mut counters = Vec::with_capacity(16);
+    let mut posible_combinations = 1;
+    let mut labels_v = Vec::with_capacity(32);
+    labels.iter().for_each(|(tag, values)| {
+        let tag_values: Vec<(&'static str, &'static str)> =
+            values.iter().map(|v| (*tag, *v)).collect();
+        labels_v.push(*tag);
+        posible_combinations *= tag_values.len();
+        combinations.push(tag_values);
+        counters.push(0);
+    });
 
-        let mut posible_tag_names = Vec::with_capacity(combinations.len());
-        let counters_len = counters.len();
+    let mut posible_tag_names = Vec::with_capacity(combinations.len());
+    let counters_len = counters.len();
 
-        for _i in 0..posible_combinations {
-            let mut obs = Vec::with_capacity(8);
-            for counter_i in 0..counters.len() {
-                let counter = counters[counter_i];
-                let combination_i = &combinations[counter_i];
-                let ln = combination_i.len();
-                obs.push(combination_i[counter % ln]);
-                if counter_i >= counters_len - 1 {
-                    counters[counter_i] += 1;
-                }
-                if counter_i != 0 {
-                    for counter_ii in (0..counter_i).rev() {
-                        if counters[counter_ii + 1] >= ln {
-                            counters[counter_ii] += 1;
-                            counters[counter_ii + 1] = 0;
-                        }
+    for _i in 0..posible_combinations {
+        let mut obs = Vec::with_capacity(8);
+        for counter_i in 0..counters.len() {
+            let counter = counters[counter_i];
+            let combination_i = &combinations[counter_i];
+            let ln = combination_i.len();
+            obs.push(combination_i[counter % ln]);
+            if counter_i >= counters_len - 1 {
+                counters[counter_i] += 1;
+            }
+            if counter_i != 0 {
+                for counter_ii in (0..counter_i).rev() {
+                    if counters[counter_ii + 1] >= ln {
+                        counters[counter_ii] += 1;
+                        counters[counter_ii + 1] = 0;
                     }
                 }
             }
-            posible_tag_names.push(obs);
         }
+        posible_tag_names.push(obs);
+    }
 
-        posible_tag_names
+    posible_tag_names
 }
 
 impl From<GaugeVec> for SiemMetric {
@@ -190,9 +205,13 @@ impl TryInto<GaugeVec> for SiemMetric {
 
     fn try_into(self) -> Result<GaugeVec, Self::Error> {
         match self {
-            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Gauge Metric"))),
+            SiemMetric::Counter(_) => Err(SiemError::Other(
+                "Cannot transform Counter to Gauge Metric".into(),
+            )),
             SiemMetric::Gauge(v) => Ok(v),
-            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Gauge Metric"))),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(
+                "Cannot transform Histogram to Gauge Metric".into(),
+            )),
         }
     }
 }
@@ -201,9 +220,13 @@ impl TryInto<GaugeVec> for &SiemMetric {
 
     fn try_into(self) -> Result<GaugeVec, Self::Error> {
         match self {
-            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Gauge Metric"))),
+            SiemMetric::Counter(_) => Err(SiemError::Other(
+                "Cannot transform Counter to Gauge Metric".into(),
+            )),
             SiemMetric::Gauge(v) => Ok(v.clone()),
-            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Gauge Metric"))),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(
+                "Cannot transform Histogram to Gauge Metric".into(),
+            )),
         }
     }
 }
@@ -224,8 +247,12 @@ impl TryInto<CounterVec> for SiemMetric {
     fn try_into(self) -> Result<CounterVec, Self::Error> {
         match self {
             SiemMetric::Counter(v) => Ok(v),
-            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Counter Metric"))),
-            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Counter Metric"))),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(
+                "Cannot transform Gauge to Counter Metric".into(),
+            )),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(
+                "Cannot transform Histogram to Counter Metric".into(),
+            )),
         }
     }
 }
@@ -235,8 +262,12 @@ impl TryInto<CounterVec> for &SiemMetric {
     fn try_into(self) -> Result<CounterVec, Self::Error> {
         match self {
             SiemMetric::Counter(v) => Ok(v.clone()),
-            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Counter Metric"))),
-            SiemMetric::Histogram(_) => Err(SiemError::Other(format!("Cannot transform Histogram to Counter Metric"))),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(
+                "Cannot transform Gauge to Counter Metric".into(),
+            )),
+            SiemMetric::Histogram(_) => Err(SiemError::Other(
+                "Cannot transform Histogram to Counter Metric".into(),
+            )),
         }
     }
 }
@@ -256,9 +287,13 @@ impl TryInto<HistogramVec> for SiemMetric {
 
     fn try_into(self) -> Result<HistogramVec, Self::Error> {
         match self {
-            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Histogram Metric"))),
-            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Histogram Metric"))),
-            SiemMetric::Histogram(v) => Ok(v)
+            SiemMetric::Counter(_) => Err(SiemError::Other(
+                "Cannot transform Counter to Histogram Metric".into(),
+            )),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(
+                "Cannot transform Gauge to Histogram Metric".into(),
+            )),
+            SiemMetric::Histogram(v) => Ok(v),
         }
     }
 }
@@ -267,9 +302,13 @@ impl TryInto<HistogramVec> for &SiemMetric {
 
     fn try_into(self) -> Result<HistogramVec, Self::Error> {
         match self {
-            SiemMetric::Counter(_) => Err(SiemError::Other(format!("Cannot transform Counter to Histogram Metric"))),
-            SiemMetric::Gauge(_) => Err(SiemError::Other(format!("Cannot transform Gauge to Histogram Metric"))),
-            SiemMetric::Histogram(v) => Ok(v.clone())
+            SiemMetric::Counter(_) => Err(SiemError::Other(
+                "Cannot transform Counter to Histogram Metric".into(),
+            )),
+            SiemMetric::Gauge(_) => Err(SiemError::Other(
+                "Cannot transform Gauge to Histogram Metric".into(),
+            )),
+            SiemMetric::Histogram(v) => Ok(v.clone()),
         }
     }
 }
@@ -288,11 +327,8 @@ fn should_generate_all_label_combinations() {
     ];
     let combinations = label_combinations(&labels[..]);
     assert_eq!(27, combinations.len());
-    
-    let labels = vec![
-        ("name", &name_values[..]),
-        ("v1", &v1_values[..])
-    ];
+
+    let labels = vec![("name", &name_values[..]), ("v1", &v1_values[..])];
     let combinations = label_combinations(&labels[..]);
     assert_eq!(9, combinations.len());
 
@@ -303,8 +339,10 @@ fn should_generate_all_label_combinations() {
     ];
     let combinations = label_combinations(&labels[..]);
     assert_eq!(18, combinations.len());
-    assert_eq!(&vec![("name", "a"), ("v1", "d"), ("v2", "g")],combinations.get(0).unwrap());
-
+    assert_eq!(
+        &vec![("name", "a"), ("v1", "d"), ("v2", "g")],
+        combinations.get(0).unwrap()
+    );
 }
 
 #[test]

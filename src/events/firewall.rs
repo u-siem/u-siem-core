@@ -1,8 +1,8 @@
-use crate::prelude::{SiemLog, SiemField};
 use crate::prelude::types::LogString;
+use crate::prelude::{SiemField, SiemLog};
 
-use super::{ip::SiemIp, field_dictionary::*};
 use super::protocol::NetworkProtocol;
+use super::{field_dictionary::*, ip::SiemIp};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -67,15 +67,15 @@ pub enum FirewallOutcome {
 
 impl FirewallOutcome {
     pub fn equals(&self, val: &str) -> bool {
-        match (val, self) {
-            ("BLOCK", FirewallOutcome::BLOCK) => return true,
-            ("ALLOW", FirewallOutcome::ALLOW) => return true,
-            ("END", FirewallOutcome::END) => return true,
-            ("STATS", FirewallOutcome::STATS) => return true,
-            ("OPEN", FirewallOutcome::OPEN) => return true,
-            ("UNKNOWN", FirewallOutcome::UNKNOWN) => return true,
-            _ => return false,
-        }
+        matches!(
+            (val, self),
+            ("BLOCK", FirewallOutcome::BLOCK)
+                | ("ALLOW", FirewallOutcome::ALLOW)
+                | ("END", FirewallOutcome::END)
+                | ("STATS", FirewallOutcome::STATS)
+                | ("OPEN", FirewallOutcome::OPEN)
+                | ("UNKNOWN", FirewallOutcome::UNKNOWN)
+        )
     }
 }
 
@@ -87,45 +87,33 @@ impl std::fmt::Display for FirewallOutcome {
     }
 }
 
-impl Into<SiemLog> for FirewallEvent {
-    fn into(self) -> SiemLog {
+impl From<FirewallEvent> for SiemLog {
+    fn from(val: FirewallEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
-        log.add_field(
-            SOURCE_IP,
-            SiemField::IP(self.source_ip),
-        );
-        log.add_field(
-            DESTINATION_IP,
-            SiemField::IP(self.destination_ip),
-        );
-        log.add_field(
-            SOURCE_PORT,
-            SiemField::U64(self.source_port as u64),
-        );
+        log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
+        log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
+        log.add_field(SOURCE_PORT, SiemField::U64(val.source_port as u64));
         log.add_field(
             DESTINATION_PORT,
-            SiemField::U64(self.destination_port as u64),
+            SiemField::U64(val.destination_port as u64),
         );
         log.add_field(
             EVENT_OUTCOME,
-            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+            SiemField::Text(LogString::Owned(val.outcome.to_string())),
         );
         log.add_field(
             IN_INTERFACE,
-            SiemField::Text(LogString::Owned(self.in_interface.into_owned())),
+            SiemField::Text(LogString::Owned(val.in_interface.into_owned())),
         );
         log.add_field(
             OUT_INTERFACE,
-            SiemField::Text(LogString::Owned(self.out_interface.into_owned())),
+            SiemField::Text(LogString::Owned(val.out_interface.into_owned())),
         );
-        log.add_field(SOURCE_BYTES, SiemField::U64(self.out_bytes as u64));
-        log.add_field(
-            DESTINATION_BYTES,
-            SiemField::U64(self.in_bytes as u64),
-        );
+        log.add_field(SOURCE_BYTES, SiemField::U64(val.out_bytes as u64));
+        log.add_field(DESTINATION_BYTES, SiemField::U64(val.in_bytes as u64));
         log.add_field(
             NETWORK_TRANSPORT,
-            SiemField::Text(LogString::Owned(self.network_protocol.to_string())),
+            SiemField::Text(LogString::Owned(val.network_protocol.to_string())),
         );
         log
     }

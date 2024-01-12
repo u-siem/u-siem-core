@@ -1,6 +1,7 @@
 pub mod calendar;
 pub mod geo_ip;
 pub mod holder;
+pub mod i18n;
 pub mod ip_map;
 pub mod ip_map_list;
 pub mod ip_net;
@@ -9,11 +10,11 @@ pub mod rules;
 pub mod text_map;
 pub mod text_map_list;
 pub mod text_set;
-pub mod i18n;
 
 use crate::prelude::types::LogString;
 use calendar::{CalendarSynDataset, UpdateCalendar};
 use geo_ip::{GeoIpSynDataset, UpdateGeoIp};
+use i18n::{I18nSynDataset, UpdateI18n};
 use ip_map::{IpMapSynDataset, UpdateIpMap};
 use ip_map_list::{IpMapListSynDataset, UpdateIpMapList};
 use ip_net::{IpNetSynDataset, UpdateNetIp};
@@ -26,11 +27,10 @@ use std::fmt;
 use text_map::{TextMapSynDataset, UpdateTextMap};
 use text_map_list::{TextMapListSynDataset, UpdateTextMapList};
 use text_set::{TextSetSynDataset, UpdateTextSet};
-use i18n::{UpdateI18n, I18nSynDataset};
 
-/// Commonly used datasets. They are filled with the information extracted form logs, from the CMDB, from user commands or from repetitive Task like GeoIP. 
+/// Commonly used datasets. They are filled with the information extracted form logs, from the CMDB, from user commands or from repetitive Task like GeoIP.
 /// Dataset are used, but not exclusivally, in the enrichment phase.
-/// 
+///
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub enum SiemDataset {
@@ -94,210 +94,318 @@ pub enum SiemDataset {
 
 impl SiemDataset {
     /// Creates an empty CustomMapIpNet. Used only for testing.
-    pub fn empty_custom_map_ip_net<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_map_ip_net<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomMapIpNet((name.into(), IpNetSynDataset::empty()))
     }
     /// Creates an empty CustomMapText. Used only for testing.
-    pub fn empty_custom_map_text<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_map_text<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomMapText((name.into(), TextMapSynDataset::empty()))
     }
     /// Creates an empty CustomMapTextList. Used only for testing.
-    pub fn empty_custom_map_text_list<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_map_text_list<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomMapTextList((name.into(), TextMapListSynDataset::empty()))
     }
     /// Creates an empty CustomIpList. Used only for testing.
-    pub fn empty_custom_ip_list<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_ip_list<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomIpList((name.into(), IpSetSynDataset::empty()))
     }
     /// Creates an empty CustomIpMap. Used only for testing.
-    pub fn empty_custom_ip_map<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_ip_map<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomIpMap((name.into(), IpMapSynDataset::empty()))
     }
     /// Creates an empty CustomTextList. Used only for testing.
-    pub fn empty_custom_ip_text_list<S : Into<LogString>>(name : S) -> Self {
+    pub fn empty_custom_ip_text_list<S: Into<LogString>>(name: S) -> Self {
         SiemDataset::CustomTextList((name.into(), TextSetSynDataset::empty()))
     }
 }
 
 /// Tries to cast a SiemDataset into a CustomMapIpNet with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_ip_net_ref, ip_net::IpNetSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_ip_net("MyDataset");
 /// let casted_dataset : &IpNetSynDataset = try_to_custom_map_ip_net_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_ip_net_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a IpNetSynDataset, &'static str> {
+pub fn try_to_custom_map_ip_net_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a IpNetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapIpNet((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapIpNet((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomMapIpNet with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_ip_net, ip_net::IpNetSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_ip_net("MyDataset");
 /// let casted_dataset : IpNetSynDataset = try_to_custom_map_ip_net(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_ip_net(dataset :SiemDataset, name : &str) -> Result<IpNetSynDataset, &'static str> {
+pub fn try_to_custom_map_ip_net(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<IpNetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapIpNet((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapIpNet((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomMapText with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_ref, text_map::TextMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text("MyDataset");
 /// let casted_dataset : &TextMapSynDataset = try_to_custom_map_text_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_text_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a TextMapSynDataset, &'static str> {
+pub fn try_to_custom_map_text_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a TextMapSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapText((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapText((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomMapText with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text, text_map::TextMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text("MyDataset");
 /// let casted_dataset : TextMapSynDataset = try_to_custom_map_text(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_text(dataset :SiemDataset, name : &str) -> Result<TextMapSynDataset, &'static str> {
+pub fn try_to_custom_map_text(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<TextMapSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapText((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapText((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomMapTextList with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_list_ref, text_map_list::TextMapListSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text_list("MyDataset");
 /// let casted_dataset : &TextMapListSynDataset = try_to_custom_map_text_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_text_list_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a TextMapListSynDataset, &'static str> {
+pub fn try_to_custom_map_text_list_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a TextMapListSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapTextList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapTextList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomMapTextList with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_list, text_map_list::TextMapListSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text_list("MyDataset");
 /// let casted_dataset : TextMapListSynDataset = try_to_custom_map_text_list(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_map_text_list(dataset :SiemDataset, name : &str) -> Result<TextMapListSynDataset, &'static str> {
+pub fn try_to_custom_map_text_list(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<TextMapListSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomMapTextList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomMapTextList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 
 /// Tries to cast a SiemDataset into a CustomIpList with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_list_ref, ip_set::IpSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_list("MyDataset");
 /// let casted_dataset : &IpSetSynDataset = try_to_custom_ip_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_ip_list_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a IpSetSynDataset, &'static str> {
+pub fn try_to_custom_ip_list_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a IpSetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomIpList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomIpList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomIpList with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_list, ip_set::IpSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_list("MyDataset");
 /// let casted_dataset : IpSetSynDataset = try_to_custom_ip_list(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_ip_list(dataset :SiemDataset, name : &str) -> Result<IpSetSynDataset, &'static str> {
+pub fn try_to_custom_ip_list(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<IpSetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomIpList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomIpList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomIpMap with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_map_ref, ip_map::IpMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_map("MyDataset");
 /// let casted_dataset : &IpMapSynDataset = try_to_custom_ip_map_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_ip_map_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a IpMapSynDataset, &'static str> {
+pub fn try_to_custom_ip_map_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a IpMapSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomIpMap((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomIpMap((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomIpMap with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_map, ip_map::IpMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_map("MyDataset");
 /// let casted_dataset : IpMapSynDataset = try_to_custom_ip_map(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_ip_map(dataset :SiemDataset, name : &str) -> Result<IpMapSynDataset, &'static str> {
+pub fn try_to_custom_ip_map(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<IpMapSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomIpMap((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomIpMap((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomIpMap with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_text_list_ref, text_set::TextSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_text_list("MyDataset");
 /// let casted_dataset : &TextSetSynDataset = try_to_custom_text_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_text_list_ref<'a>(dataset : &'a SiemDataset, name : &str) -> Result<&'a TextSetSynDataset, &'static str> {
+pub fn try_to_custom_text_list_ref<'a>(
+    dataset: &'a SiemDataset,
+    name: &str,
+) -> Result<&'a TextSetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomTextList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomTextList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 /// Tries to cast a SiemDataset into a CustomIpMap with the defined name
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use usiem::components::dataset::{SiemDataset, try_to_custom_text_list, text_set::TextSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_text_list("MyDataset");
 /// let casted_dataset : TextSetSynDataset = try_to_custom_text_list(dataset, "MyDataset").unwrap();
 /// ```
-pub fn try_to_custom_text_list(dataset :SiemDataset, name : &str) -> Result<TextSetSynDataset, &'static str> {
+pub fn try_to_custom_text_list(
+    dataset: SiemDataset,
+    name: &str,
+) -> Result<TextSetSynDataset, &'static str> {
     match dataset {
-        SiemDataset::CustomTextList((n, dataset)) => {if n == name {Ok(dataset)}else{Err("Cannot cast dataset")} },
-        _ => Err("Cannot cast dataset")
+        SiemDataset::CustomTextList((n, dataset)) => {
+            if n == name {
+                Ok(dataset)
+            } else {
+                Err("Cannot cast dataset")
+            }
+        }
+        _ => Err("Cannot cast dataset"),
     }
 }
 
@@ -666,7 +774,7 @@ pub enum SiemDatasetType {
     Configuration,
     Secrets(LogString),
     /// Internacionalization
-    I18n
+    I18n,
 }
 
 impl SiemDataset {
@@ -699,7 +807,7 @@ impl SiemDataset {
             SiemDataset::CustomTextList((name, _)) => SiemDatasetType::CustomTextList(name.clone()),
             SiemDataset::CustomMapTextList((name, _)) => {
                 SiemDatasetType::CustomMapTextList(name.clone())
-            },
+            }
             SiemDataset::I18n(_) => SiemDatasetType::I18n,
             SiemDataset::Secrets((name, _)) => SiemDatasetType::Secrets(name.clone()),
         }
@@ -820,5 +928,5 @@ pub enum UpdateDataset {
     Secrets(UpdateTextMap),
     HostVulnerable(UpdateTextMapList),
     CorrelationRules(UpdateGeoIp),
-    I18n(UpdateI18n)
+    I18n(UpdateI18n),
 }

@@ -6,27 +6,23 @@ pub struct QueryLexer {
 }
 
 fn is_function(name: &str) -> bool {
-    match name {
-        "to_number" => true,
-        "to_string" => true,
-        "lowercase" => true,
-        "uppercase" => true,
-        "replace" => true,
-        "len" => true,
-        "floor" => true,
-        "trim" => true,
-        "to_integer" => true,
-        "to_float" => true,
-        _ => false,
-    }
+    matches!(
+        name,
+        "to_number"
+            | "to_string"
+            | "lowercase"
+            | "uppercase"
+            | "replace"
+            | "len"
+            | "floor"
+            | "trim"
+            | "to_integer"
+            | "to_float"
+    )
 }
 
 fn is_letter(ch: char) -> bool {
-    'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '.'
-}
-
-fn is_digit(ch: char) -> bool {
-    '0' <= ch && ch <= '9'
+    ch.is_ascii_alphabetic() || ch == '_' || ch == '.'
 }
 
 fn count_asterix(input: &Vec<char>) -> usize {
@@ -55,7 +51,7 @@ fn transform_escape_char(ch: char) -> Result<char, ()> {
 impl QueryLexer {
     pub fn new(input: Vec<char>) -> Self {
         Self {
-            input: input,
+            input,
             position: 0,
             read_position: 0,
             ch: '0',
@@ -69,7 +65,7 @@ impl QueryLexer {
             self.ch = self.input[self.read_position];
         }
         self.position = self.read_position;
-        self.read_position = self.read_position + 1;
+        self.read_position += 1;
     }
 
     pub fn skip_whitespace(&mut self) {
@@ -86,7 +82,7 @@ impl QueryLexer {
     pub fn next_token(&mut self) -> Token {
         let read_identifier = |l: &mut QueryLexer| -> Vec<char> {
             let position = l.position;
-            while l.position < l.input.len() && (is_letter(l.ch) || is_digit(l.ch)) {
+            while l.position < l.input.len() && (is_letter(l.ch) || l.ch.is_ascii_digit()) {
                 l.read_char();
             }
             l.input[position..l.position].to_vec()
@@ -94,7 +90,7 @@ impl QueryLexer {
         let read_literal_string = |l: &mut QueryLexer| -> Vec<char> {
             let mut is_escape = false;
             let mut to_ret = Vec::with_capacity(32);
-            while l.position < l.input.len() && !(l.ch == '\'' && !is_escape) {
+            while (is_escape || l.ch != '\'') && l.position < l.input.len() {
                 if l.ch == '\\' {
                     if is_escape {
                         to_ret.push('\\');
@@ -121,7 +117,7 @@ impl QueryLexer {
         let read_string = |l: &mut QueryLexer| -> Vec<char> {
             let mut is_escape = false;
             let mut to_ret = Vec::with_capacity(32);
-            while l.position < l.input.len() && !(l.ch == '"' && !is_escape) {
+            while (is_escape || l.ch != '"') && l.position < l.input.len() {
                 if l.ch == '\\' {
                     if is_escape {
                         to_ret.push('\\');
@@ -149,7 +145,7 @@ impl QueryLexer {
 
         let read_number = |l: &mut QueryLexer| -> Vec<char> {
             let position = l.position;
-            while l.position < l.input.len() && is_digit(l.ch) {
+            while l.position < l.input.len() && l.ch.is_ascii_digit() {
                 l.read_char();
             }
             l.input[position..l.position].to_vec()
@@ -228,12 +224,10 @@ impl QueryLexer {
                             tok = Token::StartsWith(data.iter().filter(|c| *c != &'*').collect())
                         } else if ends_astx {
                             tok = Token::EndsWith(data.iter().filter(|c| *c != &'*').collect())
+                        } else if n_asterix == 0 {
+                            tok = Token::String(data.iter().collect())
                         } else {
-                            if n_asterix == 0 {
-                                tok = Token::String(data.iter().collect())
-                            } else {
-                                tok = Token::Like(data.iter().collect())
-                            }
+                            tok = Token::Like(data.iter().collect())
                         }
                     }
                 } else {
@@ -251,7 +245,7 @@ impl QueryLexer {
                             return Token::FIELD(ident.into_iter().collect());
                         }
                     }
-                } else if is_digit(self.ch) {
+                } else if self.ch.is_ascii_digit() {
                     let ident: Vec<char> = read_number(self);
                     return Token::INT(ident.into_iter().collect());
                 } else {
@@ -303,8 +297,8 @@ pub enum Token {
     Contains(String),
 }
 
-pub fn get_keyword_token(ident: &Vec<char>) -> Result<Token, String> {
-    let identifier: String = ident.into_iter().collect();
+pub fn get_keyword_token(ident: &[char]) -> Result<Token, String> {
+    let identifier: String = ident.iter().collect();
     match &identifier[..] {
         "true" => Ok(Token::TRUE),
         "false" => Ok(Token::FALSE),

@@ -45,7 +45,7 @@ impl SlowGeoIpSynDataset {
 }
 #[derive(Debug)]
 pub struct SlowGeoIpDataset {
-    tree: sled::Db
+    tree: sled::Db,
 }
 impl Serialize for SlowGeoIpDataset {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -57,7 +57,7 @@ impl Serialize for SlowGeoIpDataset {
     }
 }
 impl SlowGeoIpDataset {
-    pub fn new(path : &str) -> Self {
+    pub fn new(path: &str) -> Self {
         let tree = sled::open(path).expect("open");
         return Self { tree };
     }
@@ -74,23 +74,23 @@ impl SlowGeoIpDataset {
                     ret[i] = byt;
                     i += 1;
                 }
-            },
+            }
             SiemIp::V6(v) => {
-                let v  = v & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
+                let v = v & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
                 ret[17] = 1;
                 let mut i = 0;
                 for byt in v.to_be_bytes() {
                     ret[i] = byt;
                     i += 1;
                 }
-            },
+            }
         }
         ret
     }
     pub fn get(&self, ip: &SiemIp) -> Option<GeoIpInfo> {
         let (zeros, max_net) = match ip {
             SiemIp::V4(ip) => (ip.trailing_zeros() as u8, 32u8),
-            SiemIp::V6(ip) => (ip.trailing_zeros() as u8, 128u8)
+            SiemIp::V6(ip) => (ip.trailing_zeros() as u8, 128u8),
         };
         for net in zeros..max_net {
             let key = Self::get_key(ip, net);
@@ -100,12 +100,12 @@ impl SlowGeoIpDataset {
                         None => continue,
                         Some(v) => v,
                     };
-                    let geo_ip : GeoIpInfo = v.into();
-                    return Some(geo_ip)
-                },
+                    let geo_ip: GeoIpInfo = v.into();
+                    return Some(geo_ip);
+                }
                 Err(err) => {
                     crate::warn!("Error getting value in SLED: {:?}", err);
-                },
+                }
             }
         }
         None
@@ -122,7 +122,10 @@ mod tests {
     use super::*;
     #[test]
     fn geo_ip_should_find_ip() {
-        let tmp = std::env::temp_dir().join("slow_geo_ip").to_string_lossy().to_string();
+        let tmp = std::env::temp_dir()
+            .join("slow_geo_ip")
+            .to_string_lossy()
+            .to_string();
         let info = GeoIpInfo {
             city: LogString::Borrowed("LocalCity"),
             country: LogString::Borrowed("LocalCountry"),
@@ -154,8 +157,8 @@ mod tests {
             longitude: 0.2,
             asn: 1,
         };
-        let arr : IVec= info.clone().into();
-        let info2 :GeoIpInfo = arr.into();
+        let arr: IVec = info.clone().into();
+        let info2: GeoIpInfo = arr.into();
         assert_eq!("LocalCity", info2.city);
         assert_eq!(info.asn, info2.asn);
         println!("{:?}", info2);

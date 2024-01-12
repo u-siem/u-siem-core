@@ -1,8 +1,8 @@
 use super::common::{HttpMethod, WebProtocol};
 use super::field_dictionary::*;
 use super::ip::SiemIp;
-use crate::prelude::{SiemLog, SiemField};
 use crate::prelude::types::LogString;
+use crate::prelude::{SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
 /// A typical combined Log format has a source_ip, a user_id, a date, the http method,
@@ -102,81 +102,45 @@ impl std::fmt::Display for WebServerOutcome {
     }
 }
 
-impl Into<SiemLog> for WebServerEvent {
-    fn into(self) -> SiemLog {
+impl From<WebServerEvent> for SiemLog {
+    fn from(val: WebServerEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
-        log.add_field(
-            SOURCE_IP,
-            SiemField::IP(self.source_ip),
-        );
-        match self.destination_ip {
-            Some(ip) => {
-                log.add_field(DESTINATION_IP, SiemField::IP(ip));
-            }
-            None => {}
+        log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
+        if let Some(ip) = val.destination_ip {
+            log.add_field(DESTINATION_IP, SiemField::IP(ip));
         };
 
         log.add_field(
             DESTINATION_PORT,
-            SiemField::U64(self.destination_port as u64),
+            SiemField::U64(val.destination_port as u64),
         );
         log.add_field(
             EVENT_OUTCOME,
-            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+            SiemField::Text(LogString::Owned(val.outcome.to_string())),
         );
-        log.add_field(SOURCE_BYTES, SiemField::U64(self.out_bytes as u64));
-        log.add_field(
-            DESTINATION_BYTES,
-            SiemField::U64(self.in_bytes as u64),
-        );
+        log.add_field(SOURCE_BYTES, SiemField::U64(val.out_bytes as u64));
+        log.add_field(DESTINATION_BYTES, SiemField::U64(val.in_bytes as u64));
         log.add_field(
             NETWORK_PROTOCOL,
-            SiemField::Text(LogString::Owned(self.protocol.to_string())),
+            SiemField::Text(LogString::Owned(val.protocol.to_string())),
         );
         log.add_field(
             HTTP_RESPONSE_STATUS_CODE,
-            SiemField::U64(self.http_code as u64),
+            SiemField::U64(val.http_code as u64),
         );
         log.add_field(
             HTTP_REQUEST_METHOD,
-            SiemField::Text(LogString::Owned(self.http_method.to_string())),
+            SiemField::Text(LogString::Owned(val.http_method.to_string())),
         );
-        log.add_field(
-            URL_FULL,
-            SiemField::Text(self.url_full),
-        );
-        log.add_field(
-            URL_DOMAIN,
-            SiemField::Text(self.url_domain),
-        );
-        log.add_field(
-            URL_PATH,
-            SiemField::Text(self.url_path),
-        );
-        log.add_field(
-            URL_QUERY,
-            SiemField::Text(self.url_query),
-        );
-        log.add_field(
-            "url.extension",
-            SiemField::Text(self.url_extension),
-        );
-        log.add_field(
-            USER_NAME,
-            SiemField::User(self.user_name.to_string()),
-        );
-        log.add_field(
-            HTTP_RESPONSE_MIME_TYPE,
-            SiemField::Text(self.mime_type)
-        );
-        log.add_field(
-            NETWORK_DURATION,
-            SiemField::F64(self.duration as f64),
-        );
-        log.add_field(
-            "user_agent.original",
-            SiemField::Text(self.user_agent),
-        );
+        log.add_field(URL_FULL, SiemField::Text(val.url_full));
+        log.add_field(URL_DOMAIN, SiemField::Text(val.url_domain));
+        log.add_field(URL_PATH, SiemField::Text(val.url_path));
+        log.add_field(URL_QUERY, SiemField::Text(val.url_query));
+        log.add_field("url.extension", SiemField::Text(val.url_extension));
+        log.add_field(USER_NAME, SiemField::User(val.user_name.to_string()));
+        log.add_field(HTTP_RESPONSE_MIME_TYPE, SiemField::Text(val.mime_type));
+        log.add_field(NETWORK_DURATION, SiemField::F64(val.duration as f64));
+        log.add_field("user_agent.original", SiemField::Text(val.user_agent));
         log
     }
 }

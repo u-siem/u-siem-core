@@ -1,6 +1,6 @@
-use crate::prelude::{types::LogString, SiemLog, SiemField};
+use crate::prelude::{types::LogString, SiemField, SiemLog};
 
-use super::{ip::SiemIp, field_dictionary::*};
+use super::{field_dictionary::*, ip::SiemIp};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -91,37 +91,25 @@ impl DnsRecordType {
         }
     }
 }
-impl Into<SiemLog> for DnsEvent {
-    fn into(self) -> SiemLog {
+impl From<DnsEvent> for SiemLog {
+    fn from(val: DnsEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
-        log.add_field(SOURCE_IP, SiemField::IP(self.source_ip));
-        log.add_field(DESTINATION_IP, SiemField::IP(self.destination_ip));
-        match self.op_code {
+        log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
+        log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
+        match val.op_code {
             DnsEventType::ANSWER => {
                 log.add_field(DNS_OP_CODE, SiemField::Text(LogString::Borrowed("ANSWER")));
-                log.add_field(
-                    DNS_ANSWER_NAME,
-                    SiemField::Text(self.record_name)
-                );
-                match self.data {
-                    Some(data) => {
-                        log.add_field(DNS_ANSWER_DATA, SiemField::from_str(data.to_string()));
-                    }
-                    None => {}
+                log.add_field(DNS_ANSWER_NAME, SiemField::Text(val.record_name));
+                if let Some(data) = val.data {
+                    log.add_field(DNS_ANSWER_DATA, data.to_string().into());
                 };
-                log.add_field(DNS_ANSWER_TYPE, SiemField::Text(self.record_type.as_cow()));
+                log.add_field(DNS_ANSWER_TYPE, SiemField::Text(val.record_type.as_cow()));
             }
             DnsEventType::QUERY => {
                 log.add_field(DNS_OP_CODE, SiemField::Text(LogString::Borrowed("QUERY")));
-                
-                log.add_field(
-                    DNS_QUESTION_NAME,
-                    SiemField::Text(self.record_name)
-                );
-                log.add_field(
-                    DNS_QUESTION_TYPE,
-                    SiemField::Text(self.record_type.as_cow()),
-                );
+
+                log.add_field(DNS_QUESTION_NAME, SiemField::Text(val.record_name));
+                log.add_field(DNS_QUESTION_TYPE, SiemField::Text(val.record_type.as_cow()));
             }
         };
         log

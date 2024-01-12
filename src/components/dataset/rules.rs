@@ -19,14 +19,11 @@ pub struct CorrelationRulesDataset {
     comm: Sender<UpdateRules>,
 }
 impl CorrelationRulesDataset {
-    pub fn new(dataset: Arc<RulesDataset>, comm: Sender<UpdateRules>) -> CorrelationRulesDataset {
-        return CorrelationRulesDataset { dataset, comm };
+    pub fn new(dataset: Arc<RulesDataset>, comm: Sender<UpdateRules>) -> Self {
+        Self { dataset, comm }
     }
     pub fn insert(&self, rule: SiemRule) {
-        match self.comm.send(UpdateRules::Add(rule)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.send(UpdateRules::Add(rule));
     }
     pub fn insert_timeout(&self, rule: SiemRule, timeout: Duration) -> Result<(), SiemRule> {
         let init = std::time::Instant::now();
@@ -61,16 +58,14 @@ impl CorrelationRulesDataset {
         self.dataset.get(id)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct RulesDataset {
     rules: BTreeMap<LogString, SiemRule>,
 }
 
 impl RulesDataset {
-    pub fn new() -> RulesDataset {
-        return RulesDataset {
-            rules: BTreeMap::new(),
-        };
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn insert(&mut self, rule: SiemRule) {
         self.rules.insert(rule.name.clone(), rule);

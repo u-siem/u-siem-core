@@ -1,6 +1,6 @@
+use serde::ser::SerializeStruct;
 use serde::Serialize;
 use serde::Serializer;
-use serde::ser::SerializeStruct;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::AtomicU64;
 use std::sync::Arc;

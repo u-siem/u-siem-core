@@ -1,26 +1,27 @@
 use std::sync::{atomic::AtomicI64, Arc};
 
-use serde::{Serialize, Serializer, ser::{SerializeSeq, SerializeStruct}};
+use serde::{
+    ser::{SerializeSeq, SerializeStruct},
+    Serialize, Serializer,
+};
 
 use super::prometheus::Encoder;
 
 #[derive(Debug, Clone)]
 pub struct Counter {
-    metric : Arc<AtomicI64>,
-    labels : Vec<(&'static str, &'static str)>
+    metric: Arc<AtomicI64>,
+    labels: Vec<(&'static str, &'static str)>,
 }
 #[derive(Debug, Clone)]
 pub struct CounterVec {
-    metrics : Vec<Counter>
+    metrics: Vec<Counter>,
 }
-
-
 
 impl CounterVec {
     /// Create a Counter with fixed labels
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use usiem::components::metrics::counter::CounterVec;
     /// let metric = CounterVec::new(&[
@@ -28,17 +29,18 @@ impl CounterVec {
     ///    &[("name","Pepe"), ("v1","2")]
     /// ]);
     /// ```
-    pub fn new(labels : &[&[(&'static str, &'static str)]]) -> Self {
+    pub fn new(labels: &[&[(&'static str, &'static str)]]) -> Self {
         Self {
-            metrics : labels.into_iter().map(|label_list| {
-                Counter::new_with_labels(label_list)
-            }).collect()
+            metrics: labels
+                .iter()
+                .map(|label_list| Counter::new_with_labels(label_list))
+                .collect(),
         }
     }
     /// Obtains a Counter inside this CounterVec that matches the metrics
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use usiem::components::metrics::counter::{Counter, CounterVec};
     /// let metric = CounterVec::new(&[
@@ -54,10 +56,10 @@ impl CounterVec {
             }
             for ((name1, value1), (name2, value2)) in counter.labels.iter().zip(labels.iter()) {
                 if name1 != name2 || value1 != value2 {
-                    continue 'cnt
+                    continue 'cnt;
                 }
             }
-            return Some(counter)
+            return Some(counter);
         }
         None
     }
@@ -68,43 +70,48 @@ impl CounterVec {
         }
     }
 }
-
+impl Default for Counter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl Counter {
     /// Creates a counter with no labels
     pub fn new() -> Self {
         Self {
-            metric : Arc::new(AtomicI64::new(0)),
-            labels : Vec::new()
+            metric: Arc::new(AtomicI64::new(0)),
+            labels: Vec::new(),
         }
     }
     /// Creates a counter with labels
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use usiem::components::metrics::counter::Counter;
     /// Counter::new_with_labels(&[("name","Paco"), ("v1","1")]);
     /// ```
-    pub fn new_with_labels(labels : &[(&'static str, &'static str)]) -> Self {
+    pub fn new_with_labels(labels: &[(&'static str, &'static str)]) -> Self {
         let mut map = Vec::new();
         for (name, value) in labels {
-            if name.contains("\n") || value.contains("\n") {
+            if name.contains('\n') || value.contains('\n') {
                 panic!("Labels must not contain new lines");
             }
             map.push((*name, *value));
         }
         Self {
-            metric : Arc::new(AtomicI64::new(0)),
-            labels : map
+            metric: Arc::new(AtomicI64::new(0)),
+            labels: map,
         }
     }
     /// Increase counter by One
-    pub fn inc(&self){
+    pub fn inc(&self) {
         self.inc_by(1);
     }
     /// Increase counter by a value
-    pub fn inc_by(&self, v : i64) {
-        self.metric.fetch_add(v, std::sync::atomic::Ordering::SeqCst);
+    pub fn inc_by(&self, v: i64) {
+        self.metric
+            .fetch_add(v, std::sync::atomic::Ordering::SeqCst);
     }
     /// Obtain the value
     pub fn get(&self) -> i64 {
@@ -117,7 +124,13 @@ impl Counter {
 }
 
 impl Encoder for CounterVec {
-    fn encode<W: std::fmt::Write>(&self, f: &mut W, name : &str, description : &str, help : bool) -> Result<(), std::fmt::Error> {
+    fn encode<W: std::fmt::Write>(
+        &self,
+        f: &mut W,
+        name: &str,
+        description: &str,
+        help: bool,
+    ) -> Result<(), std::fmt::Error> {
         if help {
             f.write_str("# HELP ")?;
             f.write_str(name)?;
@@ -132,17 +145,22 @@ impl Encoder for CounterVec {
             counter.encode(f, name, description, help)?;
         }
         Ok(())
-                
     }
 }
 
 impl Encoder for Counter {
-    fn encode<W: std::fmt::Write>(&self, f: &mut W, name : &str, _description : &str, _help : bool) -> Result<(), std::fmt::Error> {
+    fn encode<W: std::fmt::Write>(
+        &self,
+        f: &mut W,
+        name: &str,
+        _description: &str,
+        _help: bool,
+    ) -> Result<(), std::fmt::Error> {
         f.write_str(name)?;
         f.write_str("{")?;
         let mut i = 0;
         for (name, value) in &self.labels {
-            i+=1;
+            i += 1;
             if value.is_empty() {
                 continue;
             }
@@ -155,7 +173,7 @@ impl Encoder for Counter {
             }
         }
         f.write_str("} ")?;
-        f.write_fmt(format_args!("{}",self.get()))?;
+        f.write_fmt(format_args!("{}", self.get()))?;
         f.write_str("\n")?;
         Ok(())
     }
@@ -188,40 +206,51 @@ impl Serialize for Counter {
 #[test]
 fn counter_metric_should_work() {
     let metric = CounterVec::new(&[
-        &[("name","Paco"), ("v1","1")],
-        &[("name","Pepe"), ("v1","2")]
+        &[("name", "Paco"), ("v1", "1")],
+        &[("name", "Pepe"), ("v1", "2")],
     ]);
-    let counter = metric.with_labels(&[("name","Paco"), ("v1","1")]).unwrap();
+    let counter = metric
+        .with_labels(&[("name", "Paco"), ("v1", "1")])
+        .unwrap();
     counter.inc_by(222);
-    assert_eq!(222,counter.get());
+    assert_eq!(222, counter.get());
     counter.reset();
     assert_eq!(0, counter.get());
     counter.inc_by(222);
     metric.reset();
     assert_eq!(0, counter.get());
-    let counter = metric.with_labels(&[("name","Pepe"), ("v1","2")]).unwrap();
+    let counter = metric
+        .with_labels(&[("name", "Pepe"), ("v1", "2")])
+        .unwrap();
     counter.inc_by(222);
-    assert_eq!(222,counter.get());
+    assert_eq!(222, counter.get());
     counter.reset();
     assert_eq!(0, counter.get());
     counter.inc_by(222);
     metric.reset();
     assert_eq!(0, counter.get());
-    assert!(metric.with_labels(&[("name","Paco"), ("v1","2")]).is_none());
+    assert!(metric
+        .with_labels(&[("name", "Paco"), ("v1", "2")])
+        .is_none());
 }
 
 #[test]
 fn counter_should_be_encoded_in_prometheus() {
     use crate::components::metrics::counter::CounterVec;
     let counter = CounterVec::new(&[
-        &[("name","Nombre"), ("v1","1")],
-        &[("name","Nombre"), ("v1","2")]
+        &[("name", "Nombre"), ("v1", "1")],
+        &[("name", "Nombre"), ("v1", "2")],
     ]);
     let mut st = String::with_capacity(1_000_000);
-    counter.encode(&mut st, "simple_counter", "Simple Counter metric", true).unwrap();
-    assert_eq!(r#"# HELP simple_counter Simple Counter metric
+    counter
+        .encode(&mut st, "simple_counter", "Simple Counter metric", true)
+        .unwrap();
+    assert_eq!(
+        r#"# HELP simple_counter Simple Counter metric
 # TYPE simple_counter counter
 simple_counter{name="Nombre",v1="1"} 0
 simple_counter{name="Nombre",v1="2"} 0
-"#, st);
+"#,
+        st
+    );
 }

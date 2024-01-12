@@ -17,53 +17,41 @@ pub struct TextMapListSynDataset {
     comm: Sender<UpdateTextMapList>,
 }
 impl TextMapListSynDataset {
-    pub fn new(
-        dataset: Arc<TextMapListDataset>,
-        comm: Sender<UpdateTextMapList>,
-    ) -> TextMapListSynDataset {
-        return TextMapListSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<TextMapListDataset>, comm: Sender<UpdateTextMapList>) -> Self {
+        Self { dataset, comm }
     }
     pub fn empty() -> Self {
         let (sender, _) = crossbeam_channel::bounded(1);
-
-        return Self { dataset : Arc::new(TextMapListDataset::new()), comm : sender };
+        Self {
+            dataset: Arc::new(TextMapListDataset::new()),
+            comm: sender,
+        }
     }
     pub fn insert(&self, key: LogString, data: Vec<LogString>) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMapList::Add((key, data))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateTextMapList::Add((key, data)));
     }
     pub fn remove(&self, key: LogString) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMapList::Remove(key)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateTextMapList::Remove(key));
     }
     pub fn update(&self, data: TextMapListDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateTextMapList::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateTextMapList::Replace(data));
     }
     pub fn get(&self, key: &str) -> Option<&Vec<LogString>> {
         // Todo improve with cached content
         self.dataset.get(key)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct TextMapListDataset {
     data: BTreeMap<LogString, Vec<LogString>>,
 }
 
 impl TextMapListDataset {
-    pub fn new() -> TextMapListDataset {
-        return TextMapListDataset {
-            data: BTreeMap::new(),
-        };
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn insert(&mut self, key: LogString, data: Vec<LogString>) {
         self.data.insert(key, data);

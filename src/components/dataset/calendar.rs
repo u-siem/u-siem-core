@@ -18,30 +18,21 @@ pub struct CalendarSynDataset {
 }
 
 impl CalendarSynDataset {
-    pub fn new(dataset: Arc<CalendarDataset>, comm: Sender<UpdateCalendar>) -> CalendarSynDataset {
-        return CalendarSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<CalendarDataset>, comm: Sender<UpdateCalendar>) -> Self {
+        Self { dataset, comm }
     }
     /// Used to add IP with custom information like tags.
     pub fn insert(&mut self, start: i64, end: i64, data: LogString) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateCalendar::Add((start, end, data))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateCalendar::Add((start, end, data)));
     }
     pub fn remove(&mut self, start: i64, end: i64) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateCalendar::Remove((start, end))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateCalendar::Remove((start, end)));
     }
     pub fn update(&mut self, data: CalendarDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateCalendar::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateCalendar::Replace(data));
     }
     pub fn get(&self, time: i64) -> Option<Vec<&LogString>> {
         // Todo improve with cached content
@@ -49,16 +40,14 @@ impl CalendarSynDataset {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct CalendarDataset {
     data: BTreeMap<i64, Vec<(i64, i64, LogString)>>,
 }
 
 impl CalendarDataset {
-    pub fn new() -> CalendarDataset {
-        return CalendarDataset {
-            data: BTreeMap::new(),
-        };
+    pub fn new() -> Self {
+        Self::default()
     }
     pub fn insert(&mut self, start: i64, end: i64, data: LogString) {
         let start_day = start / 86400000;
@@ -111,10 +100,10 @@ impl CalendarDataset {
                         to_ret.push(data);
                     }
                 }
-                if to_ret.len() == 0 {
+                if to_ret.is_empty() {
                     return None;
                 }
-                return Some(to_ret);
+                Some(to_ret)
             }
             None => None,
         }

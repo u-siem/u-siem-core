@@ -1,13 +1,13 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
+use super::auth::AuthEvent;
+use super::dhcp::DhcpEvent;
+use super::dns::DnsEvent;
 use super::firewall::FirewallEvent;
 use super::intrusion::IntrusionEvent;
 use super::log::SiemLog;
 use super::webproxy::WebProxyEvent;
 use super::webserver::WebServerEvent;
-use super::auth::AuthEvent;
-use super::dhcp::DhcpEvent;
-use super::dns::DnsEvent;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(tag = "event_type")]
@@ -73,9 +73,9 @@ pub enum SiemEvent {
     Artifacts,
 }
 
-impl Into<SiemLog> for SiemEvent {
-    fn into(self) -> SiemLog {
-        match self {
+impl From<SiemEvent> for SiemLog {
+    fn from(val: SiemEvent) -> Self {
+        match val {
             SiemEvent::Firewall(fw) => fw.into(),
             SiemEvent::WebProxy(v) => v.into(),
             SiemEvent::DNS(v) => v.into(),
@@ -83,7 +83,7 @@ impl Into<SiemLog> for SiemEvent {
             SiemEvent::WebServer(v) => v.into(),
             SiemEvent::Auth(v) => v.into(),
             SiemEvent::DHCP(v) => v.into(),
-            _ => SiemLog::new("", 0, "")
+            _ => SiemLog::new("", 0, ""),
         }
     }
 }

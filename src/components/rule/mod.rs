@@ -193,7 +193,7 @@ impl AlertDictionary {
 
 impl SiemRule {
     pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetHolder) -> bool {
-        for (_name, rule) in self.subrules.as_ref() {
+        for rule in self.subrules.as_ref().values() {
             for condition in &rule.conditions {
                 if !condition.matches(log, datasets) {
                     return false;

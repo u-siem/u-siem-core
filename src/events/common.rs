@@ -31,7 +31,7 @@ impl std::fmt::Display for WebProtocol {
     }
 }
 impl HttpMethod {
-    pub fn from_str(val: &str) -> HttpMethod {
+    pub fn from_str_slice(val: &str) -> HttpMethod {
         match &val.to_uppercase()[..] {
             "GET" => HttpMethod::GET,
             "POST" => HttpMethod::POST,
@@ -45,18 +45,18 @@ impl HttpMethod {
     }
 
     pub fn equals(&self, val: &str) -> bool {
-        match (val, self) {
-            ("GET", HttpMethod::GET) => return true,
-            ("POST", HttpMethod::POST) => return true,
-            ("PUT", HttpMethod::PUT) => return true,
-            ("PATCH", HttpMethod::PATCH) => return true,
-            ("UNKNOWN", HttpMethod::UNKNOWN(_)) => return true,
-            ("OPTIONS", HttpMethod::OPTIONS) => return true,
-            ("CONNECT", HttpMethod::CONNECT) => return true,
-            ("HEAD", HttpMethod::HEAD) => return true,
-            ("UNDEFINED", HttpMethod::UNDEFINED) => return true,
-            _ => return false,
-        }
+        matches!(
+            (val, self),
+            ("GET", HttpMethod::GET)
+                | ("POST", HttpMethod::POST)
+                | ("PUT", HttpMethod::PUT)
+                | ("PATCH", HttpMethod::PATCH)
+                | ("UNKNOWN", HttpMethod::UNKNOWN(_))
+                | ("OPTIONS", HttpMethod::OPTIONS)
+                | ("CONNECT", HttpMethod::CONNECT)
+                | ("HEAD", HttpMethod::HEAD)
+                | ("UNDEFINED", HttpMethod::UNDEFINED)
+        )
     }
 }
 impl std::fmt::Display for HttpMethod {

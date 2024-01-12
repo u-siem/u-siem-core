@@ -1,5 +1,5 @@
-use crate::prelude::SiemIp;
 use crate::prelude::types::LogString;
+use crate::prelude::SiemIp;
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -17,42 +17,35 @@ pub struct IpMapSynDataset {
     comm: Sender<UpdateIpMap>,
 }
 impl IpMapSynDataset {
-    pub fn new(dataset: Arc<IpMapDataset>, comm: Sender<UpdateIpMap>) -> IpMapSynDataset {
-        return IpMapSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<IpMapDataset>, comm: Sender<UpdateIpMap>) -> Self {
+        Self { dataset, comm }
     }
     pub fn empty() -> Self {
         let (sender, _) = crossbeam_channel::bounded(1);
-
-        return Self { dataset : Arc::new(IpMapDataset::new()), comm : sender };
+        Self {
+            dataset: Arc::new(IpMapDataset::new()),
+            comm: sender,
+        }
     }
     /// Used to add IP with custom information like tags.
     pub fn insert(&self, ip: SiemIp, data: LogString) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpMap::Add((ip, data))) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpMap::Add((ip, data)));
     }
     pub fn remove(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpMap::Remove(ip)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpMap::Remove(ip));
     }
     pub fn update(&self, data: IpMapDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpMap::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpMap::Replace(data));
     }
     pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct IpMapDataset {
     data4: BTreeMap<u32, LogString>,
     data6: BTreeMap<u128, LogString>,
@@ -60,10 +53,7 @@ pub struct IpMapDataset {
 
 impl IpMapDataset {
     pub fn new() -> IpMapDataset {
-        return IpMapDataset {
-            data4: BTreeMap::new(),
-            data6: BTreeMap::new(),
-        };
+        IpMapDataset::default()
     }
     pub fn insert<S>(&mut self, ip: SiemIp, data: S)
     where

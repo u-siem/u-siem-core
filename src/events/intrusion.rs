@@ -1,6 +1,6 @@
-use super::{ip::SiemIp, field_dictionary::*};
 use super::protocol::NetworkProtocol;
-use crate::prelude::{types::LogString, SiemLog, SiemField};
+use super::{field_dictionary::*, ip::SiemIp};
+use crate::prelude::{types::LogString, SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -134,42 +134,27 @@ impl std::fmt::Display for IntrusionCategory {
     }
 }
 
-impl Into<SiemLog> for IntrusionEvent {
-    fn into(self) -> SiemLog {
+impl From<IntrusionEvent> for SiemLog {
+    fn from(val: IntrusionEvent) -> Self {
         let mut log = SiemLog::new("", 0, "");
-        log.add_field(
-            SOURCE_IP,
-            SiemField::IP(self.source_ip),
-        );
-        log.add_field(
-            SOURCE_PORT,
-            SiemField::U64(self.source_port as u64),
-        );
-        log.add_field(
-            DESTINATION_IP,
-            SiemField::IP(self.destination_ip),
-        );
+        log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
+        log.add_field(SOURCE_PORT, SiemField::U64(val.source_port as u64));
+        log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
         log.add_field(
             DESTINATION_PORT,
-            SiemField::U64(self.destination_port as u64),
+            SiemField::U64(val.destination_port as u64),
         );
         log.add_field(
             EVENT_OUTCOME,
-            SiemField::Text(LogString::Owned(self.outcome.to_string())),
+            SiemField::Text(LogString::Owned(val.outcome.to_string())),
         );
         log.add_field(
             NETWORK_PROTOCOL,
-            SiemField::Text(LogString::Owned(self.network_protocol.to_string())),
+            SiemField::Text(LogString::Owned(val.network_protocol.to_string())),
         );
-        log.add_field(
-            RULE_CATEGORY,
-            SiemField::from_str(self.rule_category.to_string()),
-        );
-        log.add_field(
-            RULE_NAME,
-            SiemField::Text(self.rule_name),
-        );
-        log.add_field(RULE_ID, SiemField::U64(self.rule_id as u64));
+        log.add_field(RULE_CATEGORY, val.rule_category.to_string().into());
+        log.add_field(RULE_NAME, SiemField::Text(val.rule_name));
+        log.add_field(RULE_ID, SiemField::U64(val.rule_id as u64));
         log
     }
 }

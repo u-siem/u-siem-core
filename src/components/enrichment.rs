@@ -17,7 +17,7 @@ clone_trait_object!(LogEnrichment);
 #[test]
 fn check_basic_enricher_clone() {
     #[derive(Clone)]
-    struct BasicLogEnricher{}
+    struct BasicLogEnricher {}
     impl LogEnrichment for BasicLogEnricher {
         fn enrich(&self, log: SiemLog, _datasets: &DatasetHolder) -> SiemLog {
             log
@@ -31,12 +31,11 @@ fn check_basic_enricher_clone() {
             "a"
         }
     }
-    fn test_boxed_enricher(enricher : &Box<dyn LogEnrichment>) -> Box<dyn LogEnrichment> {
+    fn test_boxed_enricher(enricher: &Box<dyn LogEnrichment>) -> Box<dyn LogEnrichment> {
         let _ = enricher.name();
         let enricher2 = enricher.clone();
         enricher2
     }
-    let enricher1 : Box<dyn LogEnrichment> = Box::new(BasicLogEnricher{});
+    let enricher1: Box<dyn LogEnrichment> = Box::new(BasicLogEnricher {});
     let _enricher2 = test_boxed_enricher(&enricher1);
-    
 }

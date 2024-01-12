@@ -16,7 +16,7 @@ pub fn do_before_stoping_component<F>(
     action: F,
 ) -> JoinHandle<Result<(), SendError<SiemMessage>>>
 where
-    F: FnOnce() -> () + Send + 'static,
+    F: FnOnce() + Send + 'static,
 {
     let sender: Sender<SiemMessage> = component.local_channel();
     let comp_name = component.name().to_string();

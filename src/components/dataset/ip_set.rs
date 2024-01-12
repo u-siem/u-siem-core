@@ -16,35 +16,28 @@ pub struct IpSetSynDataset {
     comm: Sender<UpdateIpSet>,
 }
 impl IpSetSynDataset {
-    pub fn new(dataset: Arc<IpSetDataset>, comm: Sender<UpdateIpSet>) -> IpSetSynDataset {
-        return IpSetSynDataset { dataset, comm };
+    pub fn new(dataset: Arc<IpSetDataset>, comm: Sender<UpdateIpSet>) -> Self {
+        Self { dataset, comm }
     }
     pub fn empty() -> Self {
         let (sender, _) = crossbeam_channel::bounded(1);
-
-        return Self { dataset : Arc::new(IpSetDataset::new()), comm : sender };
+        Self {
+            dataset: Arc::new(IpSetDataset::new()),
+            comm: sender,
+        }
     }
     /// Used to add IP with custom information like tags.
     pub fn insert(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpSet::Add(ip)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpSet::Add(ip));
     }
     pub fn remove(&self, ip: SiemIp) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpSet::Remove(ip)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpSet::Remove(ip));
     }
     pub fn update(&self, data: IpSetDataset) {
         // Todo: improve with local cache to send retries
-        match self.comm.try_send(UpdateIpSet::Replace(data)) {
-            Ok(_) => {}
-            Err(_) => {}
-        };
+        let _ = self.comm.try_send(UpdateIpSet::Replace(data));
     }
     pub fn contains(&self, ip: &SiemIp) -> bool {
         // Todo improve with cached content
@@ -57,12 +50,18 @@ pub struct IpSetDataset {
     data6: BTreeSet<u128>,
 }
 
+impl Default for IpSetDataset {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IpSetDataset {
-    pub fn new() -> IpSetDataset {
-        return IpSetDataset {
+    pub fn new() -> Self {
+        Self {
             data4: BTreeSet::new(),
             data6: BTreeSet::new(),
-        };
+        }
     }
     pub fn insert(&mut self, ip: SiemIp) {
         match ip {

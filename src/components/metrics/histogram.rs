@@ -59,7 +59,6 @@ impl HistogramBucket {
                 continue;
             }
             observation.value.fetch_add(1, Ordering::SeqCst);
-            
         }
     }
     pub fn get_count(&self, le: f64) -> Option<u64> {
@@ -76,7 +75,7 @@ fn normalize_f64(numb: f64) -> i64 {
     (numb * (HISTOGRAM_MODIFIER as f64)) as i64
 }
 fn normalize_i64(numb: i64) -> f64 {
-    (numb as f64 / HISTOGRAM_MODIFIER as f64) as f64
+    numb as f64 / HISTOGRAM_MODIFIER as f64
 }
 
 impl HistogramVec {
@@ -147,8 +146,8 @@ impl Encoder for HistogramVec {
         description: &str,
         help: bool,
     ) -> Result<(), std::fmt::Error> {
-        if self.metrics.len() == 0 {
-            return Ok(())
+        if self.metrics.is_empty() {
+            return Ok(());
         }
         if help {
             f.write_str("# HELP ")?;
@@ -295,7 +294,9 @@ impl Serialize for Observation {
 }
 #[cfg(test)]
 mod tst {
-    use crate::components::metrics::{label_combinations, histogram::HistogramVec, prometheus::Encoder};
+    use crate::components::metrics::{
+        histogram::HistogramVec, label_combinations, prometheus::Encoder,
+    };
     #[test]
     fn should_create_complex_static_metric() {
         let name_values = vec!["a", "b", "c"];

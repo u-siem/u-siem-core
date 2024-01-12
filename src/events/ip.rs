@@ -2,8 +2,12 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize, Serializer};
 
-use crate::prelude::{SiemField, ip_utils::{ipv4_to_str, ipv6_to_str, is_local_ipv4, is_local_ipv6, ipv4_from_str, ipv6_from_str}};
-
+use crate::prelude::{
+    ip_utils::{
+        ipv4_from_str, ipv4_to_str, ipv6_from_str, ipv6_to_str, is_local_ipv4, is_local_ipv6,
+    },
+    SiemField,
+};
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum SiemIp {
@@ -31,20 +35,20 @@ impl SiemIp {
     pub fn equals(&self, val: &str) -> bool {
         match self {
             SiemIp::V4(ip1) => match ipv4_from_str(val) {
-                Ok(ip2) => return *ip1 == ip2,
+                Ok(ip2) => *ip1 == ip2,
                 Err(_) => false,
             },
             SiemIp::V6(ip1) => match ipv6_from_str(val) {
-                Ok(ip2) => return *ip1 == ip2,
+                Ok(ip2) => *ip1 == ip2,
                 Err(_) => false,
             },
         }
     }
     pub fn from_ip_str(val: &str) -> Result<SiemIp, &'static str> {
-        match ipv4_from_str(&val) {
+        match ipv4_from_str(val) {
             Ok(val) => Ok(SiemIp::V4(val)),
             Err(_) => {
-                let ip = ipv6_from_str(&val)?;
+                let ip = ipv6_from_str(val)?;
                 Ok(SiemIp::V6(ip))
             }
         }
@@ -152,7 +156,7 @@ impl std::hash::Hash for SiemIp {
 #[cfg(test)]
 mod tst {
     use super::*;
-    
+
     #[test]
     fn test_equals_between_ips() {
         assert_eq!(SiemIp::V4(111), SiemIp::V4(111));
