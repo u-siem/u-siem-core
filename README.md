@@ -1,5 +1,6 @@
-# u-siem-core
-[![Documentation](https://docs.rs/u-siem/badge.svg)](https://docs.rs/u-siem) ![crates.io](https://img.shields.io/crates/v/u-siem.svg) ![workflow](https://github.com/u-siem/u-siem-core/actions/workflows/rust.yml/badge.svg)
+# uSIEM
+
+[![crates.io](https://img.shields.io/crates/v/u-siem.svg?style=for-the-badge&logo=rust)](https://crates.io/crates/u-siem-core) [![documentation](https://img.shields.io/badge/read%20the-docs-9cf.svg?style=for-the-badge&logo=docs.rs)](https://docs.rs/u-siem-core) [![MIT License](https://img.shields.io/crates/l/u-siem?style=for-the-badge)](https://github.com/u-siem/u-siem-core/blob/main/LICENSE) [![Rust](https://img.shields.io/github/actions/workflow/status/u-siem/u-siem-core/rust.yml?style=for-the-badge)](https://github.com/u-siem/u-siem-core/workflows/Rust/badge.svg?branch=main)
 
 Framework definitions that allow building a custom SIEM. Code you own SIEM like you code your own web page.
 
