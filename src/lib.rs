@@ -15,7 +15,7 @@ pub mod prelude {
         alert, alert::*, command, command::*, command_types, command_types::*, common, common::*,
         dataset, dataset::*, enrichment, enrichment::*, kernel_message, kernel_message::*, metrics,
         metrics::*, mitre, mitre::*, parsing, parsing::*, rule, rule::*, storage, storage::*, task,
-        SiemComponent, SiemDatasetManager, SiemRuleEngine,
+        SiemComponent, SiemDatasetManager, SiemRuleEngine, simplified::*
     };
 
     pub use crate::err::*;
@@ -23,6 +23,6 @@ pub mod prelude {
         auth::*, common::*, dhcp::*, dns::*, field::*, firewall::*, intrusion::*, ip::SiemIp,
         protocol::*, schema::*, webproxy::*, webserver::*, *,
     };
-    pub use crate::utilities::*;
+    pub use crate::utilities::{*, types::LogString};
     pub use crate::{debug, error, info, log, warn};
 }

@@ -10,14 +10,20 @@ pub enum PreStoredField<T> {
     Some(T),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Deserialize, Debug, Clone, Default)]
 pub struct InternalField {
     pub original: SiemField,
+    #[serde(skip)]
     pub array: Box<PreStoredField<Vec<LogString>>>,
+    #[serde(skip)]
     pub text: Box<PreStoredField<LogString>>,
+    #[serde(skip)]
     pub nu64: Box<PreStoredField<u64>>,
+    #[serde(skip)]
     pub ni64: Box<PreStoredField<i64>>,
+    #[serde(skip)]
     pub nf64: Box<PreStoredField<f64>>,
+    #[serde(skip)]
     pub ip: Box<PreStoredField<SiemIp>>,
 }
 
@@ -46,5 +52,26 @@ impl From<SiemField> for InternalField {
             _ => {}
         }
         ifield
+    }
+}
+
+impl Serialize for InternalField {
+    fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer {
+        match &self.original {
+            SiemField::Null => s.serialize_none(),
+            SiemField::Text(v) => s.serialize_str(&v),
+            SiemField::IP(v) => v.serialize(s),
+            SiemField::Domain(v) => v.serialize(s),
+            SiemField::User(v) => v.serialize(s),
+            SiemField::AssetID(v) => v.serialize(s),
+            SiemField::U64(v) => v.serialize(s),
+            SiemField::I64(v) => v.serialize(s),
+            SiemField::F64(v) => v.serialize(s),
+            SiemField::Date(v) => v.serialize(s),
+            SiemField::Array(v) => v.serialize(s),
+            SiemField::Path(v) => v.serialize(s),
+        }
     }
 }

@@ -443,6 +443,29 @@ impl<'a> TryFrom<&'a SiemDataset> for &'a GeoIpSynDataset {
     }
 }
 
+impl TryFrom<SiemDataset> for I18nSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: SiemDataset) -> Result<Self, Self::Error> {
+        if let SiemDataset::I18n(v) = value {
+            Ok(v)
+        } else {
+            Err("I18nSynDataset is only valid for I18n dataset!")
+        }
+    }
+}
+impl<'a> TryFrom<&'a SiemDataset> for &'a I18nSynDataset {
+    type Error = &'static str;
+
+    fn try_from(value: &'a SiemDataset) -> Result<Self, Self::Error> {
+        if let SiemDataset::I18n(v) = value {
+            Ok(v)
+        } else {
+            Err("I18nSynDataset is only valid for I18n dataset!")
+        }
+    }
+}
+
 impl TryFrom<(SiemDatasetType, IpMapSynDataset)> for SiemDataset {
     type Error = &'static str;
 
