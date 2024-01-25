@@ -43,8 +43,42 @@ impl IpSetSynDataset {
         // Todo improve with cached content
         self.dataset.contains(ip)
     }
+    pub fn inner(&self) -> &IpSetDataset {
+        self.dataset.as_ref()
+    }
+    pub fn apply_updates(&self, updates : Vec<UpdateIpSet>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new  = match first {
+            UpdateIpSet::Add(a) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a);
+                dataset
+            },
+            UpdateIpSet::Remove(v) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(&v);
+                dataset
+            },
+            UpdateIpSet::Replace(v) => v,
+        };
+        for update in iter {
+            match update {
+                UpdateIpSet::Add(a) => {
+                    new.insert(a);
+                },
+                UpdateIpSet::Remove(v) => {
+                    new.remove(&v);
+                },
+                UpdateIpSet::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct IpSetDataset {
     data4: BTreeSet<u32>,
     data6: BTreeSet<u128>,
@@ -81,6 +115,13 @@ impl IpSetDataset {
     }
     pub fn internal_ref(&self) -> (&BTreeSet<u32>, &BTreeSet<u128>) {
         (&self.data4, &self.data6)
+    }
+
+    pub fn remove(&mut self, ip : &SiemIp) {
+        match ip {
+            SiemIp::V4(ip) => self.data4.remove(ip),
+            SiemIp::V6(ip) => self.data6.remove(ip),
+        };
     }
 }
 

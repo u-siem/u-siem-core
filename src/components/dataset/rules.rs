@@ -57,8 +57,39 @@ impl CorrelationRulesDataset {
         // Todo improve with cached added IPs
         self.dataset.get(id)
     }
+    pub fn apply_updates(&self, updates : Vec<UpdateRules>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new = match first {
+            UpdateRules::Add(a) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a);
+                dataset
+            },
+            UpdateRules::Remove(v) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(&v);
+                dataset
+            },
+            UpdateRules::Replace(v) => v,
+        };
+        for update in iter {
+            match update {
+                UpdateRules::Add(a) => {
+                    new.insert(a);
+                },
+                UpdateRules::Remove(v) => {
+                    new.remove(&v);
+                },
+                UpdateRules::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct RulesDataset {
     rules: BTreeMap<LogString, SiemRule>,
 }
@@ -72,6 +103,9 @@ impl RulesDataset {
     }
     pub fn get(&self, id: &LogString) -> Option<&SiemRule> {
         self.rules.get(id)
+    }
+    pub fn remove(&mut self, id: &LogString) {
+        self.rules.remove(id);
     }
 }
 

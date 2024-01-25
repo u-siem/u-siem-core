@@ -48,8 +48,42 @@ impl TextMapSynDataset {
         // Todo improve with cached content
         self.dataset.get(key)
     }
+    pub fn inner(&self) -> &TextMapDataset {
+        self.dataset.as_ref()
+    }
+    pub fn apply_updates(&self, updates : Vec<UpdateTextMap>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new  = match first {
+            UpdateTextMap::Replace(v) => v,
+            UpdateTextMap::Add((a,b)) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a, b);
+                dataset
+            },
+            UpdateTextMap::Remove(a) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(&a);
+                dataset
+            }
+        };
+        for update in iter {
+            match update {
+                UpdateTextMap::Add((a,b)) => {
+                    new.insert(a, b);
+                },
+                UpdateTextMap::Remove(a) => {
+                    new.remove(&a);
+                },
+                UpdateTextMap::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct TextMapDataset {
     data: BTreeMap<LogString, LogString>,
 }
@@ -69,6 +103,9 @@ impl TextMapDataset {
     }
     pub fn internal_ref(&self) -> &BTreeMap<LogString, LogString> {
         &self.data
+    }
+    pub fn remove(&mut self, key : &str) {
+        self.data.remove(key);
     }
 }
 

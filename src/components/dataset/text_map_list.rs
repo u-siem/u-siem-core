@@ -43,6 +43,9 @@ impl TextMapListSynDataset {
         // Todo improve with cached content
         self.dataset.get(key)
     }
+    pub fn inner(&self) -> &TextMapListDataset {
+        self.dataset.as_ref()
+    }
 }
 #[derive(Serialize, Debug, Default)]
 pub struct TextMapListDataset {

@@ -45,8 +45,39 @@ impl IpMapListSynDataset {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
+    pub fn apply_updates(&self, updates : Vec<UpdateIpMapList>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new = match first {
+            UpdateIpMapList::Add((a,b)) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a, b);
+                dataset
+            },
+            UpdateIpMapList::Remove(v) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(&v);
+                dataset
+            },
+            UpdateIpMapList::Replace(v) => v,
+        };
+        for update in iter {
+            match update {
+                UpdateIpMapList::Add((a,b)) => {
+                    new.insert(a, b);
+                },
+                UpdateIpMapList::Remove(v) => {
+                    new.remove(&v);
+                },
+                UpdateIpMapList::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct IpMapListDataset {
     data4: BTreeMap<u32, Vec<LogString>>,
     data6: BTreeMap<u128, Vec<LogString>>,
@@ -79,6 +110,17 @@ impl IpMapListDataset {
         &BTreeMap<u128, Vec<LogString>>,
     ) {
         (&self.data4, &self.data6)
+    }
+
+    pub fn remove(&mut self, ip : &SiemIp) {
+        match ip {
+            SiemIp::V4(ip) => {
+                self.data4.remove(ip);
+            }
+            SiemIp::V6(ip) => {
+                self.data6.remove(ip);
+            }
+        }
     }
 }
 

@@ -28,6 +28,8 @@ use text_map::{TextMapSynDataset, UpdateTextMap};
 use text_map_list::{TextMapListSynDataset, UpdateTextMapList};
 use text_set::{TextSetSynDataset, UpdateTextSet};
 
+use self::rules::{CorrelationRulesDataset, UpdateRules};
+
 /// Commonly used datasets. They are filled with the information extracted form logs, from the CMDB, from user commands or from repetitive Task like GeoIP.
 /// Dataset are used, but not exclusivally, in the enrichment phase.
 ///
@@ -35,7 +37,7 @@ use text_set::{TextSetSynDataset, UpdateTextSet};
 #[non_exhaustive]
 pub enum SiemDataset {
     /// Correlation Rules that can be updated in real-time
-    CorrelationRules(GeoIpSynDataset),
+    CorrelationRules(CorrelationRulesDataset),
     /// Map IP to country, city, latitude and longitude
     GeoIp(GeoIpSynDataset),
     /// IP associated with a MAC address
@@ -950,6 +952,6 @@ pub enum UpdateDataset {
     Configuration(UpdateTextMap),
     Secrets(UpdateTextMap),
     HostVulnerable(UpdateTextMapList),
-    CorrelationRules(UpdateGeoIp),
+    CorrelationRules(UpdateRules),
     I18n(UpdateI18n),
 }

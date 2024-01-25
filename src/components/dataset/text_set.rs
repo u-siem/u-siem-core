@@ -47,6 +47,9 @@ impl TextSetSynDataset {
         // Todo improve with cached content
         self.dataset.contains(val)
     }
+    pub fn inner(&self) -> &TextSetDataset {
+        self.dataset.as_ref()
+    }
 }
 #[derive(Serialize, Debug, Default)]
 pub struct TextSetDataset {

@@ -43,8 +43,42 @@ impl IpNetSynDataset {
         // Todo improve with cached content
         self.dataset.get(ip)
     }
+    pub fn inner(&self) -> &IpNetDataset {
+        self.dataset.as_ref()
+    }
+    pub fn apply_updates(&self, updates : Vec<UpdateNetIp>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new  = match first {
+            UpdateNetIp::Replace(v) => v,
+            UpdateNetIp::Add((a,b, c)) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a, b, c);
+                dataset
+            },
+            UpdateNetIp::Remove((a,b)) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(a, b);
+                dataset
+            }
+        };
+        for update in iter {
+            match update {
+                UpdateNetIp::Add((a,b, c)) => {
+                    new.insert(a, b, c);
+                },
+                UpdateNetIp::Remove((a,b)) => {
+                    new.remove(a,b);
+                },
+                UpdateNetIp::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct IpNetDataset {
     data4: BTreeMap<u32, BTreeMap<u32, LogString>>,
     data6: BTreeMap<u32, BTreeMap<u128, LogString>>,
@@ -125,6 +159,26 @@ impl IpNetDataset {
                     }
                 }
                 None
+            }
+        }
+    }
+    pub fn remove(&mut self, ip : SiemIp, net : u8) {
+        match ip {
+            SiemIp::V4(ip) => {
+                let map = match self.data4.get_mut(&(net as u32)) {
+                    Some(v) => v,
+                    None => return
+                };
+                let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
+                map.remove(&ip_net);
+            }
+            SiemIp::V6(ip) => {
+                let map = match self.data6.get_mut(&(net as u32)) {
+                    Some(v) => v,
+                    None => return
+                };
+                let ip_net = ip & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
+                map.remove(&ip_net);
             }
         }
     }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::events::ip::SiemIp;
+use crate::{events::ip::SiemIp, prelude::LogString};
 
 use super::{
     common::UserRole,
@@ -55,17 +55,24 @@ pub struct IsolateIp {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UseCaseDefinition {
     /// Name of the Use Case
-    pub name: String,
+    pub name: LogString,
     /// Description of the Use Case and what is intended
-    pub description: String,
+    pub description: LogString,
     /// Abstraction of the logic involved
-    pub case_logic: String,
+    pub case_logic: LogString,
     /// What cannot detect this use case
-    pub limitations: String,
+    pub limitations: LogString,
     /// Device requirements: Product, Service, Category => AND conditioned
-    pub requirements: (Option<String>, Option<String>, Option<String>),
+    pub requirements: Requirements,
     /// Rule for detecting this Use Case. Only the name
-    pub rule: String,
+    pub rule: LogString,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Requirements {
+    pub product : Option<LogString>,
+    pub service : Option<LogString>,
+    pub category : Option<LogString>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
