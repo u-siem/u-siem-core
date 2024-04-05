@@ -1,5 +1,5 @@
 use crate::prelude::types::LogString;
-use crate::prelude::SiemIp;
+
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -8,8 +8,8 @@ use std::vec::Vec;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpMapList {
-    Add((SiemIp, Vec<LogString>)),
-    Remove(SiemIp),
+    Add((std::net::IpAddr, Vec<LogString>)),
+    Remove(std::net::IpAddr),
     Replace(IpMapListDataset),
 }
 #[derive(Debug, Clone)]
@@ -29,11 +29,11 @@ impl IpMapListSynDataset {
         }
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&self, ip: SiemIp, data: Vec<LogString>) {
+    pub fn insert(&self, ip: std::net::IpAddr, data: Vec<LogString>) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMapList::Add((ip, data)));
     }
-    pub fn remove(&self, ip: SiemIp) {
+    pub fn remove(&self, ip: std::net::IpAddr) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMapList::Remove(ip));
     }
@@ -41,9 +41,9 @@ impl IpMapListSynDataset {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMapList::Replace(data));
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&Vec<LogString>> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&Vec<LogString>> {
         // Todo improve with cached content
-        self.dataset.get(ip)
+        self.dataset.get(&(*ip).into())
     }
     pub fn apply_updates(&self, updates : Vec<UpdateIpMapList>) -> Self {
         let mut iter = updates.into_iter();
@@ -87,20 +87,20 @@ impl IpMapListDataset {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert(&mut self, ip: SiemIp, data: Vec<LogString>) {
+    pub fn insert(&mut self, ip: std::net::IpAddr, data: Vec<LogString>) {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.insert(ip, data);
+            std::net::IpAddr::V4(ip) => {
+                self.data4.insert(ip.into(), data);
             }
-            SiemIp::V6(ip) => {
-                self.data6.insert(ip, data);
+            std::net::IpAddr::V6(ip) => {
+                self.data6.insert(ip.into(), data);
             }
         }
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&Vec<LogString>> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&Vec<LogString>> {
         match ip {
-            SiemIp::V4(ip) => self.data4.get(ip),
-            SiemIp::V6(ip) => self.data6.get(ip),
+            std::net::IpAddr::V4(ip) => self.data4.get(&(*ip).into()),
+            std::net::IpAddr::V6(ip) => self.data6.get(&(*ip).into()),
         }
     }
     pub fn internal_ref(
@@ -112,13 +112,13 @@ impl IpMapListDataset {
         (&self.data4, &self.data6)
     }
 
-    pub fn remove(&mut self, ip : &SiemIp) {
+    pub fn remove(&mut self, ip : &std::net::IpAddr) {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.remove(ip);
+            std::net::IpAddr::V4(ip) => {
+                self.data4.remove(&(*ip).into());
             }
-            SiemIp::V6(ip) => {
-                self.data6.remove(ip);
+            std::net::IpAddr::V6(ip) => {
+                self.data6.remove(&(*ip).into());
             }
         }
     }
@@ -127,19 +127,21 @@ impl IpMapListDataset {
 #[cfg(test)]
 mod tests {
 
+    use std::str::FromStr;
+
     use super::*;
     #[test]
     fn should_find_info_of_ip_in_map() {
         let mut dataset = IpMapListDataset::new();
         dataset.insert(
-            SiemIp::from_ip_str("192.168.1.1").unwrap(),
+            std::net::IpAddr::from_str("192.168.1.1").unwrap(),
             vec![
                 LogString::Borrowed("Local IP "),
                 LogString::Borrowed("Remote IP"),
             ],
         );
         assert_eq!(
-            dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.get(&std::net::IpAddr::from_str("192.168.1.1").unwrap()),
             Some(
                 &(vec![
                     LogString::Borrowed("Local IP "),

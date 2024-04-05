@@ -1,14 +1,14 @@
 use super::protocol::NetworkProtocol;
-use super::{field_dictionary::*, ip::SiemIp};
+use super::{field_dictionary::*, };
 use crate::prelude::{types::LogString, SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IntrusionEvent {
     /// Ip that started the connection
-    pub source_ip: SiemIp,
+    pub source_ip: std::net::IpAddr,
     /// IP that received the connection
-    pub destination_ip: SiemIp,
+    pub destination_ip: std::net::IpAddr,
     pub source_port: u16,
     pub destination_port: u16,
     pub network_protocol: NetworkProtocol,
@@ -21,10 +21,10 @@ pub struct IntrusionEvent {
 }
 
 impl IntrusionEvent {
-    pub fn source_ip(&self) -> &SiemIp {
+    pub fn source_ip(&self) -> &std::net::IpAddr {
         &self.source_ip
     }
-    pub fn destination_ip(&self) -> &SiemIp {
+    pub fn destination_ip(&self) -> &std::net::IpAddr {
         &self.destination_ip
     }
     pub fn network_protocol(&self) -> &NetworkProtocol {

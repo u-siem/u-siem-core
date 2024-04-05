@@ -1,11 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{events::ip::SiemIp, prelude::LogString};
+use crate::{mitre::{MitreTactics, MitreTechniques}, prelude::LogString};
 
-use super::{
-    common::UserRole,
-    mitre::{MitreTactics, MitreTechniques},
-};
+use super::common::UserRole;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParserDefinition {
@@ -38,7 +35,7 @@ pub struct FilterDomain {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FilterIp {
-    pub ip: SiemIp,
+    pub ip: std::net::IpAddr,
     pub comment: String,
 }
 
@@ -49,7 +46,7 @@ pub struct IsolateEndpoint {
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IsolateIp {
-    pub ip: SiemIp,
+    pub ip: std::net::IpAddr,
     pub comment: String,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -4,7 +4,7 @@ use serde::{
 };
 use std::{collections::BTreeMap, future::Future, pin::Pin};
 
-use crate::prelude::{holder::DatasetHolder, types::LogString, SiemResult};
+use crate::prelude::{store::DatasetStore, types::LogString, SiemResult};
 
 use super::common::UserRole;
 
@@ -20,7 +20,7 @@ pub trait TaskBuilder2: std::fmt::Debug {
 
 pub type TaskBuilder = fn(
     SiemTask,
-    &DatasetHolder,
+    &DatasetStore,
 ) -> SiemResult<Pin<Box<dyn Future<Output = SiemTaskResult> + Send>>>;
 
 #[derive(Serialize)]
@@ -165,7 +165,7 @@ impl<'de> Visitor<'de> for TaskDefinitionVisitor {
             min_permission,
             fire_mode,
             max_duration,
-            |task: SiemTask, _datasets: &DatasetHolder| {
+            |task: SiemTask, _datasets: &DatasetStore| {
                 Ok(Box::pin(async move {
                     SiemTaskResult {
                         data: Some(Ok("OK".into())),
@@ -275,7 +275,7 @@ pub struct SiemTaskResult {
 
 #[test]
 fn task_builder_should_generate_async_task() {
-    let builder: TaskBuilder = |task: SiemTask, _datasets: &DatasetHolder| {
+    let builder: TaskBuilder = |task: SiemTask, _datasets: &DatasetStore| {
         Ok(Box::pin(async move {
             SiemTaskResult {
                 data: Some(Ok(format!("OK"))),
@@ -291,7 +291,7 @@ fn task_builder_should_generate_async_task() {
         id: 12345,
         data: SiemTaskData::REPORT_ABUSE(BTreeMap::new()),
     };
-    let dataset = DatasetHolder::default();
+    let dataset = DatasetStore::default();
     let task = builder(task, &dataset).unwrap();
 
     async_std::task::block_on(async move {

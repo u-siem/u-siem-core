@@ -8,7 +8,6 @@ pub mod field_dictionary;
 pub mod firewall;
 pub mod ifield;
 pub mod intrusion;
-pub mod ip;
 pub mod log;
 pub mod path;
 pub mod protocol;
@@ -18,5 +17,4 @@ pub mod webproxy;
 pub mod webserver;
 
 pub use event::SiemEvent;
-pub use ip::SiemIp;
 pub use log::{EventFieldIter, EventIter, EventIterMut, SiemLog};

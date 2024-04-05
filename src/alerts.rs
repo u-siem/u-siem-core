@@ -1,5 +1,6 @@
+use crate::{events::SiemLog, utils::types::LogString};
+
 use super::mitre::MitreTechniques;
-use super::SiemLog;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -14,20 +15,20 @@ pub enum AlertSeverity {
 /// Basic Alert format
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SiemAlert {
-    pub title: String,
-    pub description: String,
+    pub title: LogString,
+    pub description: LogString,
     /// Severity of the alert
     pub severity: AlertSeverity,
     /// When the alert was generated
     pub date: i64,
     /// List of tags to be added to the alert
-    pub tags: Vec<String>,
+    pub tags: Vec<LogString>,
     /// List of MitreAtack Techniques
     pub techniques: Vec<MitreTechniques>,
     /// Name of the rule that generated the alert
-    pub rule: String,
-    /// The log that triggered this alert
-    pub log: SiemLog,
+    pub rule: LogString,
+    /// List of logs that triggered this alert
+    pub log: Vec<SiemLog>,
     pub aggregation: Option<AlertAggregation>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -1,33 +1,31 @@
+use crate::prelude::store::DatasetStore;
 use crate::prelude::types::LogString;
-use crate::prelude::SiemResult;
+use crate::prelude::{SiemDatasetType, SiemResult};
 use crossbeam_channel::{Receiver, Sender};
 
-use self::dataset::holder::DatasetHolder;
+use self::command::SiemCommandCall;
 
 use super::events::SiemLog;
 use common::{SiemComponentCapabilities, SiemMessage};
-use dataset::SiemDatasetType;
 use std::boxed::Box;
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use storage::SiemComponentStateStorage;
 
-pub mod alert;
 pub mod command;
 pub mod command_types;
 pub mod common;
-pub mod dataset;
-pub mod enrichment;
 pub mod kernel_message;
 pub mod metrics;
-pub mod mitre;
-pub mod parsing;
+pub mod messages;
+pub mod mailbox;
+
 pub mod query;
-pub mod rule;
 pub mod storage;
 pub mod task;
 pub mod use_case;
 pub mod simplified;
+
 pub trait SiemComponent: Send {
     fn name(&self) -> &'static str {
         "SiemComponent"
@@ -50,7 +48,7 @@ pub trait SiemComponent: Send {
     fn duplicate(&self) -> Box<dyn SiemComponent>;
 
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets: DatasetHolder);
+    fn set_datasets(&mut self, datasets: DatasetStore);
 }
 
 pub trait SiemDatasetManager: Send {
@@ -72,10 +70,66 @@ pub trait SiemDatasetManager: Send {
 
     /// Get the list of datasets to initialize components.
     /// This must be the live version of the datasets shared only between the DatasetManager and the Kernel
-    fn get_datasets(&self) -> Arc<Mutex<DatasetHolder>>;
+    fn get_datasets(&self) -> Arc<Mutex<DatasetStore>>;
 }
 
 pub trait SiemRuleEngine: SiemComponent {
     /// Sets the dictionary of languages to generate the different alerts of the rules
     fn set_languages(&mut self, languages: BTreeMap<LogString, BTreeMap<LogString, LogString>>);
+}
+
+#[allow(unused_variables)]
+pub trait Component : Sized + Send {
+    type Context : ComponentContext;
+
+    /// Called when a components is going to start execution
+    fn init(&mut self, ctx: &mut Self::Context) {}
+
+    /// Called before initializing the component. 
+    /// The component would need the datasets when initializing itself.
+    fn datasets(&mut self, datasets : ()) {}
+
+    /// Called after a component is in `Stopping` state.
+    ///
+    /// A component can return from the stopping state to the running
+    /// state by returning `Running::Continue`.
+    fn stopping(&mut self, ctx: &mut Self::Context) -> Running {
+        Running::Stop
+    }
+
+    /// Called after a component is stopped.
+    fn stopped(&mut self, ctx: &mut Self::Context) {}
+}
+
+
+/// Component execution context.
+///
+/// Each component runs within a specific execution context. 
+///
+/// The execution context defines the type of execution, and the
+/// component communication channels (message handling).
+pub trait ComponentContext: Sized {
+    /// Immediately stop processing incoming messages
+    fn stop(&mut self);
+
+    /// Terminate component execution unconditionally.
+    fn terminate(&mut self);
+
+    /// Retrieve the current Component execution state.
+    fn state(&self) -> ComponentState;
+}
+
+/// Component execution state
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum ComponentState {
+    Started,
+    Running,
+    Stopping,
+    Stopped,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Running {
+    Stop,
+    Continue,
 }

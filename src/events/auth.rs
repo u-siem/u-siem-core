@@ -1,4 +1,6 @@
-use crate::prelude::{types::LogString, SiemField, SiemIp, SiemLog};
+use std::str::FromStr;
+
+use crate::prelude::{types::LogString, SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
 use super::field_dictionary::*;
@@ -198,7 +200,7 @@ impl From<AuthEvent> for SiemLog {
             AuthLoginType::Remote(evnt) => {
                 log.add_field(USER_NAME, SiemField::User(evnt.user_name.to_string()));
                 log.add_field(USER_DOMAIN, SiemField::Domain(evnt.domain.to_string()));
-                if let Ok(ip) = SiemIp::from_ip_str(&evnt.source_address) {
+                if let Ok(ip) = std::net::IpAddr::from_str(&evnt.source_address) {
                     log.add_field(SOURCE_IP, SiemField::IP(ip));
                 };
                 log.add_field("source.address", SiemField::Text(evnt.source_address));
@@ -219,7 +221,7 @@ impl From<AuthEvent> for SiemLog {
             }
             AuthLoginType::Validation(evnt) => {
                 log.add_field(USER_NAME, SiemField::User(evnt.user_name.to_string()));
-                if let Ok(ip) = SiemIp::from_ip_str(&evnt.source_address) {
+                if let Ok(ip) = std::net::IpAddr::from_str(&evnt.source_address) {
                     log.add_field("source.ip", SiemField::IP(ip));
                 };
                 log.add_field("source.address", SiemField::Text(evnt.source_address));

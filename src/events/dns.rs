@@ -1,14 +1,14 @@
 use crate::prelude::{types::LogString, SiemField, SiemLog};
 
-use super::{field_dictionary::*, ip::SiemIp};
+use super::{field_dictionary::*, };
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DnsEvent {
     /// Client that queried
-    pub source_ip: SiemIp,
+    pub source_ip: std::net::IpAddr,
     /// Server that answered the question
-    pub destination_ip: SiemIp,
+    pub destination_ip: std::net::IpAddr,
     /// Answer or question
     pub op_code: DnsEventType,
     /// dns.question.type or dns.answer.type
@@ -19,10 +19,10 @@ pub struct DnsEvent {
 }
 
 impl DnsEvent {
-    pub fn source_ip(&self) -> &SiemIp {
+    pub fn source_ip(&self) -> &std::net::IpAddr {
         &self.source_ip
     }
-    pub fn destination_ip(&self) -> &SiemIp {
+    pub fn destination_ip(&self) -> &std::net::IpAddr {
         &self.destination_ip
     }
     pub fn op_code(&self) -> &DnsEventType {

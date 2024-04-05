@@ -1,11 +1,12 @@
 use crate::prelude::types::LogString;
-use crate::prelude::SiemIp;
+
 use chrono::NaiveDateTime;
 use chrono::SecondsFormat;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(untagged)]
@@ -16,7 +17,7 @@ pub enum SiemField {
     /// A basic String field
     Text(LogString),
     /// IPv4 or IPv6
-    IP(SiemIp),
+    IP(std::net::IpAddr),
     //Domain like contoso.com
     Domain(String),
     User(String),
@@ -304,11 +305,11 @@ impl<'a> TryInto<f64> for &'a SiemField {
     }
 }
 
-impl<'a> TryInto<SiemIp> for &'a SiemField {
+impl<'a> TryInto<std::net::IpAddr> for &'a SiemField {
     type Error = &'static str;
-    fn try_into(self) -> Result<SiemIp, Self::Error> {
+    fn try_into(self) -> Result<std::net::IpAddr, Self::Error> {
         Ok(match self {
-            SiemField::Text(v) => SiemIp::from_ip_str(v).map_err(|_e| "Invalud ip format")?,
+            SiemField::Text(v) => std::net::IpAddr::from_str(v).map_err(|_e| "Invalud ip format")?,
             SiemField::IP(v) => *v,
             _ => return Err("Type cannot be converted to Ip"),
         })
@@ -372,13 +373,13 @@ impl From<f64> for SiemField {
         SiemField::F64(v)
     }
 }
-impl From<SiemIp> for SiemField {
-    fn from(v: SiemIp) -> SiemField {
+impl From<std::net::IpAddr> for SiemField {
+    fn from(v: std::net::IpAddr) -> SiemField {
         SiemField::IP(v)
     }
 }
-impl From<&SiemIp> for SiemField {
-    fn from(v: &SiemIp) -> SiemField {
+impl From<&std::net::IpAddr> for SiemField {
+    fn from(v: &std::net::IpAddr) -> SiemField {
         SiemField::IP(*v)
     }
 }
@@ -393,9 +394,32 @@ impl From<&Vec<LogString>> for SiemField {
     }
 }
 
+impl From<std::net::Ipv4Addr> for SiemField {
+    fn from(value: std::net::Ipv4Addr) -> Self {
+        Self::IP(value.into())
+    }
+}
+impl From<&std::net::Ipv4Addr> for SiemField {
+    fn from(value: &std::net::Ipv4Addr) -> Self {
+        Self::IP((*value).into())
+    }
+}
+impl From<std::net::Ipv6Addr> for SiemField {
+    fn from(value: std::net::Ipv6Addr) -> Self {
+        Self::IP(value.into())
+    }
+}
+impl From<&std::net::Ipv6Addr> for SiemField {
+    fn from(value: &std::net::Ipv6Addr) -> Self {
+        Self::IP((*value).into())
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::prelude::SiemIp;
+    
+
+    use std::str::FromStr;
 
     use super::*;
     #[test]
@@ -404,7 +428,7 @@ mod tests {
         let field_domain = SiemField::Domain(String::from("TEXT_001"));
         assert_eq!(field_text, field_domain);
         let field_text = SiemField::Text(LogString::Borrowed("0.0.0.0"));
-        let field_ip = SiemField::IP(SiemIp::V4(0));
+        let field_ip = SiemField::IP(std::net::IpAddr::from_str("0.0.0.0").unwrap());
         assert_eq!(field_text, field_ip);
         let field_text = SiemField::Text(LogString::Borrowed("123"));
         let field_ip = SiemField::U64(123);

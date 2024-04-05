@@ -1,13 +1,14 @@
-use crate::prelude::SiemIp;
+
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeSet;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use std::sync::Arc;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpSet {
-    Add(SiemIp),
-    Remove(SiemIp),
+    Add(std::net::IpAddr),
+    Remove(std::net::IpAddr),
     Replace(IpSetDataset),
 }
 #[derive(Debug, Clone)]
@@ -27,11 +28,11 @@ impl IpSetSynDataset {
         }
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&self, ip: SiemIp) {
+    pub fn insert(&self, ip: std::net::IpAddr) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpSet::Add(ip));
     }
-    pub fn remove(&self, ip: SiemIp) {
+    pub fn remove(&self, ip: std::net::IpAddr) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpSet::Remove(ip));
     }
@@ -39,7 +40,7 @@ impl IpSetSynDataset {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpSet::Replace(data));
     }
-    pub fn contains(&self, ip: &SiemIp) -> bool {
+    pub fn contains(&self, ip: &std::net::IpAddr) -> bool {
         // Todo improve with cached content
         self.dataset.contains(ip)
     }
@@ -80,8 +81,8 @@ impl IpSetSynDataset {
 }
 #[derive(Serialize, Debug, Clone)]
 pub struct IpSetDataset {
-    data4: BTreeSet<u32>,
-    data6: BTreeSet<u128>,
+    data4: BTreeSet<Ipv4Addr>,
+    data6: BTreeSet<Ipv6Addr>,
 }
 
 impl Default for IpSetDataset {
@@ -97,43 +98,46 @@ impl IpSetDataset {
             data6: BTreeSet::new(),
         }
     }
-    pub fn insert(&mut self, ip: SiemIp) {
+    pub fn insert(&mut self, ip: std::net::IpAddr) {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.insert(ip);
+            std::net::IpAddr::V4(ip) => {
+                self.data4.insert(ip.into());
             }
-            SiemIp::V6(ip) => {
-                self.data6.insert(ip);
+            std::net::IpAddr::V6(ip) => {
+                self.data6.insert(ip.into());
             }
         }
     }
-    pub fn contains(&self, ip: &SiemIp) -> bool {
+    pub fn contains(&self, ip: &std::net::IpAddr) -> bool {
         match ip {
-            SiemIp::V4(ip) => self.data4.contains(ip),
-            SiemIp::V6(ip) => self.data6.contains(ip),
+            std::net::IpAddr::V4(ip) => self.data4.contains(ip),
+            std::net::IpAddr::V6(ip) => self.data6.contains(ip),
         }
     }
-    pub fn internal_ref(&self) -> (&BTreeSet<u32>, &BTreeSet<u128>) {
+    pub fn internal_ref(&self) -> (&BTreeSet<Ipv4Addr>, &BTreeSet<Ipv6Addr>) {
         (&self.data4, &self.data6)
     }
 
-    pub fn remove(&mut self, ip : &SiemIp) {
+    pub fn remove(&mut self, ip : &std::net::IpAddr) {
         match ip {
-            SiemIp::V4(ip) => self.data4.remove(ip),
-            SiemIp::V6(ip) => self.data6.remove(ip),
+            std::net::IpAddr::V4(ip) => self.data4.remove(&(*ip).into()),
+            std::net::IpAddr::V6(ip) => self.data6.remove(&(*ip).into()),
         };
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
+    
     #[test]
     fn should_be_in_set() {
         let mut dataset = IpSetDataset::new();
-        dataset.insert(SiemIp::from_ip_str("192.168.1.1").unwrap());
+        dataset.insert(std::net::IpAddr::from_str("192.168.1.1").unwrap());
         assert_eq!(
-            dataset.contains(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.contains(&std::net::IpAddr::from_str("192.168.1.1").unwrap()),
             true
         );
     }

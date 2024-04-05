@@ -50,8 +50,39 @@ impl TextSetSynDataset {
     pub fn inner(&self) -> &TextSetDataset {
         self.dataset.as_ref()
     }
+    pub fn apply_updates(&self, updates : Vec<UpdateTextSet>) -> Self {
+        let mut iter = updates.into_iter();
+        let first = iter.next().unwrap();
+        let mut new  = match first {
+            UpdateTextSet::Replace(v) => v,
+            UpdateTextSet::Add(a) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.insert(a);
+                dataset
+            },
+            UpdateTextSet::Remove(a) => {
+                let mut dataset = self.dataset.as_ref().clone();
+                dataset.remove(&a);
+                dataset
+            }
+        };
+        for update in iter {
+            match update {
+                UpdateTextSet::Add(a) => {
+                    new.insert(a);
+                },
+                UpdateTextSet::Remove(a) => {
+                    new.remove(&a);
+                },
+                UpdateTextSet::Replace(v) => {
+                    new = v;
+                },
+            };
+        }
+        Self::new(Arc::new(new), self.comm.clone())
+    }
 }
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct TextSetDataset {
     data: BTreeSet<LogString>,
 }
@@ -71,6 +102,9 @@ impl TextSetDataset {
     }
     pub fn internal_ref(&self) -> &BTreeSet<LogString> {
         &self.data
+    }
+    pub fn remove(&mut self, key : &str) {
+        self.data.remove(key);
     }
 }
 

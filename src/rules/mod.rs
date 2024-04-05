@@ -1,8 +1,8 @@
-use crate::prelude::holder::DatasetHolder;
-use crate::prelude::{AlertAggregation, AlertSeverity, SiemField, SiemIp, SiemLog};
+use crate::prelude::store::DatasetStore;
+use crate::prelude::{AlertAggregation, AlertSeverity, SiemField, SiemLog};
 
-use super::dataset::SiemDatasetType;
-use super::mitre::{MitreTactics, MitreTechniques};
+use super::datasets::SiemDatasetType;
+use crate::mitre::{MitreTactics, MitreTechniques};
 use crate::prelude::types::LogString;
 use regex::Regex;
 use serde::{de, Deserialize, Serialize, Serializer};
@@ -90,7 +90,7 @@ pub enum RuleOperator {
         deserialize_with = "string_to_regex"
     )]
     Matches(Regex),
-    SameNet((SiemIp, u8)),
+    SameNet((std::net::IpAddr, u8)),
     IsLocalIp(bool),
     IsExternalIp(bool),
     Exists(bool),
@@ -192,7 +192,7 @@ impl AlertDictionary {
 }
 
 impl SiemRule {
-    pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetHolder) -> bool {
+    pub fn matches(&self, log: &mut SiemLog, datasets: &DatasetStore) -> bool {
         for rule in self.subrules.as_ref().values() {
             for condition in &rule.conditions {
                 if !condition.matches(log, datasets) {
@@ -205,7 +205,7 @@ impl SiemRule {
 }
 
 impl RuleCondition {
-    pub fn matches(&self, log: &mut SiemLog, _datasets: &DatasetHolder) -> bool {
+    pub fn matches(&self, log: &mut SiemLog, _datasets: &DatasetStore) -> bool {
         let field = log.field(&self.field);
         if field.is_none() {
             match &self.operator {

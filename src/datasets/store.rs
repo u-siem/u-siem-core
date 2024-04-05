@@ -3,11 +3,11 @@ use std::collections::BTreeMap;
 
 /// The dataset holder allows access to the latest version of a dataset almost instantly without the need to check if there is an update of a dataset using a channel as was done previously.
 #[derive(Clone, Default)]
-pub struct DatasetHolder {
+pub struct DatasetStore {
     datasets: BTreeMap<SiemDatasetType, SiemDataset>,
 }
 
-impl DatasetHolder {
+impl DatasetStore {
     pub fn new() -> Self {
         Self::default()
     }

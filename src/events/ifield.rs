@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::{types::LogString, SiemField, SiemIp};
+use crate::prelude::{types::LogString, SiemField};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub enum PreStoredField<T> {
@@ -24,7 +24,7 @@ pub struct InternalField {
     #[serde(skip)]
     pub nf64: Box<PreStoredField<f64>>,
     #[serde(skip)]
-    pub ip: Box<PreStoredField<SiemIp>>,
+    pub ip: Box<PreStoredField<std::net::IpAddr>>,
 }
 
 impl From<SiemField> for InternalField {

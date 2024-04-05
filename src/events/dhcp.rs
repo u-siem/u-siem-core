@@ -1,12 +1,12 @@
 use crate::prelude::{mac::mac_u128_to_str, types::LogString, SiemField, SiemLog};
 
-use super::{field_dictionary::*, ip::SiemIp};
+use super::{field_dictionary::*, };
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DhcpEvent {
     /// Client IP address assigned, requested or cleaned
-    pub source_ip: SiemIp,
+    pub source_ip: std::net::IpAddr,
     /// Client MAC address
     pub source_mac: u128,
     /// Request or assignation
@@ -18,7 +18,7 @@ pub struct DhcpEvent {
 }
 
 impl DhcpEvent {
-    pub fn source_ip(&self) -> &SiemIp {
+    pub fn source_ip(&self) -> &std::net::IpAddr {
         &self.source_ip
     }
     pub fn source_mac(&self) -> &u128 {

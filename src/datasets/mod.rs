@@ -1,6 +1,6 @@
 pub mod calendar;
 pub mod geo_ip;
-pub mod holder;
+pub mod store;
 pub mod i18n;
 pub mod ip_map;
 pub mod ip_map_list;
@@ -126,7 +126,7 @@ impl SiemDataset {
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_ip_net_ref, ip_net::IpNetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_ip_net_ref, ip_net::IpNetSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_ip_net("MyDataset");
 /// let casted_dataset : &IpNetSynDataset = try_to_custom_map_ip_net_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -150,7 +150,7 @@ pub fn try_to_custom_map_ip_net_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_ip_net, ip_net::IpNetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_ip_net, ip_net::IpNetSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_ip_net("MyDataset");
 /// let casted_dataset : IpNetSynDataset = try_to_custom_map_ip_net(dataset, "MyDataset").unwrap();
 /// ```
@@ -174,7 +174,7 @@ pub fn try_to_custom_map_ip_net(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_ref, text_map::TextMapSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_text_ref, text_map::TextMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text("MyDataset");
 /// let casted_dataset : &TextMapSynDataset = try_to_custom_map_text_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -198,7 +198,7 @@ pub fn try_to_custom_map_text_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text, text_map::TextMapSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_text, text_map::TextMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text("MyDataset");
 /// let casted_dataset : TextMapSynDataset = try_to_custom_map_text(dataset, "MyDataset").unwrap();
 /// ```
@@ -222,7 +222,7 @@ pub fn try_to_custom_map_text(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_list_ref, text_map_list::TextMapListSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_text_list_ref, text_map_list::TextMapListSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text_list("MyDataset");
 /// let casted_dataset : &TextMapListSynDataset = try_to_custom_map_text_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -246,7 +246,7 @@ pub fn try_to_custom_map_text_list_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_map_text_list, text_map_list::TextMapListSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_map_text_list, text_map_list::TextMapListSynDataset};
 /// let dataset = SiemDataset::empty_custom_map_text_list("MyDataset");
 /// let casted_dataset : TextMapListSynDataset = try_to_custom_map_text_list(dataset, "MyDataset").unwrap();
 /// ```
@@ -271,7 +271,7 @@ pub fn try_to_custom_map_text_list(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_list_ref, ip_set::IpSetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_ip_list_ref, ip_set::IpSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_list("MyDataset");
 /// let casted_dataset : &IpSetSynDataset = try_to_custom_ip_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -295,7 +295,7 @@ pub fn try_to_custom_ip_list_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_list, ip_set::IpSetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_ip_list, ip_set::IpSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_list("MyDataset");
 /// let casted_dataset : IpSetSynDataset = try_to_custom_ip_list(dataset, "MyDataset").unwrap();
 /// ```
@@ -319,7 +319,7 @@ pub fn try_to_custom_ip_list(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_map_ref, ip_map::IpMapSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_ip_map_ref, ip_map::IpMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_map("MyDataset");
 /// let casted_dataset : &IpMapSynDataset = try_to_custom_ip_map_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -343,7 +343,7 @@ pub fn try_to_custom_ip_map_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_ip_map, ip_map::IpMapSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_ip_map, ip_map::IpMapSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_map("MyDataset");
 /// let casted_dataset : IpMapSynDataset = try_to_custom_ip_map(dataset, "MyDataset").unwrap();
 /// ```
@@ -367,7 +367,7 @@ pub fn try_to_custom_ip_map(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_text_list_ref, text_set::TextSetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_text_list_ref, text_set::TextSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_text_list("MyDataset");
 /// let casted_dataset : &TextSetSynDataset = try_to_custom_text_list_ref(&dataset, "MyDataset").unwrap();
 /// ```
@@ -391,7 +391,7 @@ pub fn try_to_custom_text_list_ref<'a>(
 /// # Example
 ///
 /// ```rust
-/// use usiem::components::dataset::{SiemDataset, try_to_custom_text_list, text_set::TextSetSynDataset};
+/// use usiem::prelude::{SiemDataset, try_to_custom_text_list, text_set::TextSetSynDataset};
 /// let dataset = SiemDataset::empty_custom_ip_text_list("MyDataset");
 /// let casted_dataset : TextSetSynDataset = try_to_custom_text_list(dataset, "MyDataset").unwrap();
 /// ```

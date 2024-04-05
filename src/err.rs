@@ -2,7 +2,7 @@ use std::io::Error as IoError;
 
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::parsing::LogParsingError;
+use crate::prelude::SiemLog;
 pub type SiemResult<T> = Result<T, SiemError>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -56,6 +56,22 @@ pub enum MessagingError {
 #[non_exhaustive]
 pub enum ComponentError {
     StopRequested,
+}
+
+
+/// Error at parsing a log
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum LogParsingError {
+    /// The parser can't be used with this log
+    NoValidParser(SiemLog),
+    /// The log is for this parser but there is a bug in the code
+    ParserError(SiemLog, String),
+    /// The log is for this parser but the submodule has not been implemented.
+    NotImplemented(SiemLog),
+    /// The log has change format the parser cant process it.
+    FormatError(SiemLog, String),
+    /// Log was discarded. It does not have utility or there are storage limitations.
+    Discard,
 }
 
 impl From<MessagingError> for SiemError {

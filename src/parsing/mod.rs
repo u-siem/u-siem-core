@@ -1,17 +1,16 @@
 use dyn_clone::{clone_trait_object, DynClone};
-use serde::{Deserialize, Serialize};
 
 use crate::{
     events::{schema::FieldSchema, SiemLog},
-    prelude::SiemIp,
+    prelude::LogParsingError,
 };
 
-use super::dataset::holder::DatasetHolder;
+use super::datasets::store::DatasetStore;
 
 /// A simple object with the logic to parse Logs.
 pub trait LogParser: DynClone + Send {
     /// Parse the log. If it fails it must give a reason why. This allow optimization of the parsing process.
-    fn parse_log(&self, log: SiemLog, datasets: &DatasetHolder)
+    fn parse_log(&self, log: SiemLog, datasets: &DatasetStore)
         -> Result<SiemLog, LogParsingError>;
     /// Name of the parser
     fn name(&self) -> &'static str;
@@ -33,7 +32,7 @@ pub trait MultilineLogParser: DynClone + Send {
     fn parse_log(
         &mut self,
         log: SiemLog,
-        datasets: &DatasetHolder,
+        datasets: &DatasetStore,
     ) -> Result<Option<SiemLog>, LogParsingError>;
     /// Name of the parser
     fn name(&self) -> &'static str;
@@ -50,21 +49,6 @@ pub trait MultilineLogParser: DynClone + Send {
 
 clone_trait_object!(MultilineLogParser);
 
-/// Error at parsing a log
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum LogParsingError {
-    /// The parser can't be used with this log
-    NoValidParser(SiemLog),
-    /// The log is for this parser but there is a bug in the code
-    ParserError(SiemLog, String),
-    /// The log is for this parser but the submodule has not been implemented.
-    NotImplemented(SiemLog),
-    /// The log has change format the parser cant process it.
-    FormatError(SiemLog, String),
-    /// Log was discarded. It does not have utility or there are storage limitations.
-    Discard,
-}
-
 pub trait LogGenerator {
     fn configure(&mut self, config: GeneratorConfig);
     /// Generate a random log
@@ -79,11 +63,11 @@ pub trait LogGenerator {
 pub struct GeneratorConfig {
     pub malicious_users: Vec<String>,
     pub user_generator: Box<dyn Fn() -> String>,
-    pub public_networks: Vec<(SiemIp, u32)>,
-    pub local_networks: Vec<(SiemIp, u32)>,
+    pub public_networks: Vec<(std::net::IpAddr, u32)>,
+    pub local_networks: Vec<(std::net::IpAddr, u32)>,
     pub domain: String,
     pub hostname_generator: Box<dyn Fn() -> String>,
-    pub malicious_ips: Vec<SiemIp>,
+    pub malicious_ips: Vec<std::net::IpAddr>,
 }
 
 impl Default for GeneratorConfig {

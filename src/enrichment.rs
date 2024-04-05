@@ -1,12 +1,11 @@
 use dyn_clone::{clone_trait_object, DynClone};
 
-use crate::components::dataset::holder::DatasetHolder;
-use crate::events::SiemLog;
+use crate::{events::SiemLog, prelude::store::DatasetStore};
 
 /// A simple object with the logic to enrich Logs
 pub trait LogEnrichment: Send + DynClone {
     /// Enrich the log with information from datasets
-    fn enrich(&self, log: SiemLog, datasets: &DatasetHolder) -> SiemLog;
+    fn enrich(&self, log: SiemLog, datasets: &DatasetStore) -> SiemLog;
     /// Name of the enricher
     fn name(&self) -> &'static str;
     /// Description of the enricher
@@ -19,7 +18,7 @@ fn check_basic_enricher_clone() {
     #[derive(Clone)]
     struct BasicLogEnricher {}
     impl LogEnrichment for BasicLogEnricher {
-        fn enrich(&self, log: SiemLog, _datasets: &DatasetHolder) -> SiemLog {
+        fn enrich(&self, log: SiemLog, _datasets: &DatasetStore) -> SiemLog {
             log
         }
 

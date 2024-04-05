@@ -1,9 +1,9 @@
+use crate::alerts::SiemAlert;
 use crate::prelude::types::LogString;
+use crate::prelude::{SiemDataset, SiemDatasetType};
 
 use super::super::events::SiemLog;
-use super::alert::SiemAlert;
 use super::command::{CommandDefinition, SiemCommandCall, SiemCommandHeader, SiemCommandResponse};
-use super::dataset::{SiemDataset, SiemDatasetType};
 use super::metrics::SiemMetricDefinition;
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use serde::{Deserialize, Serialize};

@@ -1,4 +1,4 @@
-use crate::prelude::rule::SiemRule;
+use crate::prelude::rules::SiemRule;
 use crate::prelude::types::LogString;
 use crossbeam_channel::Sender;
 use serde::Serialize;

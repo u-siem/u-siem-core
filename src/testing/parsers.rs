@@ -1,6 +1,5 @@
 use crate::prelude::{
-    holder::DatasetHolder, FieldSchema, GeneratorConfig, LogGenerator, LogParser, LogParsingError,
-    SiemField, SiemLog,
+    store::DatasetStore, FieldSchema, GeneratorConfig, LogGenerator, LogParser, LogParsingError, SiemField, SiemLog,
 };
 
 pub struct DummyLogGenerator {}
@@ -36,7 +35,7 @@ impl LogParser for DummyParserText {
     fn parse_log(
         &self,
         mut log: SiemLog,
-        _datasets: &DatasetHolder,
+        _datasets: &DatasetStore,
     ) -> Result<SiemLog, LogParsingError> {
         if !log.message().contains("DUMMY") {
             return Err(LogParsingError::NoValidParser(log));
@@ -78,7 +77,7 @@ impl LogParser for DummyParserAll {
     fn parse_log(
         &self,
         mut log: SiemLog,
-        _datasets: &DatasetHolder,
+        _datasets: &DatasetStore,
     ) -> Result<SiemLog, LogParsingError> {
         log.add_field("parser", "DummyParserAll".into());
         Ok(log)
@@ -120,7 +119,7 @@ impl LogParser for DummyParserError {
     fn parse_log(
         &self,
         log: SiemLog,
-        _datasets: &DatasetHolder,
+        _datasets: &DatasetStore,
     ) -> Result<SiemLog, LogParsingError> {
         Err(LogParsingError::ParserError(log, "Bug in parser".into()))
     }

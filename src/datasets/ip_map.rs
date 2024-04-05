@@ -1,5 +1,5 @@
 use crate::prelude::types::LogString;
-use crate::prelude::SiemIp;
+
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 #[derive(Serialize, Debug)]
 pub enum UpdateIpMap {
-    Add((SiemIp, LogString)),
-    Remove(SiemIp),
+    Add((std::net::IpAddr, LogString)),
+    Remove(std::net::IpAddr),
     Replace(IpMapDataset),
 }
 #[derive(Debug, Clone)]
@@ -28,11 +28,11 @@ impl IpMapSynDataset {
         }
     }
     /// Used to add IP with custom information like tags.
-    pub fn insert(&self, ip: SiemIp, data: LogString) {
+    pub fn insert(&self, ip: std::net::IpAddr, data: LogString) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMap::Add((ip, data)));
     }
-    pub fn remove(&self, ip: SiemIp) {
+    pub fn remove(&self, ip: std::net::IpAddr) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMap::Remove(ip));
     }
@@ -40,9 +40,9 @@ impl IpMapSynDataset {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateIpMap::Replace(data));
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&LogString> {
         // Todo improve with cached content
-        self.dataset.get(ip)
+        self.dataset.get(&(*ip).into())
     }
     pub fn inner(&self) -> &IpMapDataset {
         self.dataset.as_ref()
@@ -89,32 +89,32 @@ impl IpMapDataset {
     pub fn new() -> IpMapDataset {
         IpMapDataset::default()
     }
-    pub fn insert<S>(&mut self, ip: SiemIp, data: S)
+    pub fn insert<S>(&mut self, ip: std::net::IpAddr, data: S)
     where
         S: Into<LogString>,
     {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.insert(ip, data.into());
+            std::net::IpAddr::V4(ip) => {
+                self.data4.insert(ip.into(), data.into());
             }
-            SiemIp::V6(ip) => {
-                self.data6.insert(ip, data.into());
+            std::net::IpAddr::V6(ip) => {
+                self.data6.insert(ip.into(), data.into());
             }
         }
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&LogString> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&LogString> {
         match ip {
-            SiemIp::V4(ip) => self.data4.get(ip),
-            SiemIp::V6(ip) => self.data6.get(ip),
+            std::net::IpAddr::V4(ip) => self.data4.get(&(*ip).into()),
+            std::net::IpAddr::V6(ip) => self.data6.get(&(*ip).into()),
         }
     }
-    pub fn remove(&mut self, ip : &SiemIp) {
+    pub fn remove(&mut self, ip : &std::net::IpAddr) {
         match ip {
-            SiemIp::V4(ip) => {
-                self.data4.remove(ip);
+            std::net::IpAddr::V4(ip) => {
+                self.data4.remove(&(*ip).into());
             }
-            SiemIp::V6(ip) => {
-                self.data6.remove(ip);
+            std::net::IpAddr::V6(ip) => {
+                self.data6.remove(&(*ip).into());
             }
         }
     }
@@ -127,16 +127,18 @@ impl IpMapDataset {
 #[cfg(test)]
 mod tests {
 
+    use std::str::FromStr;
+
     use super::*;
     #[test]
     fn should_find_info_of_ip_in_map() {
         let mut dataset = IpMapDataset::new();
         dataset.insert(
-            SiemIp::from_ip_str("192.168.1.1").unwrap(),
+            std::net::IpAddr::from_str("192.168.1.1").unwrap(),
             LogString::Borrowed("Local IP "),
         );
         assert_eq!(
-            dataset.get(&SiemIp::from_ip_str("192.168.1.1").unwrap()),
+            dataset.get(&std::net::IpAddr::from_str("192.168.1.1").unwrap()),
             Some(&LogString::Borrowed("Local IP "))
         );
     }

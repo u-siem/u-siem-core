@@ -1,4 +1,4 @@
-use crate::prelude::SiemIp;
+
 use crossbeam_channel::Sender;
 use serde::ser::SerializeStruct;
 use serde::Serialize;
@@ -9,8 +9,8 @@ use super::GeoIpInfo;
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
 #[derive(Serialize, Debug)]
 pub enum UpdateSlowGeoIp {
-    Add((SiemIp, u8, GeoIpInfo)),
-    Remove((SiemIp, u8)),
+    Add((std::net::IpAddr, u8, GeoIpInfo)),
+    Remove((std::net::IpAddr, u8)),
     Replace(SlowGeoIpDataset),
 }
 
@@ -31,16 +31,16 @@ impl SlowGeoIpSynDataset {
     }
 
     /// This method must not be used with this dataset, because no source will give you accurate data to update this dataset. Maybe some firewalls, but updating the dataset with each log information is not a good idea.
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
+    pub fn insert(&mut self, ip: std::net::IpAddr, net: u8, data: GeoIpInfo) {
         // Todo: improve with local cache to send retries
         match self.comm.try_send(UpdateSlowGeoIp::Add((ip, net, data))) {
             Ok(_) => {}
             Err(_) => {}
         };
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<GeoIpInfo> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<GeoIpInfo> {
         // Todo improve with cached added IPs
-        self.dataset.get(ip)
+        self.dataset.get(&(*ip).into())
     }
 }
 #[derive(Debug)]
@@ -61,13 +61,13 @@ impl SlowGeoIpDataset {
         let tree = sled::open(path).expect("open");
         return Self { tree };
     }
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
+    pub fn insert(&mut self, ip: std::net::IpAddr, net: u8, data: GeoIpInfo) {
         let _ = self.tree.insert(Self::get_key(&ip, net), data);
     }
-    fn get_key(ip: &SiemIp, net: u8) -> [u8; 18] {
+    fn get_key(ip: &std::net::IpAddr, net: u8) -> [u8; 18] {
         let mut ret = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, net];
         match ip {
-            SiemIp::V4(v) => {
+            std::net::IpAddr::V4(v) => {
                 let v = v & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
                 let mut i = 0;
                 for byt in v.to_be_bytes() {
@@ -75,7 +75,7 @@ impl SlowGeoIpDataset {
                     i += 1;
                 }
             }
-            SiemIp::V6(v) => {
+            std::net::IpAddr::V6(v) => {
                 let v = v & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
                 ret[17] = 1;
                 let mut i = 0;
@@ -87,10 +87,10 @@ impl SlowGeoIpDataset {
         }
         ret
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<GeoIpInfo> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<GeoIpInfo> {
         let (zeros, max_net) = match ip {
-            SiemIp::V4(ip) => (ip.trailing_zeros() as u8, 32u8),
-            SiemIp::V6(ip) => (ip.trailing_zeros() as u8, 128u8),
+            std::net::IpAddr::V4(ip) => (ip.trailing_zeros() as u8, 32u8),
+            std::net::IpAddr::V6(ip) => (ip.trailing_zeros() as u8, 128u8),
         };
         for net in zeros..max_net {
             let key = Self::get_key(ip, net);
@@ -136,11 +136,11 @@ mod tests {
             asn: 1,
         };
         let mut dataset = SlowGeoIpDataset::new(&tmp);
-        dataset.insert(SiemIp::from_ip_str("192.168.1.0").unwrap(), 24, info);
+        dataset.insert(std::net::IpAddr::from_str("192.168.1.0").unwrap(), 24, info);
         assert_eq!(
             "LocalCity",
             &dataset
-                .get(&SiemIp::from_ip_str("192.168.1.1").unwrap())
+                .get(&std::net::IpAddr::from_str("192.168.1.1").unwrap())
                 .unwrap()
                 .city[..]
         );

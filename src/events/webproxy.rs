@@ -1,14 +1,13 @@
 use super::common::{HttpMethod, WebProtocol};
 use super::field_dictionary::*;
-use super::ip::SiemIp;
 use crate::prelude::types::LogString;
 use crate::prelude::{SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WebProxyEvent {
-    pub source_ip: SiemIp,
-    pub destination_ip: SiemIp,
+    pub source_ip: std::net::IpAddr,
+    pub destination_ip: std::net::IpAddr,
     pub destination_port: u16,
     pub in_bytes: u32,
     pub out_bytes: u32,
@@ -27,10 +26,10 @@ pub struct WebProxyEvent {
     pub rule_category: Option<WebProxyRuleCategory>,
 }
 impl WebProxyEvent {
-    pub fn source_ip(&self) -> &SiemIp {
+    pub fn source_ip(&self) -> &std::net::IpAddr {
         &self.source_ip
     }
-    pub fn destination_ip(&self) -> &SiemIp {
+    pub fn destination_ip(&self) -> &std::net::IpAddr {
         &self.destination_ip
     }
     pub fn protocol(&self) -> &WebProtocol {

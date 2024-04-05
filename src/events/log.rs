@@ -1,4 +1,4 @@
-use crate::prelude::{types::LogString, SiemField, SiemIp};
+use crate::prelude::{types::LogString, SiemField};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -296,14 +296,14 @@ impl<'a> SiemLog {
         }
     }
     /// Obtains the casted value of the field into IP and caches it
-    pub fn ip_field(&'a mut self, field_name: &str) -> Option<SiemIp> {
+    pub fn ip_field(&'a mut self, field_name: &str) -> Option<std::net::IpAddr> {
         let field = self.fields.get_mut(field_name)?;
         match field.ip.as_ref() {
             super::ifield::PreStoredField::Invalid => return None,
             super::ifield::PreStoredField::None => {}
             super::ifield::PreStoredField::Some(v) => return Some(*v),
         };
-        let i64field: Option<SiemIp> = (&field.original).try_into().ok();
+        let i64field: Option<std::net::IpAddr> = (&field.original).try_into().ok();
         let pfield = match i64field {
             Some(v) => super::ifield::PreStoredField::Some(v),
             None => super::ifield::PreStoredField::Invalid,
@@ -414,15 +414,17 @@ impl<'a> Iterator for EventFieldIter<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::net::{IpAddr, Ipv4Addr};
+
     use super::*;
     use crate::prelude::event::SiemEvent;
-    use crate::prelude::{FirewallEvent, FirewallOutcome, NetworkProtocol, SiemIp};
+    use crate::prelude::{FirewallEvent, FirewallOutcome, NetworkProtocol};
 
     #[test]
     fn check_log() {
         let event = SiemEvent::Firewall(FirewallEvent {
-            source_ip: SiemIp::V4(0),
-            destination_ip: SiemIp::V4(10000),
+            source_ip: Ipv4Addr::new(0,0,0,0).into(),
+            destination_ip: Ipv4Addr::new(1,0,0,0).into(),
             source_port: 10000,
             destination_port: 443,
             outcome: FirewallOutcome::ALLOW,
@@ -468,7 +470,7 @@ mod tests {
         assert_eq!(value as i64, log.i64_field(name).unwrap());
         assert_eq!(value as f64, log.f64_field(name).unwrap());
 
-        let (name, value) = ("field_1", SiemIp::V4(1234));
+        let (name, value) : (&str, IpAddr) = ("field_1", std::net::Ipv4Addr::new(1, 2, 3, 4).into());
         log.add_field(name, value.clone().into());
         assert_eq!(value, log.ip_field(name).unwrap());
 

@@ -1,4 +1,4 @@
-use crate::prelude::SiemIp;
+
 use crossbeam_channel::Sender;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -9,8 +9,8 @@ use super::GeoIpInfo;
 /// Enum used to Add/Remove an IP in the GeoIP dataset or full replace it
 #[derive(Serialize, Debug)]
 pub enum UpdateGeoIp {
-    Add((SiemIp, u8, GeoIpInfo)),
-    Remove((SiemIp, u8)),
+    Add((std::net::IpAddr, u8, GeoIpInfo)),
+    Remove((std::net::IpAddr, u8)),
     Replace(GeoIpDataset),
 }
 
@@ -28,13 +28,13 @@ impl GeoIpSynDataset {
     }
 
     /// This method must not be used with this dataset, because no source will give you accurate data to update this dataset. Maybe some firewalls, but updating the dataset with each log information is not a good idea.
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
+    pub fn insert(&mut self, ip: std::net::IpAddr, net: u8, data: GeoIpInfo) {
         // Todo: improve with local cache to send retries
         let _ = self.comm.try_send(UpdateGeoIp::Add((ip, net, data)));
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&GeoIpInfo> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&GeoIpInfo> {
         // Todo improve with cached added IPs
-        self.dataset.get(ip)
+        self.dataset.get(&(*ip).into())
     }
 }
 #[derive(Serialize, Debug, Default)]
@@ -47,9 +47,10 @@ impl GeoIpDataset {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert(&mut self, ip: SiemIp, net: u8, data: GeoIpInfo) {
+    pub fn insert(&mut self, ip: std::net::IpAddr, net: u8, data: GeoIpInfo) {
         match ip {
-            SiemIp::V4(ip) => {
+            std::net::IpAddr::V4(ip) => {
+                let ip : u32 = ip.into();
                 let ip_net = ip & std::u32::MAX.checked_shl((32 - net) as u32).unwrap_or(0);
                 if self.data4.contains_key(&(net as u32)) {
                     if let Some(dataset) = self.data4.get_mut(&(net as u32)) {
@@ -61,7 +62,8 @@ impl GeoIpDataset {
                     self.data4.insert(net as u32, new_net);
                 }
             }
-            SiemIp::V6(ip) => {
+            std::net::IpAddr::V6(ip) => {
+                let ip : u128 = ip.into();
                 let ip_net = ip & std::u128::MAX.checked_shl((128 - net) as u32).unwrap_or(0);
                 if self.data6.contains_key(&(net as u32)) {
                     if let Some(dataset) = self.data6.get_mut(&(net as u32)) {
@@ -75,9 +77,10 @@ impl GeoIpDataset {
             }
         }
     }
-    pub fn get(&self, ip: &SiemIp) -> Option<&GeoIpInfo> {
+    pub fn get(&self, ip: &std::net::IpAddr) -> Option<&GeoIpInfo> {
         match ip {
-            SiemIp::V4(ip) => {
+            std::net::IpAddr::V4(ip) => {
+                let ip : u32 = (*ip).into();
                 let zeros = ip.trailing_zeros();
                 for i in zeros..32 {
                     let ip_net = ip & std::u32::MAX.checked_shl(32 - i).unwrap_or(0);
@@ -95,7 +98,8 @@ impl GeoIpDataset {
                 }
                 None
             }
-            SiemIp::V6(ip) => {
+            std::net::IpAddr::V6(ip) => {
+                let ip : u128 = (*ip).into();
                 let zeros = ip.trailing_zeros();
                 for i in zeros..128 {
                     let ip_net = ip & std::u128::MAX.checked_shl(128 - i).unwrap_or(0);
@@ -127,6 +131,8 @@ impl GeoIpDataset {
 #[cfg(test)]
 mod tests {
 
+    use std::str::FromStr;
+
     use crate::prelude::types::LogString;
 
     use super::*;
@@ -142,11 +148,11 @@ mod tests {
             asn: 1,
         };
         let mut dataset = GeoIpDataset::new();
-        dataset.insert(SiemIp::from_ip_str("192.168.1.0").unwrap(), 24, info);
+        dataset.insert(std::net::IpAddr::from_str("192.168.1.0").unwrap(), 24, info);
         assert_eq!(
             "LocalCity",
             &dataset
-                .get(&SiemIp::from_ip_str("192.168.1.1").unwrap())
+                .get(&std::net::IpAddr::from_str("192.168.1.1").unwrap())
                 .unwrap()
                 .city[..]
         );

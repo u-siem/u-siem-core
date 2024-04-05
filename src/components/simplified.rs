@@ -2,9 +2,9 @@ use std::time::{Duration, Instant};
 
 use crossbeam_channel::{Sender, Receiver, Select};
 
-use crate::prelude::{SiemResult, SiemLog};
+use crate::{alerts::SiemAlert, prelude::{store::DatasetStore, SiemDataset, SiemLog, SiemResult}};
 
-use super::{command::{SiemCommandHeader, SiemCommandCall, SiemCommandResponse}, dataset::{SiemDataset, holder::DatasetHolder}, task::{SiemTask, SiemTaskResult}, common::{SiemMessage, SiemComponentCapabilities, Notification}, storage::SiemComponentStateStorage, SiemComponent, alert::SiemAlert};
+use super::{command::{SiemCommandHeader, SiemCommandCall, SiemCommandResponse}, task::{SiemTask, SiemTaskResult}, common::{SiemMessage, SiemComponentCapabilities, Notification}, storage::SiemComponentStateStorage, SiemComponent};
 
 /// A easy to customize Siem Component that does not require complex logic inside the run() method.
 /// 
@@ -54,7 +54,7 @@ pub trait SimplifiedComponent : Send {
     fn duplicate(&self) -> Box<dyn SimplifiedComponent>;
 
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets: DatasetHolder) {}
+    fn set_datasets(&mut self, datasets: DatasetStore) {}
 
     /// Executed when the component receives a command to execute
     fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommandCall) -> SiemResult<()> {
@@ -178,7 +178,7 @@ impl SiemComponent for SimpleComponent {
         Box::new(SimpleComponent::new(self.component.duplicate()))
     }
 
-    fn set_datasets(&mut self, datasets: DatasetHolder) {
+    fn set_datasets(&mut self, datasets: DatasetStore) {
         self.component.set_datasets(datasets);
     }
 }

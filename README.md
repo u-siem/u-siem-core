@@ -64,7 +64,7 @@ pub trait SiemComponent: Send {
     fn duplicate(&self) -> Box<dyn SiemComponent>;
 
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets: DatasetHolder);
+    fn set_datasets(&mut self, datasets: DatasetStore);
 }
 ```
 
@@ -83,7 +83,7 @@ pub trait SimplifiedComponent : Send {
     fn duplicate(&self) -> Box<dyn SimplifiedComponent>;
 
     /// Initialize the component with the datasets before executing run
-    fn set_datasets(&mut self, datasets: DatasetHolder) {}
+    fn set_datasets(&mut self, datasets: DatasetStore) {}
 
     /// Executed when the component receives a command to execute
     fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommandCall) -> SiemResult<()> {
