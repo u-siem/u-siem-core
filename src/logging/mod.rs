@@ -3,8 +3,8 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use crate::prelude::{kernel_message::KernelMessager, NotificationLevel};
-
+use crate::prelude::NotificationLevel;
+use crate::runtime::channel::RuntimeChannel;
 #[macro_use]
 pub mod macros;
 
@@ -26,11 +26,11 @@ pub fn max_level() -> NotificationLevel {
 }
 
 thread_local! {
-    pub static COMPONENT_LOGGER : RefCell<KernelMessager> = RefCell::new(KernelMessager::default());
+    pub static COMPONENT_LOGGER : RefCell<RuntimeChannel> = RefCell::new(RuntimeChannel::default());
 }
 
 /// Initializes the channel to communicate with the Kernel for the current thread/component.
-pub fn initialize_component_logger(msngr: KernelMessager) {
+pub fn initialize_component_logger(msngr: RuntimeChannel) {
     let _ = COMPONENT_LOGGER.with(|v| {
         let mut brw = v.borrow_mut();
         *brw = msngr;
@@ -44,7 +44,7 @@ pub fn initialize_component_logger(msngr: KernelMessager) {
 pub fn testing_component_logger_dummy() -> crossbeam_channel::Receiver<crate::prelude::SiemMessage>
 {
     let (sender, receiver) = crossbeam_channel::unbounded();
-    let msngr = KernelMessager::new(1234, "Dummy".to_string(), sender);
+    let msngr = RuntimeChannel::new(1234, "Dummy".to_string(), sender);
     initialize_component_logger(msngr);
     receiver
 }
@@ -55,7 +55,7 @@ pub fn testing_component_logger(
     name: &str,
 ) -> crossbeam_channel::Receiver<crate::prelude::SiemMessage> {
     let (sender, receiver) = crossbeam_channel::unbounded();
-    let msngr = KernelMessager::new(id, name.to_string(), sender);
+    let msngr = RuntimeChannel::new(id, name.to_string(), sender);
     initialize_component_logger(msngr);
     receiver
 }

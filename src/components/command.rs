@@ -114,7 +114,7 @@ impl SiemCommandHeader {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
-pub enum SiemCommandCall {
+pub enum SiemCommand {
     /// Starts a component. Params: Component name
     START_COMPONENT(String),
     /// Stops a component. Params: Component name
@@ -151,29 +151,29 @@ pub enum SiemCommandCall {
     OTHER(LogString, BTreeMap<LogString, LogString>),
 }
 
-impl SiemCommandCall {
+impl SiemCommand {
     pub fn get_type(&self) -> SiemFunctionType {
         match self {
-            SiemCommandCall::START_COMPONENT(_) => SiemFunctionType::START_COMPONENT,
-            SiemCommandCall::STOP_COMPONENT(_) => SiemFunctionType::STOP_COMPONENT,
-            SiemCommandCall::LOG_QUERY(_) => SiemFunctionType::LOG_QUERY,
-            SiemCommandCall::ISOLATE_IP(_) => SiemFunctionType::ISOLATE_IP,
-            SiemCommandCall::ISOLATE_ENDPOINT(_) => SiemFunctionType::ISOLATE_ENDPOINT,
-            SiemCommandCall::FILTER_IP(_) => SiemFunctionType::FILTER_IP,
-            SiemCommandCall::FILTER_DOMAIN(_) => SiemFunctionType::FILTER_DOMAIN,
-            SiemCommandCall::FILTER_EMAIL_SENDER(_) => SiemFunctionType::FILTER_EMAIL_SENDER,
-            SiemCommandCall::LIST_USE_CASES(_) => SiemFunctionType::LIST_USE_CASES,
-            SiemCommandCall::GET_USE_CASE(_) => SiemFunctionType::GET_USE_CASE,
-            SiemCommandCall::LIST_RULES(_) => SiemFunctionType::LIST_RULES,
-            SiemCommandCall::GET_RULE(_) => SiemFunctionType::GET_RULE,
-            SiemCommandCall::LIST_DATASETS(_) => SiemFunctionType::LIST_DATASETS,
-            SiemCommandCall::LIST_TASKS(_) => SiemFunctionType::LIST_TASKS,
-            SiemCommandCall::DOWNLOAD_QUERY() => SiemFunctionType::DOWNLOAD_QUERY,
-            SiemCommandCall::LIST_PARSERS(_) => SiemFunctionType::LIST_PARSERS,
-            SiemCommandCall::LOGIN_USER(_) => SiemFunctionType::LOGIN_USER,
-            SiemCommandCall::START_TASK(_) => SiemFunctionType::START_TASK,
-            SiemCommandCall::GET_TASK_RESULT(_) => SiemFunctionType::GET_TASK_RESULT,
-            SiemCommandCall::OTHER(v, _) => SiemFunctionType::OTHER(v.clone()),
+            SiemCommand::START_COMPONENT(_) => SiemFunctionType::START_COMPONENT,
+            SiemCommand::STOP_COMPONENT(_) => SiemFunctionType::STOP_COMPONENT,
+            SiemCommand::LOG_QUERY(_) => SiemFunctionType::LOG_QUERY,
+            SiemCommand::ISOLATE_IP(_) => SiemFunctionType::ISOLATE_IP,
+            SiemCommand::ISOLATE_ENDPOINT(_) => SiemFunctionType::ISOLATE_ENDPOINT,
+            SiemCommand::FILTER_IP(_) => SiemFunctionType::FILTER_IP,
+            SiemCommand::FILTER_DOMAIN(_) => SiemFunctionType::FILTER_DOMAIN,
+            SiemCommand::FILTER_EMAIL_SENDER(_) => SiemFunctionType::FILTER_EMAIL_SENDER,
+            SiemCommand::LIST_USE_CASES(_) => SiemFunctionType::LIST_USE_CASES,
+            SiemCommand::GET_USE_CASE(_) => SiemFunctionType::GET_USE_CASE,
+            SiemCommand::LIST_RULES(_) => SiemFunctionType::LIST_RULES,
+            SiemCommand::GET_RULE(_) => SiemFunctionType::GET_RULE,
+            SiemCommand::LIST_DATASETS(_) => SiemFunctionType::LIST_DATASETS,
+            SiemCommand::LIST_TASKS(_) => SiemFunctionType::LIST_TASKS,
+            SiemCommand::DOWNLOAD_QUERY() => SiemFunctionType::DOWNLOAD_QUERY,
+            SiemCommand::LIST_PARSERS(_) => SiemFunctionType::LIST_PARSERS,
+            SiemCommand::LOGIN_USER(_) => SiemFunctionType::LOGIN_USER,
+            SiemCommand::START_TASK(_) => SiemFunctionType::START_TASK,
+            SiemCommand::GET_TASK_RESULT(_) => SiemFunctionType::GET_TASK_RESULT,
+            SiemCommand::OTHER(v, _) => SiemFunctionType::OTHER(v.clone()),
         }
     }
 }
@@ -196,7 +196,7 @@ pub enum CommandError {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[non_exhaustive]
-pub enum SiemCommandResponse {
+pub enum SiemResponse {
     START_COMPONENT(CommandResult<String>),
     STOP_COMPONENT(CommandResult<String>),
     /// Query created with an ID
@@ -338,17 +338,17 @@ mod de_ser {
 
     use crate::prelude::{types::LogString, DatasetDefinition};
 
-    use super::SiemCommandResponse;
+    use super::SiemResponse;
 
     #[test]
     fn should_serialize_and_deserialize_command_response() {
         let res =
-            SiemCommandResponse::FILTER_IP(super::CommandResult::Ok(format!("Ip was filtered")));
+            SiemResponse::FILTER_IP(super::CommandResult::Ok(format!("Ip was filtered")));
         let str = serde_json::to_string(&res).unwrap();
-        let res2: SiemCommandResponse = serde_json::from_str(&str).unwrap();
+        let res2: SiemResponse = serde_json::from_str(&str).unwrap();
 
         match (res, res2) {
-            (SiemCommandResponse::FILTER_IP(ip1), SiemCommandResponse::FILTER_IP(ip2)) => {
+            (SiemResponse::FILTER_IP(ip1), SiemResponse::FILTER_IP(ip2)) => {
                 match (ip1, ip2) {
                     (super::CommandResult::Ok(v1), super::CommandResult::Ok(v2)) => {
                         assert_eq!(v1, v2)
@@ -376,7 +376,7 @@ mod de_ser {
             _ => panic!("Must not happen"),
         }
 
-        let res = SiemCommandResponse::LIST_DATASETS(super::CommandResult::Ok(vec![
+        let res = SiemResponse::LIST_DATASETS(super::CommandResult::Ok(vec![
             DatasetDefinition::new(
                 crate::prelude::SiemDatasetType::CustomIpMap(LogString::Borrowed("")),
                 LogString::Borrowed("Description"),
@@ -384,10 +384,10 @@ mod de_ser {
             ),
         ]));
         let str = serde_json::to_string(&res).unwrap();
-        let res2: SiemCommandResponse = serde_json::from_str(&str).unwrap();
+        let res2: SiemResponse = serde_json::from_str(&str).unwrap();
 
         match (res, res2) {
-            (SiemCommandResponse::LIST_DATASETS(ip1), SiemCommandResponse::LIST_DATASETS(ip2)) => {
+            (SiemResponse::LIST_DATASETS(ip1), SiemResponse::LIST_DATASETS(ip2)) => {
                 match (ip1, ip2) {
                     (super::CommandResult::Ok(v1), super::CommandResult::Ok(v2)) => {
                         assert_eq!(v1, v2)

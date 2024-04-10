@@ -2,7 +2,7 @@ use std::io::Error as IoError;
 
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::SiemLog;
+use crate::prelude::{LogString, SiemLog};
 pub type SiemResult<T> = Result<T, SiemError>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -56,6 +56,7 @@ pub enum MessagingError {
 #[non_exhaustive]
 pub enum ComponentError {
     StopRequested,
+    ExecutionError(LogString)
 }
 
 

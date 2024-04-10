@@ -6,14 +6,14 @@ use crossbeam_channel::Sender;
 use crate::prelude::{types::LogString, Notification, NotificationLevel, SiemMessage, SiemResult};
 
 #[derive(Clone)]
-pub struct KernelMessager {
+pub struct RuntimeChannel {
     component_id: u64,
     component_name: String,
     channel: Sender<SiemMessage>,
     level: NotificationLevel,
 }
 
-impl Default for KernelMessager {
+impl Default for RuntimeChannel {
     fn default() -> Self {
         let (channel, _) = crossbeam_channel::bounded(1);
         Self {
@@ -25,7 +25,7 @@ impl Default for KernelMessager {
     }
 }
 
-impl KernelMessager {
+impl RuntimeChannel {
     pub fn new(id: u64, name: String, channel: Sender<SiemMessage>) -> Self {
         Self {
             component_id: id,

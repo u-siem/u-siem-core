@@ -86,10 +86,10 @@ pub trait SimplifiedComponent : Send {
     fn set_datasets(&mut self, datasets: DatasetStore) {}
 
     /// Executed when the component receives a command to execute
-    fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommandCall) -> SiemResult<()> {
+    fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommand) -> SiemResult<()> {
         Ok(())
     }
-    fn on_response(&mut self, header : SiemCommandHeader, action : SiemCommandResponse) -> SiemResult<()> {
+    fn on_response(&mut self, header : SiemCommandHeader, action : SiemResponse) -> SiemResult<()> {
         Ok(())
     }
     /// Executed when the component receives a log. Return Ok(None) to filter and remove the log

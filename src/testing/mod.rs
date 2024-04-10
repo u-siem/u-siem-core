@@ -3,7 +3,7 @@ use std::thread::JoinHandle;
 use crossbeam_channel::{SendError, Sender};
 
 use crate::components::{
-    command::{SiemCommandCall, SiemCommandHeader},
+    command::{SiemCommand, SiemCommandHeader},
     common::SiemMessage,
     SiemComponent,
 };
@@ -28,7 +28,7 @@ where
                 comm_id: 0,
                 user: String::from("kernel"),
             },
-            SiemCommandCall::STOP_COMPONENT(comp_name),
+            SiemCommand::STOP_COMPONENT(comp_name),
         ))
     })
 }

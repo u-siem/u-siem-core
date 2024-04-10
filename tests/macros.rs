@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crossbeam_channel::Sender;
 use usiem::prelude::{
-    kernel_message::KernelMessager, NotificationLevel, SiemCommandCall, SiemCommandHeader,
+    RuntimeChannel, NotificationLevel, SiemCommand, SiemCommandHeader,
     SiemMessage,
 };
 
@@ -11,7 +11,7 @@ use usiem::prelude::{
 extern crate usiem;
 
 fn initialize_component_logger(sender: Sender<SiemMessage>) {
-    let mut msngr = KernelMessager::new(123, "Component001".to_string(), sender);
+    let mut msngr = RuntimeChannel::new(123, "Component001".to_string(), sender);
     msngr.set_level(NotificationLevel::Trace);
     usiem::logging::initialize_component_logger(msngr);
 }
@@ -52,7 +52,7 @@ fn kernel_message_sending_should_work() {
             comp_id: 2,
             user: "Dummy".to_string()
         },
-        usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
+        usiem::prelude::SiemCommand::STOP_COMPONENT("Dummy".to_string())
     ))
     .expect("Must work");
     try_send_message!(SiemMessage::Command(
@@ -61,7 +61,7 @@ fn kernel_message_sending_should_work() {
             comp_id: 2,
             user: "Dummy".to_string()
         },
-        usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
+        usiem::prelude::SiemCommand::STOP_COMPONENT("Dummy".to_string())
     ))
     .expect("Must work");
     send_message_timeout!(
@@ -71,7 +71,7 @@ fn kernel_message_sending_should_work() {
                 comp_id: 2,
                 user: "Dummy".to_string()
             },
-            usiem::prelude::SiemCommandCall::STOP_COMPONENT("Dummy".to_string())
+            usiem::prelude::SiemCommand::STOP_COMPONENT("Dummy".to_string())
         ),
         Duration::from_millis(1_000)
     )
@@ -85,7 +85,7 @@ fn kernel_message_sending_should_work() {
                 assert_eq!(1, hdr.comm_id);
                 assert_eq!(2, hdr.comp_id);
                 assert_eq!("Dummy", &hdr.user);
-                if let SiemCommandCall::STOP_COMPONENT(name) = cmd {
+                if let SiemCommand::STOP_COMPONENT(name) = cmd {
                     assert_eq!("Dummy", name);
                 } else {
                     panic!("Must not happen");

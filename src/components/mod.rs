@@ -3,8 +3,6 @@ use crate::prelude::types::LogString;
 use crate::prelude::{SiemDatasetType, SiemResult};
 use crossbeam_channel::{Receiver, Sender};
 
-use self::command::SiemCommandCall;
-
 use super::events::SiemLog;
 use common::{SiemComponentCapabilities, SiemMessage};
 use std::boxed::Box;
@@ -15,11 +13,10 @@ use storage::SiemComponentStateStorage;
 pub mod command;
 pub mod command_types;
 pub mod common;
-pub mod kernel_message;
 pub mod metrics;
 pub mod messages;
-pub mod mailbox;
-
+pub mod parser;
+pub mod collector;
 pub mod query;
 pub mod storage;
 pub mod task;
@@ -76,60 +73,4 @@ pub trait SiemDatasetManager: Send {
 pub trait SiemRuleEngine: SiemComponent {
     /// Sets the dictionary of languages to generate the different alerts of the rules
     fn set_languages(&mut self, languages: BTreeMap<LogString, BTreeMap<LogString, LogString>>);
-}
-
-#[allow(unused_variables)]
-pub trait Component : Sized + Send {
-    type Context : ComponentContext;
-
-    /// Called when a components is going to start execution
-    fn init(&mut self, ctx: &mut Self::Context) {}
-
-    /// Called before initializing the component. 
-    /// The component would need the datasets when initializing itself.
-    fn datasets(&mut self, datasets : ()) {}
-
-    /// Called after a component is in `Stopping` state.
-    ///
-    /// A component can return from the stopping state to the running
-    /// state by returning `Running::Continue`.
-    fn stopping(&mut self, ctx: &mut Self::Context) -> Running {
-        Running::Stop
-    }
-
-    /// Called after a component is stopped.
-    fn stopped(&mut self, ctx: &mut Self::Context) {}
-}
-
-
-/// Component execution context.
-///
-/// Each component runs within a specific execution context. 
-///
-/// The execution context defines the type of execution, and the
-/// component communication channels (message handling).
-pub trait ComponentContext: Sized {
-    /// Immediately stop processing incoming messages
-    fn stop(&mut self);
-
-    /// Terminate component execution unconditionally.
-    fn terminate(&mut self);
-
-    /// Retrieve the current Component execution state.
-    fn state(&self) -> ComponentState;
-}
-
-/// Component execution state
-#[derive(PartialEq, Debug, Copy, Clone)]
-pub enum ComponentState {
-    Started,
-    Running,
-    Stopping,
-    Stopped,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Running {
-    Stop,
-    Continue,
 }

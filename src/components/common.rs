@@ -3,7 +3,7 @@ use crate::prelude::types::LogString;
 use crate::prelude::{SiemDataset, SiemDatasetType};
 
 use super::super::events::SiemLog;
-use super::command::{CommandDefinition, SiemCommandCall, SiemCommandHeader, SiemCommandResponse};
+use super::command::{CommandDefinition, SiemCommand, SiemCommandHeader, SiemResponse};
 use super::metrics::SiemMetricDefinition;
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use serde::{Deserialize, Serialize};
@@ -12,9 +12,9 @@ use serde::{Deserialize, Serialize};
 #[non_exhaustive]
 pub enum SiemMessage {
     /// Execute a command in the component
-    Command(SiemCommandHeader, SiemCommandCall),
+    Command(SiemCommandHeader, SiemCommand),
     /// Response to a function call, first element is the ID of the Response
-    Response(SiemCommandHeader, SiemCommandResponse),
+    Response(SiemCommandHeader, SiemResponse),
     /// Process a log
     Log(SiemLog),
     /// Local logging system. First element is the ID of the component, to be able to route messages
@@ -148,14 +148,14 @@ impl DatasetDefinition {
     }
 }
 
-impl From<SiemCommandCall> for SiemMessage {
-    fn from(c: SiemCommandCall) -> Self {
+impl From<SiemCommand> for SiemMessage {
+    fn from(c: SiemCommand) -> Self {
         SiemMessage::Command(SiemCommandHeader::default(), c)
     }
 }
 
-impl From<SiemCommandResponse> for SiemMessage {
-    fn from(c: SiemCommandResponse) -> Self {
+impl From<SiemResponse> for SiemMessage {
+    fn from(c: SiemResponse) -> Self {
         SiemMessage::Response(SiemCommandHeader::default(), c)
     }
 }

@@ -39,7 +39,7 @@ impl SiemComponent for MyComponent {
                     comp_id: 2,
                     user: String::new()
                 },
-                SiemCommandCall::STOP_COMPONENT(format!("Test"))
+                SiemCommand::STOP_COMPONENT(format!("Test"))
             ),
             Duration::from_millis(1_000)
         ).expect("Message must be sent");
@@ -51,7 +51,7 @@ impl SiemComponent for MyComponent {
                     comp_id: 2,
                     user: String::new()
                 },
-                SiemCommandCall::STOP_COMPONENT(format!("Test"))
+                SiemCommand::STOP_COMPONENT(format!("Test"))
             )
         ).expect("Message must be sent");
     }

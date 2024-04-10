@@ -9,8 +9,8 @@ pub mod parsing;
 pub mod rules;
 pub mod mitre;
 pub mod alerts;
-pub mod services;
 pub mod enrichment;
+pub mod runtime;
 
 pub extern crate chrono;
 pub extern crate crossbeam_channel;
@@ -25,9 +25,9 @@ pub mod prelude {
     pub use crate::mitre::{self, *};
     pub use crate::alerts::{self, *};
     pub use crate::enrichment::{self, *};
-
+    pub use crate::runtime::{self, channel::RuntimeChannel};
     pub use crate::components::{
-        command, command::*, command_types, command_types::*, common, common::*, kernel_message, kernel_message::*, metrics,
+        command, command::*, command_types, command_types::*, common, common::*, metrics,
         metrics::*, storage, storage::*, task,
         SiemComponent, SiemDatasetManager, SiemRuleEngine, simplified::*
     };

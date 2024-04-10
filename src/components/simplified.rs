@@ -4,7 +4,7 @@ use crossbeam_channel::{Sender, Receiver, Select};
 
 use crate::{alerts::SiemAlert, prelude::{store::DatasetStore, SiemDataset, SiemLog, SiemResult}};
 
-use super::{command::{SiemCommandHeader, SiemCommandCall, SiemCommandResponse}, task::{SiemTask, SiemTaskResult}, common::{SiemMessage, SiemComponentCapabilities, Notification}, storage::SiemComponentStateStorage, SiemComponent};
+use super::{command::{SiemCommandHeader, SiemCommand, SiemResponse}, task::{SiemTask, SiemTaskResult}, common::{SiemMessage, SiemComponentCapabilities, Notification}, storage::SiemComponentStateStorage, SiemComponent};
 
 /// A easy to customize Siem Component that does not require complex logic inside the run() method.
 /// 
@@ -57,10 +57,10 @@ pub trait SimplifiedComponent : Send {
     fn set_datasets(&mut self, datasets: DatasetStore) {}
 
     /// Executed when the component receives a command to execute
-    fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommandCall) -> SiemResult<()> {
+    fn on_command(&mut self, header : SiemCommandHeader, action : SiemCommand) -> SiemResult<()> {
         Ok(())
     }
-    fn on_response(&mut self, header : SiemCommandHeader, action : SiemCommandResponse) -> SiemResult<()> {
+    fn on_response(&mut self, header : SiemCommandHeader, action : SiemResponse) -> SiemResult<()> {
         Ok(())
     }
     /// Executed when the component receives a log. Return Ok(None) to filter and remove the log
@@ -194,7 +194,7 @@ fn deadline_of_tick(tick : Option<u64>) -> Option<Instant> {
 fn process_message( msg : SiemMessage, component : &mut Box<dyn SimplifiedComponent>, state : &SimpleComponent) -> Option<SiemResult<()>> {
     Some(match msg {
         SiemMessage::Command(header, action) => {
-            if let SiemCommandCall::STOP_COMPONENT(_) = &action {
+            if let SiemCommand::STOP_COMPONENT(_) = &action {
                 return None
             }
             component.on_command(header, action)
@@ -230,7 +230,7 @@ mod tst {
     use super::*;
     use std::time::Duration;
 
-    use crate::prelude::{SiemLog, SiemResult, SiemMessage, SiemCommandCall, SiemCommandHeader, types::LogString};
+    use crate::prelude::{SiemLog, SiemResult, SiemMessage, SiemCommand, SiemCommandHeader, types::LogString};
 
     use super::SimplifiedComponent;
 
@@ -278,6 +278,6 @@ mod tst {
         assert_eq!("message", log.message());
         assert!(log.has_field("PROCESSED"));
         std::thread::sleep(Duration::from_millis(1000));
-        k_sender.send(SiemMessage::Command(SiemCommandHeader::default(), SiemCommandCall::STOP_COMPONENT("".into()))).unwrap();
+        k_sender.send(SiemMessage::Command(SiemCommandHeader::default(), SiemCommand::STOP_COMPONENT("".into()))).unwrap();
     }
 }
