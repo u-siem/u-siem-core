@@ -1,40 +1,28 @@
-use dyn_clone::{clone_trait_object, DynClone};
+use crate::{events::SiemLog, prelude::{store::DatasetStore, LogEnrichmentError}};
 
-use crate::{events::SiemLog, prelude::store::DatasetStore};
+pub type LogEnrichment = fn(&mut SiemLog, &DatasetStore) -> Result<(), LogEnrichmentError>;
 
-/// A simple object with the logic to enrich Logs
-pub trait LogEnrichment: Send + DynClone {
-    /// Enrich the log with information from datasets
-    fn enrich(&self, log: SiemLog, datasets: &DatasetStore) -> SiemLog;
-    /// Name of the enricher
-    fn name(&self) -> &'static str;
-    /// Description of the enricher
-    fn description(&self) -> &'static str;
-}
-clone_trait_object!(LogEnrichment);
 
 #[test]
-fn check_basic_enricher_clone() {
-    #[derive(Clone)]
-    struct BasicLogEnricher {}
-    impl LogEnrichment for BasicLogEnricher {
-        fn enrich(&self, log: SiemLog, _datasets: &DatasetStore) -> SiemLog {
-            log
-        }
-
-        fn name(&self) -> &'static str {
-            "a"
-        }
-
-        fn description(&self) -> &'static str {
-            "a"
-        }
+fn should_enrich_logs() {
+    #[allow(unused_variables)]
+    fn super_enricher(log : &mut SiemLog, datasets: &DatasetStore) -> Result<(), LogEnrichmentError> {
+        log.add_field("test", crate::events::field::SiemField::Null);
+        Ok(())
     }
-    fn test_boxed_enricher(enricher: &Box<dyn LogEnrichment>) -> Box<dyn LogEnrichment> {
-        let _ = enricher.name();
-        let enricher2 = enricher.clone();
-        enricher2
+    #[allow(unused_variables)]
+    fn super_bugged_enricher(log : &mut SiemLog, datasets: &DatasetStore) -> Result<(), LogEnrichmentError> {
+        Err(LogEnrichmentError::Discard)
     }
-    let enricher1: Box<dyn LogEnrichment> = Box::new(BasicLogEnricher {});
-    let _enricher2 = test_boxed_enricher(&enricher1);
+
+    let mut enrichment_array : Vec<LogEnrichment> = Vec::new();
+    enrichment_array.push(super_enricher);
+    let mut log = SiemLog::new("test", 1234, "TST");
+    let datasets = DatasetStore::new();
+    enrichment_array.iter().try_for_each(|f| f(&mut log,&datasets)).expect("Should add field");
+    assert!(log.has_field("test"));
+
+    enrichment_array.push(super_bugged_enricher);
+    let err = enrichment_array.iter().try_for_each(|f| f(&mut log,&datasets)).expect_err("Should return discard error");
+    assert_eq!(LogEnrichmentError::Discard, err);
 }

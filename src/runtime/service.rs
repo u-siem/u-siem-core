@@ -3,6 +3,7 @@ use crate::{components::{command::{SiemCommand, SiemResponse}, common::SiemMessa
 use super::actor::Running;
 
 
+/// The service dos not run like a normal component. It only reacts 
 #[allow(unused_variables)]
 pub trait Service : Sized + Send {
     type Context : ServiceContext;
@@ -24,7 +25,6 @@ pub trait Service : Sized + Send {
 /// The execution context defines the type of execution, and the
 /// actor communication channels (message handling).
 pub trait ServiceContext: Sized {
-
     fn datasets(&self) -> DatasetStore;
     fn send_command(&self, command : SiemCommand);
     fn send_command_with_cb(&self, command : SiemCommand, cb : Option<()>);

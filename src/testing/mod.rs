@@ -2,10 +2,13 @@ use std::thread::JoinHandle;
 
 use crossbeam_channel::{SendError, Sender};
 
-use crate::components::{
-    command::{SiemCommand, SiemCommandHeader},
-    common::SiemMessage,
-    SiemComponent,
+use crate::{
+    components::{
+        command::SiemCommand,
+        common::SiemMessage,
+        SiemComponent,
+    },
+    runtime::address::Mailed,
 };
 pub mod parsers;
 
@@ -22,13 +25,9 @@ where
     let comp_name = component.name().to_string();
     std::thread::spawn(move || {
         action();
-        sender.send(SiemMessage::Command(
-            SiemCommandHeader {
-                comp_id: 0,
-                comm_id: 0,
-                user: String::from("kernel"),
-            },
+        sender.send(SiemMessage::Command(Mailed::new(
+            0,0,
             SiemCommand::STOP_COMPONENT(comp_name),
-        ))
+        )))
     })
 }

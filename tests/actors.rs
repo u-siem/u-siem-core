@@ -1,8 +1,6 @@
-use usiem::{components::{collector::{LogCollectorAddr, LogCollectorContext, LogCollectorHandler}, parser::{LogParsingContext, LogProcessorHandler}}, datasets::store::DatasetStore, err::{ComponentError, SiemResult}, runtime::{actor::Actor, task::run_collector, Runtime}};
+use usiem::{components::{collector::{LogCollectorContext, LogCollectorHandler}, parser::{LogParsingContext, LogProcessorHandler}}, err::ComponentError, events::SiemLog, runtime::{actor::Actor, address::ActorAddr, task::{run_collector, run_parser}, Runtime}};
 
-pub struct SuperCollector {
-    
-}
+pub struct SuperCollector {}
 
 impl SuperCollector {
     pub fn new() -> Self {
@@ -12,22 +10,52 @@ impl SuperCollector {
 
 impl Actor for SuperCollector {
     type Context = LogCollectorContext;
-    fn work(&mut self) -> Result<(), ComponentError>  {
+    fn step(&mut self, ctx : &mut Self::Context) -> Result<(), ComponentError>  {
+        ctx.ingest(SiemLog::new("TEST", 1, "TST"));
         Ok(())
     }
 }
 
 impl LogCollectorHandler for SuperCollector {}
 
-fn build_parser(datasets : DatasetStore) -> LogCollectorAddr {
-    let parser = SuperCollector::new();
+pub struct SuperParser {}
+
+impl SuperParser {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Actor for SuperParser {
+    type Context = LogParsingContext;
+    fn step(&mut self, ctx : &mut Self::Context) -> Result<(), ComponentError>  {
+        Ok(())
+    }
+}
+
+impl LogProcessorHandler for SuperParser {
+    #[allow(unused_variables)]
+    fn parse_log(&mut self, log: usiem::prelude::SiemLog, ctx: &mut LogParsingContext) {
+        println!("{:?}", log);
+    }
+}
+
+fn build_parser(ctx : LogParsingContext) -> ActorAddr {
+    let parser = SuperParser::new();
     //parser.start();
-    run_collector(parser, datasets)
+    run_parser(parser, ctx)
+}
+
+fn build_collector(ctx : LogCollectorContext) -> ActorAddr {
+    let collector = SuperCollector::new();
+    //parser.start();
+    run_collector(collector, ctx)
 }
 
 #[test]
 fn should_run_actor() {
     Runtime::init();
-    Runtime::register_collector(build_parser);
+    Runtime::register_collector(build_collector);
+    Runtime::register_parser(build_parser);
     Runtime::start();
 }

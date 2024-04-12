@@ -1,8 +1,6 @@
 use crate::prelude::{types::LogString, SiemField};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
-
-use super::ifield::InternalField;
+use std::{collections::{BTreeMap, BTreeSet}, net::IpAddr};
 
 //use serde::ser::{Serializer, SerializeStruct};
 
@@ -17,9 +15,7 @@ pub struct SiemLog {
     tags: BTreeSet<LogString>,
     /// Map of fields extracted or generated for this log. Must follow the Elastic Common Schema (ECS v1.x)
     #[serde(flatten)]
-    pub(crate) fields: BTreeMap<LogString, InternalField>,
-    #[serde(skip, default)]
-    ip_fields: BTreeSet<LogString>,
+    pub(crate) fields: BTreeMap<LogString, SiemField>,
 }
 
 impl<'a> SiemLog {
@@ -46,8 +42,7 @@ impl<'a> SiemLog {
         );
         SiemLog {
             tags: BTreeSet::default(),
-            fields,
-            ip_fields: BTreeSet::new(),
+            fields
         }
     }
 
@@ -199,19 +194,16 @@ impl<'a> SiemLog {
         &self.tags
     }
     pub fn field(&'a self, field_name: &str) -> Option<&SiemField> {
-        Some(&self.fields.get(field_name)?.original)
+        self.fields.get(field_name)
     }
     pub fn field_mut(&'a mut self, field_name: &str) -> Option<&mut SiemField> {
-        Some(&mut self.fields.get_mut(field_name)?.original)
+        self.fields.get_mut(field_name)
     }
     pub fn add_field(&mut self, field_name: &str, field_value: SiemField) {
         let field_name = LogString::Owned(field_name.to_owned());
         self.insert(field_name, field_value);
     }
     pub fn insert(&mut self, field_name: LogString, field_value: SiemField) {
-        if let SiemField::IP(_) = &field_value {
-            self.ip_fields.insert(field_name.clone());
-        }
         self.fields.insert(field_name, field_value.into());
     }
     pub fn has_field(&self, field_name: &str) -> bool {
@@ -232,158 +224,22 @@ impl<'a> SiemLog {
             children: self.fields.iter_mut(),
         }
     }
-    pub fn ip_fields(&self) -> EventFieldIter<'_> {
-        EventFieldIter {
-            names: self.ip_fields.iter(),
-            fields: &self.fields,
-        }
-    }
-    /// Obtains the casted value of the field into i64 and caches it
-    pub fn i64_field(&'a mut self, field_name: &str) -> Option<i64> {
-        let field = self.fields.get_mut(field_name)?;
-        match field.ni64.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(v) => return Some(*v),
-        };
-        let i64field: Option<i64> = (&field.original).try_into().ok();
-        let pfield = match i64field {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.ni64 = Box::new(pfield);
-        match field.ni64.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None,
-        }
-    }
-    /// Obtains the casted value of the field into f64 and caches it
-    pub fn f64_field(&'a mut self, field_name: &str) -> Option<f64> {
-        let field = self.fields.get_mut(field_name)?;
-        match field.nf64.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(v) => return Some(*v),
-        };
-        let i64field: Option<f64> = (&field.original).try_into().ok();
-        let pfield = match i64field {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.nf64 = Box::new(pfield);
-        match field.nf64.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None,
-        }
-    }
-    /// Obtains the casted value of the field into u64 and caches it
-    pub fn u64_field(&'a mut self, field_name: &str) -> Option<u64> {
-        let field = self.fields.get_mut(field_name)?;
-        match field.nu64.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(v) => return Some(*v),
-        };
-        let i64field: Option<u64> = (&field.original).try_into().ok();
-        let pfield = match i64field {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.nu64 = Box::new(pfield);
-        match field.nu64.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None,
-        }
-    }
-    /// Obtains the casted value of the field into IP and caches it
-    pub fn ip_field(&'a mut self, field_name: &str) -> Option<std::net::IpAddr> {
-        let field = self.fields.get_mut(field_name)?;
-        match field.ip.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(v) => return Some(*v),
-        };
-        let i64field: Option<std::net::IpAddr> = (&field.original).try_into().ok();
-        let pfield = match i64field {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.ip = Box::new(pfield);
-        match field.ip.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(*v),
-            _ => None,
-        }
-    }
-    /// Obtains the casted value of the field into LogString and caches it
-    pub fn txt_field(&'a mut self, field_name: &str) -> Option<&LogString> {
-        let mut has_value = false;
-
-        let field = self.fields.get_mut(field_name)?;
-        match field.text.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(_) => {
-                has_value = true;
-            }
-        };
-        if has_value {
-            match field.text.as_ref() {
-                super::ifield::PreStoredField::Some(v) => return Some(v),
-                _ => return None,
-            }
-        }
-        let txtfield: Option<LogString> = (&field.original).try_into().ok();
-        let pfield = match txtfield {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.text = Box::new(pfield);
-        match field.text.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(v),
-            _ => None,
-        }
-    }
-    /// Obtains the casted value of the field into Vec<LogString> and caches it
-    pub fn array_field(&'a mut self, field_name: &str) -> Option<&Vec<LogString>> {
-        let mut has_value = false;
-
-        let field = self.fields.get_mut(field_name)?;
-        match field.array.as_ref() {
-            super::ifield::PreStoredField::Invalid => return None,
-            super::ifield::PreStoredField::None => {}
-            super::ifield::PreStoredField::Some(_) => {
-                has_value = true;
-            }
-        };
-        if has_value {
-            match field.array.as_ref() {
-                super::ifield::PreStoredField::Some(v) => return Some(v),
-                _ => return None,
-            }
-        }
-        let txtfield: Option<Vec<LogString>> = (&field.original).try_into().ok();
-        let pfield = match txtfield {
-            Some(v) => super::ifield::PreStoredField::Some(v),
-            None => super::ifield::PreStoredField::Invalid,
-        };
-        field.array = Box::new(pfield);
-        match field.array.as_ref() {
-            super::ifield::PreStoredField::Some(v) => Some(v),
-            _ => None,
+    pub fn ip_fields(&self) -> IpFieldIter<'_> {
+        IpFieldIter {
+            children: self.fields.iter(),
         }
     }
 }
 
 pub struct EventIter<'a> {
-    children: std::collections::btree_map::Iter<'a, LogString, InternalField>,
+    children: std::collections::btree_map::Iter<'a, LogString, SiemField>,
 }
-pub struct EventFieldIter<'a> {
-    names: std::collections::btree_set::Iter<'a, LogString>,
-    fields: &'a BTreeMap<LogString, InternalField>,
+pub struct IpFieldIter<'a> {
+    children: std::collections::btree_map::Iter<'a, LogString, SiemField>,
 }
 
 pub struct EventIterMut<'a> {
-    children: std::collections::btree_map::IterMut<'a, LogString, InternalField>,
+    children: std::collections::btree_map::IterMut<'a, LogString, SiemField>,
 }
 
 impl<'a> Iterator for EventIter<'a> {
@@ -391,7 +247,7 @@ impl<'a> Iterator for EventIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let evt = self.children.next()?;
-        Some((evt.0, &evt.1.original))
+        Some((evt.0, &evt.1))
     }
 }
 impl<'a> Iterator for EventIterMut<'a> {
@@ -399,22 +255,25 @@ impl<'a> Iterator for EventIterMut<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let evt = self.children.next()?;
-        Some((evt.0, &mut evt.1.original))
+        Some((evt.0, evt.1))
     }
 }
-impl<'a> Iterator for EventFieldIter<'a> {
-    type Item = (&'a LogString, &'a SiemField);
+impl<'a> Iterator for IpFieldIter<'a> {
+    type Item = (&'a LogString, &'a IpAddr);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let field = self.names.next()?;
-        let value = self.fields.get(field)?;
-        Some((field, &value.original))
+        loop {
+            let nxt = self.children.next()?;
+            if let SiemField::IP(ip) = nxt.1 {
+                return Some((nxt.0, ip));
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::net::{IpAddr, Ipv4Addr};
+    use std::net::Ipv4Addr;
 
     use super::*;
     use crate::prelude::event::SiemEvent;
@@ -443,40 +302,5 @@ mod tests {
         );
         let val: &str = log.field("event.dataset").unwrap().try_into().unwrap();
         assert_eq!("filterlog", val);
-    }
-
-    #[test]
-    fn casting_between_fields() {
-        let mut log = SiemLog::new("", 0, "");
-        let (name, value) = ("field_1", "value_1");
-        log.add_field(name, value.into());
-        assert_eq!(value, log.txt_field(name).unwrap());
-
-        let (name, value) = ("field_1", 100u64);
-        log.add_field(name, value.into());
-        assert_eq!(value as u64, log.u64_field(name).unwrap());
-        assert_eq!(value as i64, log.i64_field(name).unwrap());
-        assert_eq!(value as f64, log.f64_field(name).unwrap());
-
-        let (name, value) = ("field_1", -200i64);
-        log.add_field(name, value.into());
-        assert_eq!(value as u64, log.u64_field(name).unwrap());
-        assert_eq!(value as i64, log.i64_field(name).unwrap());
-        assert_eq!(value as f64, log.f64_field(name).unwrap());
-
-        let (name, value) = ("field_1", 300.512f64);
-        log.add_field(name, value.clone().into());
-        assert_eq!(value as u64, log.u64_field(name).unwrap());
-        assert_eq!(value as i64, log.i64_field(name).unwrap());
-        assert_eq!(value as f64, log.f64_field(name).unwrap());
-
-        let (name, value) : (&str, IpAddr) = ("field_1", std::net::Ipv4Addr::new(1, 2, 3, 4).into());
-        log.add_field(name, value.clone().into());
-        assert_eq!(value, log.ip_field(name).unwrap());
-
-        let (name, value): (&'static str, Vec<LogString>) =
-            ("field_1", vec!["value_001".into(), "value_002".into()]);
-        log.add_field(name, value.clone().into());
-        assert_eq!(&value, log.array_field(name).unwrap());
     }
 }

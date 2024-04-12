@@ -33,15 +33,15 @@ static VALID_DESCRIPTION_REGEX: OnceLock<Regex> = OnceLock::new();
 /// # Example
 ///
 /// ```
-/// use usiem::components::metrics::SiemMetricDefinition;
+/// use usiem::components::metrics::MetricDefinition;
 /// use usiem::components::metrics::counter::CounterVec;
-/// SiemMetricDefinition::new("basic_event_counter",  "Events processed by the SIEM", CounterVec::new(&[
+/// MetricDefinition::new("basic_event_counter",  "Events processed by the SIEM", CounterVec::new(&[
 ///    &[("parser","Firewall"), ("v","1")],
 ///    &[("parser","Linux"), ("v","1")]
 /// ]).into()).unwrap();
 /// ```
 #[derive(Serialize, Debug, Clone)]
-pub struct SiemMetricDefinition {
+pub struct MetricDefinition {
     metric: SiemMetric,
     name: LogString,
     description: LogString,
@@ -58,7 +58,7 @@ pub enum SiemMetric {
     Histogram(HistogramVec),
 }
 
-impl SiemMetricDefinition {
+impl MetricDefinition {
     pub fn new<S: Into<LogString>>(
         name: S,
         description: S,
@@ -103,7 +103,7 @@ impl Serialize for SiemMetric {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("SiemMetricDefinition", 2)?;
+        let mut state = serializer.serialize_struct("MetricDefinition", 2)?;
         match self {
             SiemMetric::Counter(cnt) => {
                 state.serialize_field("metric_type", "Counter")?;

@@ -2,7 +2,7 @@ use std::time::{Duration, Instant};
 
 use crossbeam_channel::{Sender, Receiver, Select};
 
-use crate::{alerts::SiemAlert, prelude::{store::DatasetStore, SiemDataset, SiemLog, SiemResult}};
+use crate::{alerts::SiemAlert, prelude::{store::DatasetStore, SiemDataset, SiemLog, SiemResult}, runtime::address::Mailed};
 
 use super::{command::{SiemCommandHeader, SiemCommand, SiemResponse}, task::{SiemTask, SiemTaskResult}, common::{SiemMessage, SiemComponentCapabilities, Notification}, storage::SiemComponentStateStorage, SiemComponent};
 
@@ -193,11 +193,11 @@ fn deadline_of_tick(tick : Option<u64>) -> Option<Instant> {
 #[allow(unreachable_patterns)]
 fn process_message( msg : SiemMessage, component : &mut Box<dyn SimplifiedComponent>, state : &SimpleComponent) -> Option<SiemResult<()>> {
     Some(match msg {
-        SiemMessage::Command(header, action) => {
-            if let SiemCommand::STOP_COMPONENT(_) = &action {
+        SiemMessage::Command(action) => {
+            if let SiemCommand::STOP_COMPONENT(_) = &action.msg {
                 return None
             }
-            component.on_command(header, action)
+            component.on_command(Mailed::new(action.id(), action))
         },
         SiemMessage::Response(header, response) => component.on_response(header, response),
         SiemMessage::Log(log) => return process_log_for_component(log, component, state),

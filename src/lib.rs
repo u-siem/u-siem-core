@@ -29,7 +29,7 @@ pub mod prelude {
     pub use crate::components::{
         command, command::*, command_types, command_types::*, common, common::*, metrics,
         metrics::*, storage, storage::*, task,
-        SiemComponent, SiemDatasetManager, SiemRuleEngine, simplified::*
+        SiemComponent, SiemDatasetManager, SiemRuleEngine
     };
 
     pub use crate::err::*;

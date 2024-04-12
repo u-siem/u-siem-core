@@ -1,10 +1,11 @@
 use crate::alerts::SiemAlert;
 use crate::prelude::types::LogString;
 use crate::prelude::{SiemDataset, SiemDatasetType};
+use crate::runtime::address::Mailed;
 
 use super::super::events::SiemLog;
 use super::command::{CommandDefinition, SiemCommand, SiemCommandHeader, SiemResponse};
-use super::metrics::SiemMetricDefinition;
+use super::metrics::MetricDefinition;
 use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
 use serde::{Deserialize, Serialize};
 
@@ -12,9 +13,9 @@ use serde::{Deserialize, Serialize};
 #[non_exhaustive]
 pub enum SiemMessage {
     /// Execute a command in the component
-    Command(SiemCommandHeader, SiemCommand),
+    Command(Mailed<SiemCommand>),
     /// Response to a function call, first element is the ID of the Response
-    Response(SiemCommandHeader, SiemResponse),
+    Response(Mailed<SiemResponse>),
     /// Process a log
     Log(SiemLog),
     /// Local logging system. First element is the ID of the component, to be able to route messages
@@ -24,8 +25,8 @@ pub enum SiemMessage {
     Dataset(SiemDataset),
     /// Alerting
     Alert(SiemAlert),
-    Task(SiemCommandHeader, SiemTask),
-    TaskResult(SiemCommandHeader, SiemTaskResult),
+    Task(Mailed<SiemTask>),
+    TaskResult(Mailed<SiemTaskResult>),
 }
 
 /// A internal event that occur in a SIEM component such as problems, errors or just information on current operations.
@@ -58,7 +59,7 @@ pub struct SiemComponentCapabilities {
     datasets: Vec<DatasetDefinition>,
     commands: Vec<CommandDefinition>,
     tasks: Vec<TaskDefinition>,
-    metrics: Vec<SiemMetricDefinition>,
+    metrics: Vec<MetricDefinition>,
 }
 impl SiemComponentCapabilities {
     pub fn new(
@@ -68,7 +69,7 @@ impl SiemComponentCapabilities {
         datasets: Vec<DatasetDefinition>,
         commands: Vec<CommandDefinition>,
         tasks: Vec<TaskDefinition>,
-        metrics: Vec<SiemMetricDefinition>,
+        metrics: Vec<MetricDefinition>,
     ) -> Self {
         Self {
             name,
@@ -98,7 +99,7 @@ impl SiemComponentCapabilities {
     pub fn tasks(&self) -> &Vec<TaskDefinition> {
         &self.tasks
     }
-    pub fn metrics(&self) -> &Vec<SiemMetricDefinition> {
+    pub fn metrics(&self) -> &Vec<MetricDefinition> {
         &self.metrics
     }
 }
@@ -150,13 +151,13 @@ impl DatasetDefinition {
 
 impl From<SiemCommand> for SiemMessage {
     fn from(c: SiemCommand) -> Self {
-        SiemMessage::Command(SiemCommandHeader::default(), c)
+        SiemMessage::Command(Mailed::new(0, 0, c))
     }
 }
 
 impl From<SiemResponse> for SiemMessage {
     fn from(c: SiemResponse) -> Self {
-        SiemMessage::Response(SiemCommandHeader::default(), c)
+        SiemMessage::Response(Mailed::new(0, 0, c))
     }
 }
 
@@ -186,12 +187,33 @@ impl From<SiemDataset> for SiemMessage {
 
 impl From<SiemTask> for SiemMessage {
     fn from(c: SiemTask) -> Self {
-        SiemMessage::Task(SiemCommandHeader::default(), c)
+        SiemMessage::Task(Mailed::new(0, 0, c))
     }
 }
 
 impl From<SiemTaskResult> for SiemMessage {
     fn from(c: SiemTaskResult) -> Self {
-        SiemMessage::TaskResult(SiemCommandHeader::default(), c)
+        SiemMessage::TaskResult(Mailed::new(0, 0, c))
+    }
+}
+
+impl From<Mailed<SiemResponse>> for SiemMessage {
+    fn from(value: Mailed<SiemResponse>) -> Self {
+        SiemMessage::Response(value)
+    }
+}
+impl From<Mailed<SiemTaskResult>> for SiemMessage {
+    fn from(value: Mailed<SiemTaskResult>) -> Self {
+        SiemMessage::TaskResult(value)
+    }
+}
+impl From<Mailed<SiemCommand>> for SiemMessage {
+    fn from(value: Mailed<SiemCommand>) -> Self {
+        SiemMessage::Command(value)
+    }
+}
+impl From<Mailed<SiemTask>> for SiemMessage {
+    fn from(value: Mailed<SiemTask>) -> Self {
+        SiemMessage::Task(value)
     }
 }

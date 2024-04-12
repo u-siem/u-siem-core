@@ -75,6 +75,14 @@ pub enum LogParsingError {
     Discard,
 }
 
+/// Error at parsing a log
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum LogEnrichmentError {
+    DatasetError(LogString),
+    /// Log was discarded.
+    Discard
+}
+
 impl From<MessagingError> for SiemError {
     fn from(e: MessagingError) -> Self {
         Self::Messaging(e)
