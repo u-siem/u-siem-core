@@ -44,15 +44,15 @@ pub struct IsolateIp {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[non_exhaustive]
-pub enum LogUserIn {
-    Password(LogUserInPass),
+pub enum LoginUser {
+    Password(LoginUserPassword),
     ApiKey(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct LogUserInPass {
+pub struct LoginUserPassword {
     pub username: LogString,
     pub password: LogString,
 }
 
-impl Command for LogUserIn {}
+impl Command for LoginUserPassword {}

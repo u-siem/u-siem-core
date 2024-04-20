@@ -79,37 +79,6 @@ impl CommandDefinition {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct SiemCommandHeader {
-    /// User that created the command
-    pub user: String,
-    /// Component ID that created the command or the response
-    pub comp_id: u64,
-    /// Internal command ID: serves as an internal mapping betwen components as to replay to a specific component
-    ///
-    /// COMMAND => (COMPONENT) CMP_ID ->(KERNEL)-> CMP_ID<=>CMP_KRNL_ID ->(OTHER COMPONENT) -> CMP_KRNL_ID
-    ///
-    ///
-    /// RESPONSE => (OTHER COMPONENT) RSP_ID=CMP_KRNL_ID ->(KERNEL)-> RSP_ID=CMP_KRNL_ID<=>CMP_ID -> (COMPONENT) -> CMP_ID
-    pub comm_id: u64,
-}
-
-impl SiemCommandHeader {
-    pub fn new<S: Into<String>>(user: S, component: u64, command: u64) -> Self {
-        Self {
-            user: user.into(),
-            comp_id: component,
-            comm_id: command,
-        }
-    }
-    pub fn for_user<S: Into<String>>(user: S) -> Self {
-        Self {
-            user: user.into(),
-            ..Default::default()
-        }
-    }
-}
-
 /// Execute a command with parameters
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_camel_case_types)]

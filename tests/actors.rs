@@ -42,13 +42,11 @@ impl LogProcessorHandler for SuperParser {
 
 fn build_parser(ctx : LogParsingContext) -> ActorAddr {
     let parser = SuperParser::new();
-    //parser.start();
     run_parser(parser, ctx)
 }
 
 fn build_collector(ctx : LogCollectorContext) -> ActorAddr {
     let collector = SuperCollector::new();
-    //parser.start();
     run_collector(collector, ctx)
 }
 

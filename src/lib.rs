@@ -28,8 +28,7 @@ pub mod prelude {
     pub use crate::runtime::{self, channel::RuntimeChannel};
     pub use crate::components::{
         command, command::*, command_types, command_types::*, common, common::*, metrics,
-        metrics::*, storage, storage::*, task,
-        SiemComponent, SiemDatasetManager, SiemRuleEngine
+        metrics::*, storage, storage::*, task
     };
 
     pub use crate::err::*;

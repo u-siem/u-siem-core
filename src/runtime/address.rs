@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::components::common::SiemMessage;
 
-pub mod channel;
-
 thread_local! {
     static ID_COUNTER : RefCell<u64> = RefCell::new(SystemTime::now()
     .duration_since(UNIX_EPOCH)

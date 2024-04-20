@@ -4,9 +4,8 @@ use crate::prelude::{SiemDataset, SiemDatasetType};
 use crate::runtime::address::Mailed;
 
 use super::super::events::SiemLog;
-use super::command::{CommandDefinition, SiemCommand, SiemCommandHeader, SiemResponse};
-use super::metrics::MetricDefinition;
-use super::task::{SiemTask, SiemTaskResult, TaskDefinition};
+use super::command::{SiemCommand, SiemResponse};
+use super::task::{SiemTask, SiemTaskResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,60 +47,6 @@ pub enum NotificationLevel {
     Info,
     Debug,
     Trace,
-}
-
-/// What is supported by a component: commands that accepts, datasets that uses, exported metrics...
-#[derive(Serialize, Debug, Clone)]
-pub struct SiemComponentCapabilities {
-    name: LogString,
-    description: LogString,
-    view: LogString,
-    datasets: Vec<DatasetDefinition>,
-    commands: Vec<CommandDefinition>,
-    tasks: Vec<TaskDefinition>,
-    metrics: Vec<MetricDefinition>,
-}
-impl SiemComponentCapabilities {
-    pub fn new(
-        name: LogString,
-        description: LogString,
-        view: LogString,
-        datasets: Vec<DatasetDefinition>,
-        commands: Vec<CommandDefinition>,
-        tasks: Vec<TaskDefinition>,
-        metrics: Vec<MetricDefinition>,
-    ) -> Self {
-        Self {
-            name,
-            description,
-            view,
-            datasets,
-            commands,
-            tasks,
-            metrics,
-        }
-    }
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-    pub fn description(&self) -> &str {
-        &self.description
-    }
-    pub fn view(&self) -> &str {
-        &self.view
-    }
-    pub fn datasets(&self) -> &Vec<DatasetDefinition> {
-        &self.datasets
-    }
-    pub fn commands(&self) -> &Vec<CommandDefinition> {
-        &self.commands
-    }
-    pub fn tasks(&self) -> &Vec<TaskDefinition> {
-        &self.tasks
-    }
-    pub fn metrics(&self) -> &Vec<MetricDefinition> {
-        &self.metrics
-    }
 }
 
 /// An easy to use role based system

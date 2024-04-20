@@ -9,9 +9,9 @@ pub mod capabilities;
 
 use std::cell::RefCell;
 
-use crate::{components::{collector::{LogCollectorBuilder, LogCollectorContext}, parser::{LogParserBuilder, LogParsingContext}}, datasets, prelude::store::DatasetStore};
+use crate::{components::{collector::{LogCollectorBuilder, LogCollectorContext}, correlation::LogCorrelatorBuilder, parser::{LogParserBuilder, LogParsingContext}}, datasets, prelude::store::DatasetStore};
 
-use self::actor::Actor;
+use self::service::ServiceBuilder;
 
 thread_local!(
     static CURRENT: RefCell<Option<Runtime>> = RefCell::new(None);
@@ -21,7 +21,11 @@ thread_local!(
 #[derive(Default)]
 pub struct Runtime {
     pub collectors : Vec<LogCollectorBuilder>,
-    pub parsers : Vec<LogParserBuilder>,
+    pub parser : Option<LogParserBuilder>,
+    pub enricher : Option<LogParserBuilder>,
+    pub indexer : Option<LogParserBuilder>,
+    pub correlator : Option<LogCorrelatorBuilder>,
+    pub services : Vec<ServiceBuilder>,
     pub datasets : DatasetStore
 }
 
@@ -40,13 +44,11 @@ impl Runtime {
         }
         self.collectors.push(builder);
     }
-    pub fn add_parser(&mut self, builder : LogParserBuilder) {
-        for coll in self.parsers.iter() {
-            if *coll == builder {
-                return
-            }
-        }
-        self.parsers.push(builder);
+    pub fn set_parser(&mut self, builder : LogParserBuilder) {
+        self.parser = Some(builder);
+    }
+    pub fn set_correlator(&mut self, builder : LogCorrelatorBuilder) {
+        self.correlator = Some(builder);
     }
 
     /// Adds a collector to the GLOBAL instance
@@ -61,7 +63,7 @@ impl Runtime {
     pub fn register_parser(builder : LogParserBuilder) {
         CURRENT.with_borrow_mut(|b|{
             b.as_mut().map(|b| {
-                b.add_parser(builder);
+                b.set_parser(builder);
             });
         })
     }
@@ -91,7 +93,7 @@ impl Runtime {
         let ctx = LogCollectorContext::new(runtime.clone(), collector_sender, self.datasets.clone());
         let collectors : Vec<_> = self.collectors.iter().map(|c| c(ctx.clone())).collect();
         let ctx = LogParsingContext::new(runtime.clone(), parser_sender, parser_receiver, self.datasets.clone());
-        let parsers : Vec<_> = self.parsers.iter().map(|c| c(ctx.clone())).collect();
+        let parsers : Vec<_> = self.parser.iter().map(|c| c(ctx.clone())).collect();
         //TODO: interconnect datasets
         for _ in 0..10 {
             std::thread::sleep(std::time::Duration::from_secs(1));

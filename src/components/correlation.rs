@@ -10,22 +10,22 @@ use crate::runtime::address::{ActorAddr, Mailed};
 use super::command::SiemResponse;
 use super::common::SiemMessage;
 
-pub type LogParserBuilder = fn(LogParsingContext) -> ActorAddr;
+pub type LogCorrelatorBuilder = fn(LogCorrelationContext) -> ActorAddr;
 
 #[allow(unused_variables)]
-pub trait LogProcessorHandler : Actor<Context = LogParsingContext> {    
+pub trait LogCorrelatorHandler : Actor<Context = LogCorrelationContext> {    
     /// Called for every log emitted by the stream.
-    fn parse_log(&mut self, log: SiemLog, ctx: &mut LogParsingContext);
+    fn parse_log(&mut self, log: SiemLog, ctx: &mut LogCorrelationContext);
 }
 
-pub struct LogParsingContext {
+pub struct LogCorrelationContext {
     sender: Sender<SiemLog>,
     receiver: Receiver<SiemLog>,
     runtime : Sender<SiemMessage>,
     datasets : DatasetStore
 }
 
-impl ActorContext for LogParsingContext {
+impl ActorContext for LogCorrelationContext {
     fn stop(&mut self) {
     }
 
@@ -51,12 +51,12 @@ impl ActorContext for LogParsingContext {
     }
 }
 
-impl Clone for LogParsingContext {
+impl Clone for LogCorrelationContext {
     fn clone(&self) -> Self {
         Self { sender: self.sender.clone(), receiver: self.receiver.clone(), runtime: self.runtime.clone(), datasets: self.datasets.clone()}
     }
 }
-impl Default for LogParsingContext {
+impl Default for LogCorrelationContext {
     fn default() -> Self {
         let (sender,_) = crossbeam_channel::bounded(1);
         let (runtime,_) = crossbeam_channel::bounded(1);
@@ -70,7 +70,7 @@ impl Default for LogParsingContext {
         }
     }
 }
-impl LogParsingContext {
+impl LogCorrelationContext {
     pub fn new(runtime : Sender<SiemMessage>,sender : Sender<SiemLog>, receiver: Receiver<SiemLog>, datasets : DatasetStore) -> Self {
         Self {
             runtime,

@@ -48,6 +48,7 @@ clone_trait_object!(SiemComponentStateStorage);
 #[derive(Clone)]
 pub struct DummyStateStorage {}
 
+#[allow(unused_variables)]
 impl SiemComponentStateStorage for DummyStateStorage {
     fn get_value(&self, _key: &str) -> Result<String, StorageError> {
         Err(StorageError::NotExists)
@@ -55,40 +56,40 @@ impl SiemComponentStateStorage for DummyStateStorage {
 
     fn set_value(
         &mut self,
-        _key: &str,
-        _value: LogString,
-        _replace: bool,
+        key: &str,
+        value: LogString,
+        replace: bool,
     ) -> Result<(), StorageError> {
         Ok(())
     }
 
-    fn get_file(&self, _filepath: &str) -> Result<Vec<u8>, StorageError> {
+    fn get_file(&self, filepath: &str) -> Result<Vec<u8>, StorageError> {
         Err(StorageError::NotExists)
     }
 
-    fn get_file_size(&self, _filepath: &str) -> Result<u64, StorageError> {
+    fn get_file_size(&self, filepath: &str) -> Result<u64, StorageError> {
         Err(StorageError::NotExists)
     }
 
     fn get_file_range(
         &self,
-        _filepath: &str,
-        _start: u64,
-        _end: u64,
+        filepath: &str,
+        start: u64,
+        end: u64,
     ) -> Result<Vec<u8>, StorageError> {
         Err(StorageError::NotExists)
     }
 
-    fn set_file(&mut self, _filepath: &str, _content: Vec<u8>) -> Result<(), StorageError> {
+    fn set_file(&mut self, filepath: &str, content: Vec<u8>) -> Result<(), StorageError> {
         Ok(())
     }
 
     fn set_file_range(
         &mut self,
-        _filepath: &str,
-        _content: Vec<u8>,
-        _start: u64,
-        _end: u64,
+        filepath: &str,
+        content: Vec<u8>,
+        start: u64,
+        end: u64,
     ) -> Result<(), StorageError> {
         Err(StorageError::NotExists)
     }
