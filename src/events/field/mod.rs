@@ -1,12 +1,19 @@
 use crate::prelude::types::LogString;
-
-use chrono::NaiveDateTime;
-use chrono::SecondsFormat;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
 use std::path::PathBuf;
 use std::str::FromStr;
+
+mod user;
+pub use user::*;
+mod domain;
+pub use domain::*;
+mod asset;
+pub use asset::*;
+mod date;
+pub use date::*;
+pub(crate) mod macros;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 #[serde(untagged)]
@@ -19,8 +26,8 @@ pub enum SiemField {
     /// IPv4 or IPv6
     IP(std::net::IpAddr),
     //Domain like contoso.com
-    Domain(String),
-    User(String),
+    Domain(Domain),
+    User(User),
     ///This is a special field. Uniquely identifies an asset like a system, a
     /// computer or a mobile phone. Reason: the network is dynamic, the IP address
     /// is not fixed certain devices and the hostname of a system can be changed.
@@ -31,7 +38,7 @@ pub enum SiemField {
     ///
     /// Can be multiple AssetsID associated with the same event because multiple virtual
     /// machines can be running in the same asset.
-    AssetID(String),
+    AssetID(AssetId),
     /// unsigned number with 64 bits
     U64(u64),
     /// signed number with 64 bits
@@ -39,7 +46,7 @@ pub enum SiemField {
     /// decimal number with 64 bits
     F64(f64),
     ///A date in a decimal number format with 64 bits
-    Date(i64),
+    Date(Date),
     Array(Vec<LogString>),
     Path(PathBuf),
 }
@@ -56,20 +63,13 @@ impl Display for SiemField {
         match self {
             SiemField::Text(txt) => write!(f, "{}", txt),
             SiemField::IP(txt) => write!(f, "{}", txt),
-            SiemField::Domain(txt) => write!(f, "{}", txt),
-            SiemField::User(txt) => write!(f, "{}", txt),
-            SiemField::AssetID(txt) => write!(f, "{}", txt),
+            SiemField::Domain(txt) => write!(f, "{}", txt.0),
+            SiemField::User(txt) => write!(f, "{}", txt.0),
+            SiemField::AssetID(txt) => write!(f, "{}", txt.0),
             SiemField::U64(txt) => write!(f, "{}", txt),
             SiemField::I64(txt) => write!(f, "{}", txt),
             SiemField::F64(txt) => write!(f, "{}", txt),
-            SiemField::Date(ts_millis) => {
-                let dt = NaiveDateTime::from_timestamp_millis(*ts_millis).unwrap_or_default();
-                write!(
-                    f,
-                    "{}",
-                    dt.and_utc().to_rfc3339_opts(SecondsFormat::Millis, true)
-                )
-            }
+            SiemField::Date(v) => write!(f, "{}", v),
             SiemField::Array(v) => write!(f, "[{}]", v.join(",")),
             _ => write!(f, ""),
         }
@@ -79,7 +79,7 @@ impl Display for SiemField {
 impl PartialEq for SiemField {
     fn eq(&self, other: &Self) -> bool {
         match self {
-            SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => match other {
+            SiemField::Domain(Domain(v)) | SiemField::User(User(v)) | SiemField::AssetID(AssetId(v)) => match other {
                 SiemField::Text(txt) => v[..] == *txt,
                 SiemField::IP(ip) => v[..] == ip.to_string(),
                 SiemField::User(txt) => v[..] == *txt,
@@ -88,12 +88,12 @@ impl PartialEq for SiemField {
                 _ => false,
             },
             SiemField::Text(txt) => match other {
-                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => v[..] == *txt,
+                SiemField::Domain(Domain(v)) | SiemField::User(User(v)) | SiemField::AssetID(AssetId(v)) => v[..] == *txt,
                 SiemField::IP(ip) => *txt == ip.to_string(),
                 _ => *txt == other.to_string(),
             },
             SiemField::IP(ip) => match other {
-                SiemField::Domain(v) | SiemField::User(v) | SiemField::AssetID(v) => {
+                SiemField::Domain(Domain(v)) | SiemField::User(User(v)) | SiemField::AssetID(AssetId(v)) => {
                     v[..] == ip.to_string()
                 }
                 SiemField::Text(txt) => ip.to_string() == *txt,
@@ -137,6 +137,16 @@ impl SiemField {
         SiemField::Text(val.into())
     }
 
+    pub fn user(txt : String) -> Self {
+        Self::User(User(txt))
+    }
+    pub fn domain(txt : String) -> Self {
+        Self::Domain(Domain(txt))
+    }
+    pub fn asset(txt : String) -> Self {
+        Self::AssetID(AssetId(txt))
+    }
+
     pub fn eq_ignore_ascii_case(&self, other: &Self) -> bool {
         let self_txt: &str = match self.try_into() {
             Ok(v) => v,
@@ -162,16 +172,16 @@ impl SiemField {
             SiemField::Text(v) => v.contains(txt),
             SiemField::User(v) => v.contains(txt),
             SiemField::Domain(v) => v.contains(txt),
-            SiemField::AssetID(v) => v.contains(&v[..]),
+            SiemField::AssetID(v) => v.contains(v.into()),
             _ => false,
         }
     }
     pub fn contains(&self, other: &Self) -> bool {
         match other {
             SiemField::Text(v) => self.contains_str(&v[..]),
-            SiemField::User(v) => self.contains_str(&v[..]),
-            SiemField::Domain(v) => self.contains_str(&v[..]),
-            SiemField::AssetID(v) => self.contains_str(&v[..]),
+            SiemField::User(v) => self.contains_str(v.into()),
+            SiemField::Domain(v) => self.contains_str(v.into()),
+            SiemField::AssetID(v) => self.contains_str(v.into()),
             _ => false,
         }
     }
@@ -200,9 +210,9 @@ impl<'a> TryInto<&'a str> for &'a SiemField {
     fn try_into(self) -> Result<&'a str, Self::Error> {
         match self {
             SiemField::Text(v) => Ok(&v[..]),
-            SiemField::Domain(v) => Ok(&v[..]),
-            SiemField::User(v) => Ok(&v[..]),
-            SiemField::AssetID(v) => Ok(&v[..]),
+            SiemField::Domain(v) => Ok(v.into()),
+            SiemField::User(v) => Ok(v.into()),
+            SiemField::AssetID(v) => Ok(v.into()),
             _ => Err("Invalid text type"),
         }
     }
@@ -214,9 +224,9 @@ impl<'a> TryInto<LogString> for &'a SiemField {
     fn try_into(self) -> Result<LogString, Self::Error> {
         match self {
             SiemField::Text(v) => Ok(v.clone()),
-            SiemField::Domain(v) => Ok(LogString::Owned(v.to_string())),
-            SiemField::User(v) => Ok(LogString::Owned(v.to_string())),
-            SiemField::AssetID(v) => Ok(LogString::Owned(v.to_string())),
+            SiemField::Domain(v) => Ok(v.into()),
+            SiemField::User(v) => Ok(v.into()),
+            SiemField::AssetID(v) => Ok(v.into()),
             _ => Err("Invalid type"),
         }
     }
@@ -249,10 +259,10 @@ impl<'a> TryInto<Vec<LogString>> for &'a SiemField {
     fn try_into(self) -> Result<Vec<LogString>, Self::Error> {
         let value = match self {
             SiemField::Array(v) => return Ok(v.clone()),
-            SiemField::AssetID(v) => LogString::Owned(v.clone()),
+            SiemField::AssetID(v) => v.into(),
             SiemField::Text(v) => v.clone(),
-            SiemField::Domain(v) => LogString::Owned(v.clone()),
-            SiemField::User(v) => LogString::Owned(v.clone()),
+            SiemField::Domain(v) => v.into(),
+            SiemField::User(v) => v.into(),
             SiemField::I64(v) => LogString::Owned(v.to_string()),
             SiemField::F64(v) => LogString::Owned(v.to_string()),
             SiemField::U64(v) => LogString::Owned(v.to_string()),
@@ -273,7 +283,7 @@ impl<'a> TryInto<u64> for &'a SiemField {
             SiemField::F64(v) => *v as u64,
             SiemField::I64(v) => *v as u64,
             SiemField::U64(v) => *v,
-            SiemField::Date(v) => *v as u64,
+            SiemField::Date(v) => v.into(),
             _ => return Err("Invalid type"),
         })
     }
@@ -286,7 +296,7 @@ impl<'a> TryInto<i64> for &'a SiemField {
             SiemField::F64(v) => *v as i64,
             SiemField::I64(v) => *v,
             SiemField::U64(v) => *v as i64,
-            SiemField::Date(v) => *v,
+            SiemField::Date(v) => v.into(),
             _ => return Err("Invalid type"),
         })
     }
@@ -299,7 +309,7 @@ impl<'a> TryInto<f64> for &'a SiemField {
             SiemField::F64(v) => *v,
             SiemField::I64(v) => *v as f64,
             SiemField::U64(v) => *v as f64,
-            SiemField::Date(v) => *v as f64,
+            SiemField::Date(v) => v.into(),
             _ => return Err("Invalid type"),
         })
     }
@@ -425,7 +435,7 @@ mod tests {
     #[test]
     fn test_equals_between_fields() {
         let field_text = SiemField::Text(LogString::Borrowed("TEXT_001"));
-        let field_domain = SiemField::Domain(String::from("TEXT_001"));
+        let field_domain = SiemField::Domain("TEXT_001".into());
         assert_eq!(field_text, field_domain);
         let field_text = SiemField::Text(LogString::Borrowed("0.0.0.0"));
         let field_ip = SiemField::IP(std::net::IpAddr::from_str("0.0.0.0").unwrap());
@@ -439,14 +449,14 @@ mod tests {
         let field_ip = SiemField::F64(123.456);
         assert_eq!(field_text, field_ip);
         let field_text = SiemField::Text(LogString::Borrowed("User1234"));
-        let field_ip = SiemField::User("User1234".to_string());
+        let field_ip = SiemField::User("User1234".into());
         assert_eq!(field_text, field_ip);
-        let field_ip = SiemField::AssetID("User1234".to_string());
+        let field_ip = SiemField::AssetID("User1234".into());
         assert_eq!(field_text, field_ip);
         let field_text = SiemField::Text(LogString::Borrowed("-1234"));
         let field_ip = SiemField::I64(-1234);
         assert_eq!(field_text, field_ip);
-        let date = SiemField::Date(0);
+        let date = SiemField::Date(0.into());
         assert_eq!("1970-01-01T00:00:00.000Z", date.to_string());
     }
 }

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use super::auth::AuthEvent;
 use super::dhcp::DhcpEvent;
 use super::dns::DnsEvent;
+use super::field::Date;
 use super::firewall::FirewallEvent;
 use super::intrusion::IntrusionEvent;
 use super::log::SiemLog;
@@ -83,7 +84,7 @@ impl From<SiemEvent> for SiemLog {
             SiemEvent::WebServer(v) => v.into(),
             SiemEvent::Auth(v) => v.into(),
             SiemEvent::DHCP(v) => v.into(),
-            _ => SiemLog::new("", 0, ""),
+            _ => SiemLog::new("", Date::now(), ""),
         }
     }
 }

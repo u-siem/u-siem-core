@@ -1,6 +1,6 @@
 use crate::prelude::{types::LogString, SiemField, SiemLog};
 
-use super::{field_dictionary::*, };
+use super::{field::Date, field_dictionary::*};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -93,7 +93,7 @@ impl DnsRecordType {
 }
 impl From<DnsEvent> for SiemLog {
     fn from(val: DnsEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
         log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
         match val.op_code {

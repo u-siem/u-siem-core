@@ -1,4 +1,4 @@
-use usiem::{components::{collector::{LogCollectorContext, LogCollectorHandler}, parser::{LogParsingContext, LogProcessorHandler}}, err::ComponentError, events::SiemLog, runtime::{actor::Actor, address::ActorAddr, task::{run_collector, run_parser}, Runtime}};
+use usiem::{components::{collector::{LogCollectorContext, LogCollectorHandler}, parser::{LogParsingContext, LogProcessorHandler}}, err::ComponentError, events::SiemLog, prelude::Date, runtime::{actor::Actor, address::ActorAddr, task::{run_collector, run_parser}, Runtime}};
 
 pub struct SuperCollector {}
 
@@ -11,7 +11,7 @@ impl SuperCollector {
 impl Actor for SuperCollector {
     type Context = LogCollectorContext;
     fn step(&mut self, ctx : &mut Self::Context) -> Result<(), ComponentError>  {
-        ctx.ingest(SiemLog::new("TEST", 1, "TST"));
+        ctx.ingest(SiemLog::new("TEST", Date(1234), "TST"));
         Ok(())
     }
 }

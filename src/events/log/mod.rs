@@ -2,7 +2,12 @@ use crate::prelude::{types::LogString, SiemField};
 use serde::{Deserialize, Serialize};
 use std::{collections::{BTreeMap, BTreeSet}, net::IpAddr};
 
-//use serde::ser::{Serializer, SerializeStruct};
+use super::field::Date;
+
+
+pub mod edit;
+pub mod wrap;
+pub mod tfield;
 
 /// This is a simple log event. It contains information about the asset that generated
 /// this log, the client if we are working in a multi-client environments aka SOC,
@@ -19,7 +24,7 @@ pub struct SiemLog {
 }
 
 impl<'a> SiemLog {
-    pub fn new<S, M>(message: M, received: i64, origin: S) -> SiemLog
+    pub fn new<S, M>(message: M, received: Date, origin: S) -> SiemLog
     where
         S: Into<LogString>,
         M: Into<String>,
@@ -155,23 +160,23 @@ impl<'a> SiemLog {
         );
     }
     /// Timestamp at witch the log arrived in milliseconds since UNIX
-    pub fn event_received(&'a self) -> i64 {
+    pub fn event_received(&'a self) -> Date {
         match self.field("event.received") {
             Some(SiemField::Date(v)) => *v,
-            _ => 0,
+            _ => Date::now().into(),
         }
     }
     /// Timestamp at witch the log was generated. The clocks at origin must be correctly configured.
-    pub fn event_created(&'a self) -> i64 {
+    pub fn event_created(&'a self) -> Date {
         match self.field("event.created") {
             Some(SiemField::Date(v)) => *v,
-            _ => 0,
+            _ => Date::now().into(),
         }
     }
-    pub fn set_event_created(&mut self, date: i64) {
+    pub fn set_event_created(&mut self, date: Date) {
         self.fields.insert(
             LogString::Borrowed("event.created"),
-            SiemField::I64(date).into(),
+            SiemField::Date(date),
         );
     }
     pub fn has_tag(&self, tag: &str) -> bool {

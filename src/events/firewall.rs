@@ -1,8 +1,9 @@
 use crate::prelude::types::LogString;
 use crate::prelude::{SiemField, SiemLog};
 
+use super::field::Date;
 use super::protocol::NetworkProtocol;
-use super::{field_dictionary::*, };
+use super::field_dictionary::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -89,7 +90,7 @@ impl std::fmt::Display for FirewallOutcome {
 
 impl From<FirewallEvent> for SiemLog {
     fn from(val: FirewallEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
         log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
         log.add_field(SOURCE_PORT, SiemField::U64(val.source_port as u64));

@@ -1,4 +1,5 @@
 use super::common::{HttpMethod, WebProtocol};
+use super::field::Date;
 use super::field_dictionary::*;
 use crate::prelude::types::LogString;
 use crate::prelude::{SiemField, SiemLog};
@@ -103,7 +104,7 @@ impl std::fmt::Display for WebServerOutcome {
 
 impl From<WebServerEvent> for SiemLog {
     fn from(val: WebServerEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
         if let Some(ip) = val.destination_ip {
             log.add_field(DESTINATION_IP, SiemField::IP(ip));
@@ -136,7 +137,7 @@ impl From<WebServerEvent> for SiemLog {
         log.add_field(URL_PATH, SiemField::Text(val.url_path));
         log.add_field(URL_QUERY, SiemField::Text(val.url_query));
         log.add_field("url.extension", SiemField::Text(val.url_extension));
-        log.add_field(USER_NAME, SiemField::User(val.user_name.to_string()));
+        log.add_field(USER_NAME, SiemField::user(val.user_name.to_string()));
         log.add_field(HTTP_RESPONSE_MIME_TYPE, SiemField::Text(val.mime_type));
         log.add_field(NETWORK_DURATION, SiemField::F64(val.duration as f64));
         log.add_field("user_agent.original", SiemField::Text(val.user_agent));

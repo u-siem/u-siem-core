@@ -13,11 +13,12 @@ pub static USER_NAME: &str = "user.name";
 pub static USER_DOMAIN: &str = "user.domain";
 pub static SOURCE_IP: &str = "source.ip";
 pub static SOURCE_PORT: &str = "source.port";
+pub static SOURCE_ADDRESS: &str = "source.address";
 /// Amount of bytes sent by the local host
 pub static SOURCE_BYTES: &str = "source.bytes";
 pub static DESTINATION_IP: &str = "destination.ip";
 pub static DESTINATION_PORT: &str = "destination.port";
-
+pub static DESTINATION_ADDRESS: &str = "destination.address";
 /// Amount of bytes sent by the remote host
 pub static DESTINATION_BYTES: &str = "destination.bytes";
 

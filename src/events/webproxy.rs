@@ -1,4 +1,5 @@
 use super::common::{HttpMethod, WebProtocol};
+use super::field::Date;
 use super::field_dictionary::*;
 use crate::prelude::types::LogString;
 use crate::prelude::{SiemField, SiemLog};
@@ -184,7 +185,7 @@ impl std::fmt::Display for WebProxyRuleCategory {
 
 impl From<WebProxyEvent> for SiemLog {
     fn from(val: WebProxyEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
         log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));
         log.add_field(
@@ -211,7 +212,7 @@ impl From<WebProxyEvent> for SiemLog {
         );
         log.add_field(URL_FULL, SiemField::Text(val.url));
         log.add_field(URL_DOMAIN, SiemField::Text(val.domain));
-        log.add_field(USER_NAME, SiemField::User(val.user_name.to_string()));
+        log.add_field(USER_NAME, SiemField::user(val.user_name.to_string()));
         log.add_field(HTTP_RESPONSE_MIME_TYPE, SiemField::Text(val.mime_type));
         if let Some(rule_category) = val.rule_category {
             log.add_field(

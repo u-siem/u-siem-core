@@ -11,6 +11,7 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 
 pub mod sigma;
+pub mod engine;
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SiemRule {

@@ -1,5 +1,5 @@
-use super::protocol::NetworkProtocol;
-use super::{field_dictionary::*, };
+use super::{field::Date, protocol::NetworkProtocol};
+use super::field_dictionary::*;
 use crate::prelude::{types::LogString, SiemField, SiemLog};
 use serde::{Deserialize, Serialize};
 
@@ -136,7 +136,7 @@ impl std::fmt::Display for IntrusionCategory {
 
 impl From<IntrusionEvent> for SiemLog {
     fn from(val: IntrusionEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(SOURCE_IP, SiemField::IP(val.source_ip));
         log.add_field(SOURCE_PORT, SiemField::U64(val.source_port as u64));
         log.add_field(DESTINATION_IP, SiemField::IP(val.destination_ip));

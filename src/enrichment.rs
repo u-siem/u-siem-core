@@ -1,4 +1,4 @@
-use crate::{events::SiemLog, prelude::{store::DatasetStore, LogEnrichmentError}};
+use crate::{events::SiemLog, prelude::{store::DatasetStore, Date, LogEnrichmentError}};
 
 pub type LogEnrichment = fn(&mut SiemLog, &DatasetStore) -> Result<(), LogEnrichmentError>;
 
@@ -17,7 +17,7 @@ fn should_enrich_logs() {
 
     let mut enrichment_array : Vec<LogEnrichment> = Vec::new();
     enrichment_array.push(super_enricher);
-    let mut log = SiemLog::new("test", 1234, "TST");
+    let mut log = SiemLog::new("test", Date(1234), "TST");
     let datasets = DatasetStore::new();
     enrichment_array.iter().try_for_each(|f| f(&mut log,&datasets)).expect("Should add field");
     assert!(log.has_field("test"));

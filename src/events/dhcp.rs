@@ -1,6 +1,6 @@
 use crate::prelude::{mac::mac_u128_to_str, types::LogString, SiemField, SiemLog};
 
-use super::{field_dictionary::*, };
+use super::{field::Date, field_dictionary::*};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -60,7 +60,7 @@ impl DhcpRecordType {
 
 impl From<DhcpEvent> for SiemLog {
     fn from(val: DhcpEvent) -> Self {
-        let mut log = SiemLog::new("", 0, "");
+        let mut log = SiemLog::new("", Date::now(), "");
         log.add_field(
             "host.hostname",
             SiemField::Text(LogString::Owned(val.hostname().to_string())),
